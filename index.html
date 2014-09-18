@@ -29,6 +29,67 @@
                 </ul>
                 <h3 class="text-muted">SNPc</h3>
             </div>
+
+            <div class="row">
+                <div class="col-md-1"></div>
+                <div class="col-md-4 left-col">
+
+                    <h4 class="first">Load your files</h4>
+                    <p>Using the select button on the right, choose your BAM files, BAM index files and the text file containing the variants of interest. Multiple files can be loaded at once.</p>
+                    <h4 class="notFirst">BAM/BAI files</h4>
+                    <p>The BAM files are expected to be indexed and to be named according to the convention that if reads.bam is the BAM file then reads.bam.bai is the index file.</p>
+                    <h4 class="notFirst">Variant text files</h4>
+                    <p>Text files with the variants of interest expects one variant location per line with the locations having the following formats:
+                    <ul>
+                        <li>chr:position</li>
+                        <li>chr-position</li>
+                        <li>chr position</li>
+                        <li>chr,position</li>
+                    </ul> 
+                    </p>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="panel panel-default" id="loadedFilesPanel">
+                        <div class="panel-heading">Loaded Files</div>
+                        <table class="table">
+                            <tr>
+                                <td>
+                                    reads.bam
+                                </td>
+                                <td>
+                                    index found
+                                </td>
+                                <td>
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    reads.bam
+                                </td>
+                                <td>
+                                    index found
+                                </td>
+                                <td>
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="fileUpload btn btn-primary">
+                        <span>Select Files</span>
+                        <input type="file" class="upload" />
+                    </div>
+                    <div class="btn btn-success">
+                        Take me to the View Loaded Files
+                    </div>
+
+                </div>
+                <div class="col-md-1"></div>
+            </div>
+
+            <!--
             <div class="menu-panel">
                 <table>
                     <tr>
@@ -56,6 +117,7 @@
                 </table>
             </div>
             <div id='svgHolder'>Dalliance genome browser goes here.  Unless you have an ancient web browser or something.</div>
+            -->
         </div>
     </body>
 </html>

@@ -1,3 +1,41 @@
+
+.fileUpload {
+    position: relative;
+    overflow: hidden;
+}
+.fileUpload input.upload {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+
+h4 {
+   margin-bottom: 0px;
+   font-weight: bold;
+}
+
+
+h4.notFirst {
+   margin-top: 25px;
+}
+
+h4.first {
+    margin-top: 0px:
+}
+
+.left-col {
+    text-align: right;
+}
+
+.left-col>ul {
+    margin-right: 15px;
+}
+
 .container {
     width: 1200px;
 }
@@ -9,11 +47,11 @@
 .menu-panel table tr td:first-child,
 .menu-panel table tr th:first-child {
     border-left: 0;
-  }
+}
 
-  menu-panel table tr td:last-child,
-  menu-panel table tr th:last-child {
-      border-right: 0;
+menu-panel table tr td:last-child,
+menu-panel table tr th:last-child {
+    border-right: 0;
 }
 
 .menu-panel td {
@@ -80,46 +118,46 @@ body {
 @media (min-width: 768px) {
 .container {
 max-width: 1200px;
-  }
+}
 } */
     .container-narrow > hr {
         margin: 30px 0;
-}
+    }
 
-/* Main marketing message and sign up button */
-.jumbotron {
-    text-align: center;
-    border-bottom: 1px solid #e5e5e5;
-}
-.jumbotron .btn {
-    padding: 14px 24px;
-    font-size: 21px;
-}
+    /* Main marketing message and sign up button */
+    .jumbotron {
+        text-align: center;
+        border-bottom: 1px solid #e5e5e5;
+    }
+    .jumbotron .btn {
+        padding: 14px 24px;
+        font-size: 21px;
+    }
 
-/* Supporting marketing content */
-.marketing {
-    margin: 40px 0;
-}
-.marketing p + h4 {
-    margin-top: 28px;
-}
+    /* Supporting marketing content */
+    .marketing {
+        margin: 40px 0;
+    }
+    .marketing p + h4 {
+        margin-top: 28px;
+    }
 
-/* Responsive: Portrait tablets and up */
-@media screen and (min-width: 768px) {
-    /* Remove the padding we set earlier */
-    .header,
-    .marketing,
-    .footer {
-        padding-right: 0;
-        padding-left: 0;
-  }
-  /* Space out the masthead */
-  .header {
-      margin-bottom: 30px;
-  }
-  /* Remove the bottom border on the jumbotron for visual effect */
-  .jumbotron {
-      border-bottom: 0;
-  }
-}
+    /* Responsive: Portrait tablets and up */
+    @media screen and (min-width: 768px) {
+        /* Remove the padding we set earlier */
+        .header,
+        .marketing,
+        .footer {
+            padding-right: 0;
+            padding-left: 0;
+        }
+        /* Space out the masthead */
+        .header {
+            margin-bottom: 30px;
+        }
+        /* Remove the bottom border on the jumbotron for visual effect */
+        .jumbotron {
+            border-bottom: 0;
+        }
+    }
 
