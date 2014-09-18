@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" href="../../favicon.ico">
+
+        <title>Narrow Jumbotron Template for Bootstrap</title>
+
+        <!-- Bootstrap core CSS -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom styles for this template -->
+        <link href="css/jumbotron-narrow.css" rel="stylesheet">
+        <script language="javascript" src="dalliance/dalliance-all.js"></script>
+        <script language="javascript" src="main.js"></script>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="header">
+                <ul class="nav nav-pills pull-right">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+                <h3 class="text-muted">SNPc</h3>
+            </div>
+            <div class="menu-panel">
+                <table>
+                    <tr>
+                        <td>
+                            <h5>BAM file</h5>
+                            <input type="file" id="bamFile"> 
+                            <h5>BAM index file</h5>
+                            <input type="file" id="baiFile">
+                            <h5>Variant list file</h5>
+                            <input type="file" id="variantListFile">
+                            <br>
+                            <button type="button" onClick="loadFiles();" class="btn btn-default btn-same-size">Load</button>
+                            <button type="button" class="btn btn-default btn-same-size">Clear</button>
+                        </td>
+                        <td class="centered">
+                            <h4>Current Variant</h4>
+                            <h5><div id="currentVariant">23:89238923</div></h5>
+                            <button type="button" onClick="v.prev();" class="btn btn-primary btn-same-size">Previous</button>
+                            <button type="button" onClick="v.next();" class="btn btn-primary btn-same-size">Next</button>
+                        </td>
+                        <td>
+                            <div id="variantSelectListHolder"></div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id='svgHolder'>Dalliance genome browser goes here.  Unless you have an ancient web browser or something.</div>
+        </div>
+    </body>
+</html>
+
+
