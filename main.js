@@ -84,6 +84,152 @@ desc.textContent = res;
 }
 }); */
 
+
+function LoadedFile(file) {
+    this.file = file || null;
+}
+
+LoadedFile.prototype.print = function(message) {
+}
+
+
+function LoadedBamFile(file) {
+    this.base = LoadedFile;
+    this.base(file);
+    this.index = null;
+}
+
+LoadedBamFile.prototype = new LoadedFile;
+
+LoadedBamFile.prototype.print = function(index) {
+    var str = "<tr><td>";
+    str += this.file.name;
+    str += "</td><td>";
+    if (!this.index) {
+        str += "Missing index file";
+    } else {
+        str += "Index loaded";
+    }
+    str += "</td><td><a href=\"#\" onclick=\"removeBAM("
+        str += String(index)
+        str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
+    return str
+}
+
+function LoadedBaiFile(file) {
+    this.base = LoadedFile;
+    this.base(file);
+}
+
+function removeBAM(index) {
+    if (typeof(index) === "string") {
+        index = parseInt(index);
+    }
+    bamFiles.splice(index, 1);
+    printFilesTable();
+}
+
+LoadedBaiFile.prototype = new LoadedFile;
+
+LoadedBaiFile.prototype.print = function(index) {
+    var str = "<tr><td>";
+    str += this.file.name;
+    str += "</td><td>";
+    str += "Missing BAM file";
+    str += "</td><td><a href=\"#\" onclick=\"removeBAI("
+        str += String(index)
+        str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
+    return str
+}
+
+function removeBAI(index) {
+    if (typeof(index) === "string") {
+        index = parseInt(index);
+    }
+    baiFiles.splice(index, 1);
+    printFilesTable();
+}
+
+
+
+//LoadedBaiFile.prototype.print = function() {
+//    this.__proto__.print("No BAM File Found");
+//}
+
+function LoadedVariantFile(file) {
+    this.base = LoadedFile;
+    this.base(file);
+}
+
+LoadedVariantFile.prototype = new LoadedFile;
+
+//LoadedVariantFile.prototype.print = function() {
+//    return this.file.name;
+//}
+
+
+LoadedVariantFile.prototype.print = function(index) {
+    var str = "<tr><td>";
+    str += this.file.name;
+    str += "</td><td>";
+    str += "</td><td><a href=\"#\" onclick=\"removeVariantFile("
+        str += String(index)
+        str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
+    return str
+}
+
+function removeVariantFile(index) {
+    if (typeof(index) === "string") {
+        index = parseInt(index);
+    }
+    variantFiles.splice(index, 1);
+    printFilesTable();
+}
+function LoadedFilesList(files) {
+    this.files = files || [];
+}
+
+LoadedFilesList.prototype.contains = function(file) {
+    for (var i=0; i < this.files.length; ++i) {
+        if (this.files[i].name === file.name) {
+            return true;
+        }
+    }
+    return false;
+}
+
+LoadedFilesList.prototype.add = function(file) {
+    this.files.push(file)
+}
+
+LoadedFilesList.prototype.length = function() {
+    return this.files.length;
+}
+
+var getExtension = function(file) {
+    var parts = file.name.split(".");
+    return parts[parts.length - 1].toLowerCase();
+};
+
+var fileArrayContains = function(fArray, fname) {
+    for (var i=0; i < fArray.length; ++i) {
+        var f = fArray[i];      
+        if (f.file.name === fname) {
+            return i;
+        }
+    }
+    return -1;
+};
+
+var printfArray = function(fArray) {
+    var str = ""
+        for (var i=0; i < fArray.length; ++i) {
+            str += fArray[i].print(i);
+        }
+    return str;
+}
+
+
 function variantLocations(variantFile) {
     this.variantArray = [];
     this.current = 0;
@@ -167,37 +313,81 @@ variantLocations.prototype.prev = function() {
 };
 
 
+var bamFiles = [];
+var baiFiles = [];
+var variantFiles = [];
 
-var v = new variantLocations();
+printFilesTable = function() {
+    var str = printfArray(bamFiles);
+    str += printfArray(baiFiles);
+    str += printfArray(variantFiles);
+    document.getElementById("loadedFilesTable").innerHTML = str;
+    if (bamFiles.length + baiFiles.length + variantFiles.length === 0) {
+        document.getElementById("loadedFilesPanel").setAttribute("style", "display:none");
+        document.getElementById("loadDalliance").setAttribute("style", "display:none");
+        //document.getElementById("loadFiles").setAttribute("style", "margin-top: 20px");
+    } else {
+        document.getElementById("loadedFilesPanel").setAttribute("style", "display:block");
+        document.getElementById("loadDalliance").setAttribute("style", "display:inline");
+        //document.getElementById("loadFiles").setAttribute("style", "margin-top: 0px");
 
-loadFiles = function() {
-    var BAMfile = document.getElementById("bamFile").files[0];
-    var BAIfile = document.getElementById("baiFile").files[0];
-    var variantFile = document.getElementById("variantListFile").files[0];    
 
-    console.log('here it is');
-
-    console.log(BAMfile);
-    console.log(BAIfile);
-    console.log(variantFile);
-
-    var reader = new FileReader();
-    reader.readAsText(variantFile);
-    reader.onload = function() {
-        console.log(reader.result);
-        v.processVariantFile(reader.result);
-        v.gotoCurrentVariant();
     }
 
-    var myBAM = {
-        baiBlob : BAIfile,
-        bamBlob : BAMfile,
-        name : "example",
-        noPersist : true,
-    };
 
-    b.addTier(myBAM);
+}
 
+
+loadFiles = function() {
+    var files = document.getElementById("uploadedFiles").files;
+    for (var i=0; i < files.length; ++i) {
+        var f = files[i];
+        switch (getExtension(f)) {
+            case "bam":
+                var newBam = new LoadedBamFile(f);
+                bamFiles.push(newBam);
+                break;
+            case "bai":
+                var newBai = new LoadedBaiFile(f);
+                baiFiles.push(newBai);
+                break;
+            case "txt":
+                var newVariant = new LoadedVariantFile(f);
+                variantFiles.push(newVariant);
+                break;
+        }
+    }
+
+    for (var i=0; i < bamFiles.length; ++i) {
+        console.log(i);
+        var baiEquivName = bamFiles[i].file.name + ".bai";
+        var baiIndex = fileArrayContains(baiFiles, baiEquivName);
+        if (baiIndex >= 0) {
+            bamFiles[i].index = baiFiles.splice(baiIndex, 1)[0];
+        }
+    }
+    printFilesTable();
+    /* console.log(BAMfile);
+       console.log(BAIfile);
+       console.log(variantFile);
+
+       var reader = new FileReader();
+       reader.readAsText(variantFile);
+       reader.onload = function() {
+       console.log(reader.result);
+       v.processVariantFile(reader.result);
+       v.gotoCurrentVariant();
+       }
+
+       var myBAM = {
+       baiBlob : BAIfile,
+       bamBlob : BAMfile,
+       name : "example",
+       noPersist : true,
+       };
+
+       b.addTier(myBAM);
+       */
 
 };
 

@@ -17,6 +17,11 @@
         <link href="css/jumbotron-narrow.css" rel="stylesheet">
         <script language="javascript" src="dalliance/dalliance-all.js"></script>
         <script language="javascript" src="main.js"></script>
+        <script language="javascript">
+            var v = new variantLocations();
+
+                   </script>
+
     </head>
 
     <body>
@@ -30,7 +35,7 @@
                 <h3 class="text-muted">SNPc</h3>
             </div>
 
-            <div class="row">
+            <div class="row" id="fileLoader">
                 <div class="col-md-1"></div>
                 <div class="col-md-4 left-col">
 
@@ -39,12 +44,11 @@
                     <h4 class="notFirst">BAM/BAI files</h4>
                     <p>The BAM files are expected to be indexed and to be named according to the convention that if reads.bam is the BAM file then reads.bam.bai is the index file.</p>
                     <h4 class="notFirst">Variant text files</h4>
-                    <p>Text files with the variants of interest expects one variant location per line with the locations having the following formats:
-                    <ul>
-                        <li>chr:position</li>
-                        <li>chr-position</li>
-                        <li>chr position</li>
-                        <li>chr,position</li>
+                    <p>Text files with the variants of interest expects one variant location per line with the locations having the following formats:<br><br>
+                    chr:position<br>
+                    chr-position<br>
+                    chr position<br>
+                    chr,position<br>
                     </ul> 
                     </p>
                 </div>
@@ -52,37 +56,15 @@
                 <div class="col-md-6">
                     <div class="panel panel-default" id="loadedFilesPanel">
                         <div class="panel-heading">Loaded Files</div>
-                        <table class="table">
-                            <tr>
-                                <td>
-                                    reads.bam
-                                </td>
-                                <td>
-                                    index found
-                                </td>
-                                <td>
-                                    <span class="glyphicon glyphicon-trash"></span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    reads.bam
-                                </td>
-                                <td>
-                                    index found
-                                </td>
-                                <td>
-                                    <span class="glyphicon glyphicon-trash"></span>
-                                </td>
-                            </tr>
+                        <table class="table"i id="loadedFilesTable">
                         </table>
                     </div>
-                    <div class="fileUpload btn btn-primary">
-                        <span>Select Files</span>
-                        <input type="file" class="upload" />
+                    <div class="fileUpload btn btn-primary" id="loadFiles">
+                        <span>Load Files</span>
+                        <input type="file" multiple class="upload" onchange="loadFiles();" id="uploadedFiles"/>
                     </div>
-                    <div class="btn btn-success">
-                        Take me to the View Loaded Files
+                    <div class="btn btn-success" id="loadDalliance">
+                        Show Loaded Files
                     </div>
 
                 </div>

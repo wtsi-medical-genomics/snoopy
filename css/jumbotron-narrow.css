@@ -14,8 +14,17 @@
     filter: alpha(opacity=0);
 }
 
+#loadedFilesPanel {
+    display: none;
+}
+
+#loadDalliance {
+    display: none;
+}
+
 h4 {
    margin-bottom: 0px;
+   margin-top: 0px;
    font-weight: bold;
 }
 
@@ -29,7 +38,7 @@ h4.first {
 }
 
 .left-col {
-    text-align: right;
+    text-align: justify;
 }
 
 .left-col>ul {
