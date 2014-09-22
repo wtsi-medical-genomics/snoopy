@@ -1,77 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="">
-        <meta name="author" content="">
-        <link rel="icon" href="../../favicon.ico">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="icon" href="../../favicon.ico">
 
-        <title>Narrow Jumbotron Template for Bootstrap</title>
+<title>Narrow Jumbotron Template for Bootstrap</title>
 
-        <!-- Bootstrap core CSS -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap core CSS -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
 
-        <!-- Custom styles for this template -->
-        <link href="css/jumbotron-narrow.css" rel="stylesheet">
-        <script language="javascript" src="dalliance/dalliance-all.js"></script>
-        <script language="javascript" src="main.js"></script>
-        <script language="javascript">
-            var v = new variantLocations();
+<!-- Custom styles for this template -->
+<link href="css/jumbotron-narrow.css" rel="stylesheet">
+<script language="javascript" src="dalliance/dalliance-all.js"></script>
+<script language="javascript" src="main.js"></script>
+<script language="javascript">
+var v = new variantLocations();
 
-                   </script>
+</script>
 
-    </head>
+</head>
 
-    <body>
-        <div class="container">
-            <div class="header">
-                <ul class="nav nav-pills pull-right">
-                    <li class="active"><a href="#">Home</a></li>
-                    <li><a href="#">About</a></li>
-                    <li><a href="#">Contact</a></li>
-                </ul>
-                <h3 class="text-muted">SNPc</h3>
-            </div>
+<body>
+<div class="container">
+    <div class="header">
+        <ul class="nav nav-pills pull-right">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul>
+        <h3 class="text-muted">SNPc</h3>
+    </div>
 
-            <div class="row" id="fileLoader">
-                <div class="col-md-1"></div>
-                <div class="col-md-4 left-col">
+    <div class="row" id="fileLoader">
+        <div class="col-md-1"></div>
+        <div class="col-md-4 left-col">
 
-                    <h4 class="first">Load your files</h4>
-                    <p>Using the select button on the right, choose your BAM files, BAM index files and the text file containing the variants of interest. Multiple files can be loaded at once.</p>
-                    <h4 class="notFirst">BAM/BAI files</h4>
-                    <p>The BAM files are expected to be indexed and to be named according to the convention that if reads.bam is the BAM file then reads.bam.bai is the index file.</p>
-                    <h4 class="notFirst">Variant text files</h4>
-                    <p>Text files with the variants of interest expects one variant location per line with the locations having the following formats:<br><br>
-                    chr:position<br>
-                    chr-position<br>
-                    chr position<br>
-                    chr,position<br>
-                    </ul> 
-                    </p>
-                </div>
+            <h4 class="first">Load your files</h4>
+            <p>Using the select button on the right, choose your BAM files, BAM index files and the text file containing the variants of interest. Multiple files can be loaded at once.</p>
+            <h4 class="notFirst">BAM/BAI files</h4>
+            <p>The BAM files are expected to be indexed and to be named according to the convention that if reads.bam is the BAM file then reads.bam.bai is the index file.</p>
+            <h4 class="notFirst">Variant text files</h4>
+            <p>Text files with the variants of interest expects one variant location per line with the locations having the following formats:<br><br>
+            chr:position<br>
+            chr-position<br>
+            chr position<br>
+            chr,position<br>
+        </ul> 
+        </p>
+    </div>
 
-                <div class="col-md-6">
-                    <div class="panel panel-default" id="loadedFilesPanel">
-                        <div class="panel-heading">Loaded Files</div>
-                        <table class="table"i id="loadedFilesTable">
-                        </table>
-                    </div>
-                    <div class="fileUpload btn btn-primary" id="loadFiles">
-                        <span>Load Files</span>
-                        <input type="file" multiple class="upload" onchange="loadFiles();" id="uploadedFiles"/>
-                    </div>
-                    <div class="btn btn-success" id="loadDalliance">
-                        Show Loaded Files
-                    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default" id="loadedFilesPanel">
+            <div class="panel-heading">Loaded Files</div>
+            <table class="table"i id="loadedFilesTable">
+            </table>
+        </div>
+        <div class="btn btn-primary btn-file">
+            Load Files <input type="file" multiple id="fileLoaded">
+        </div>
+        <div class="btn btn-success" id="loadDalliance">
+            Show Loaded Files
+        </div>
 
-                </div>
-                <div class="col-md-1"></div>
-            </div>
+    </div>
+    <div class="col-md-1"></div>
+</div>
 
-            <!--
+<!--
             <div class="menu-panel">
                 <table>
                     <tr>
@@ -100,8 +99,7 @@
             </div>
             <div id='svgHolder'>Dalliance genome browser goes here.  Unless you have an ancient web browser or something.</div>
             -->
-        </div>
-    </body>
+</body>
 </html>
 
 

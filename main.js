@@ -1,3 +1,7 @@
+window.onload = function() {
+  document.getElementById("fileLoaded").addEventListener("change", loadFiles, false);
+};
+
 var b = new Browser({
     chr:          '22',
     viewStart:    30000000,
@@ -236,7 +240,7 @@ function variantLocations(variantFile) {
 }
 
 
-function updateByList () {
+function updateByList() {
     var selected = document.getElementById("mySelect");
     console.log(selected);
     v.current = selected.value;
@@ -338,8 +342,9 @@ printFilesTable = function() {
 }
 
 
-loadFiles = function() {
-    var files = document.getElementById("uploadedFiles").files;
+function loadFiles() {
+    console.log("I'm here now");
+    var files = document.getElementById("fileLoaded").files;
     for (var i=0; i < files.length; ++i) {
         var f = files[i];
         switch (getExtension(f)) {
@@ -367,6 +372,7 @@ loadFiles = function() {
         }
     }
     printFilesTable();
+
     /* console.log(BAMfile);
        console.log(BAIfile);
        console.log(variantFile);
@@ -388,7 +394,14 @@ loadFiles = function() {
 
        b.addTier(myBAM);
        */
-
+    resetFileLoaded();
 };
 
-
+function resetFileLoaded() {
+    var oldFileLoad = document.getElementById("fileLoaded");
+    var newFileLoad = makeElement('input', null, {id: 'fileLoaded', type: 'file', multiple: 'multiple'});
+    newFileLoad.addEventListener("change", loadFiles, false);
+    var father = oldFileLoad.parentNode;
+    console.log(father);
+    father.replaceChild(newFileLoad, oldFileLoad); 
+}
