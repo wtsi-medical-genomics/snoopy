@@ -1,4 +1,6 @@
-
+#svgHolder {
+    display: none;
+}
 .btn-file {
     position: relative;
     overflow: hidden;

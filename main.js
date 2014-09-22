@@ -1,5 +1,6 @@
 window.onload = function() {
-  document.getElementById("fileLoaded").addEventListener("change", loadFiles, false);
+    document.getElementById("fileLoaded").addEventListener("change", loadFiles, false);
+    document.getElementById("loadDalliance").addEventListener("click", loadDalliance, false);
 };
 
 var b = new Browser({
@@ -46,7 +47,7 @@ var b = new Browser({
         pinned: true
     }],
     setDocumentTitle: true,
-    uiPrefix: 'file:///nfs/users/nfs_d/dr9/snpshow/dalliance/',
+    uiPrefix: 'file:///home/daniel/repositories/snpshow/dalliance/',
     fullScreen: true,
 
     browserLinks: {
@@ -404,4 +405,17 @@ function resetFileLoaded() {
     var father = oldFileLoad.parentNode;
     console.log(father);
     father.replaceChild(newFileLoad, oldFileLoad); 
+}
+
+function loadDalliance() {
+    for (var i=0; i < bamFiles.length; ++i) {
+        var bamFile = bamFiles[i];
+        var bamObj = {
+            baiBlob : bamFile.index.file,
+            bamBlob : bamfile.file,
+            name : bamFile.file.name, 
+            noPersist : true,
+        }
+        b.addTier(bamObj);
+    }
 }

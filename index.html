@@ -36,12 +36,11 @@ var v = new variantLocations();
     </div>
 
     <div class="row" id="fileLoader">
-        <div class="col-md-1"></div>
-        <div class="col-md-4 left-col">
-
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
             <h4 class="first">Load your files</h4>
             <p>Using the select button on the right, choose your BAM files, BAM index files and the text file containing the variants of interest. Multiple files can be loaded at once.</p>
-            <h4 class="notFirst">BAM/BAI files</h4>
+            <!--<h4 class="notFirst">BAM/BAI files</h4>
             <p>The BAM files are expected to be indexed and to be named according to the convention that if reads.bam is the BAM file then reads.bam.bai is the index file.</p>
             <h4 class="notFirst">Variant text files</h4>
             <p>Text files with the variants of interest expects one variant location per line with the locations having the following formats:<br><br>
@@ -51,9 +50,7 @@ var v = new variantLocations();
             chr,position<br>
         </ul> 
         </p>
-    </div>
-
-    <div class="col-md-6">
+-->
         <div class="panel panel-default" id="loadedFilesPanel">
             <div class="panel-heading">Loaded Files</div>
             <table class="table"i id="loadedFilesTable">
@@ -67,7 +64,8 @@ var v = new variantLocations();
         </div>
 
     </div>
-    <div class="col-md-1"></div>
+</div>
+<div class="col-md-3"></div>
 </div>
 
 <!--
@@ -97,8 +95,8 @@ var v = new variantLocations();
                     </tr>
                 </table>
             </div>
+-->
             <div id='svgHolder'>Dalliance genome browser goes here.  Unless you have an ancient web browser or something.</div>
-            -->
 </body>
 </html>
 
