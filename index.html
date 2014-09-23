@@ -1,103 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="">
-<meta name="author" content="">
-<link rel="icon" href="../../favicon.ico">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" href="../../favicon.ico">
 
-<title>Narrow Jumbotron Template for Bootstrap</title>
+        <title>Narrow Jumbotron Template for Bootstrap</title>
 
-<!-- Bootstrap core CSS -->
-<link href="css/bootstrap.min.css" rel="stylesheet">
+        <!-- Bootstrap core CSS -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
 
-<!-- Custom styles for this template -->
-<link href="css/jumbotron-narrow.css" rel="stylesheet">
-<script language="javascript" src="dalliance/dalliance-all.js"></script>
-<script language="javascript" src="main.js"></script>
-<script language="javascript">
+        <!-- Custom styles for this template -->
+        <link href="css/jumbotron-narrow.css" rel="stylesheet">
+        <script language="javascript" src="dalliance/dalliance-all.js"></script>
+        <script language="javascript" src="main.js"></script>
+        <script language="javascript">
 var v = new variantLocations();
 
-</script>
+        </script>
 
-</head>
+    </head>
 
-<body>
-<div class="container">
-    <div class="header">
-        <ul class="nav nav-pills pull-right">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Contact</a></li>
-        </ul>
-        <h3 class="text-muted">SNPc</h3>
-    </div>
-
-    <div class="row" id="fileLoader">
-        <div class="col-md-3"></div>
-        <div class="col-md-6">
-            <h4 class="first">Load your files</h4>
-            <p>Using the select button on the right, choose your BAM files, BAM index files and the text file containing the variants of interest. Multiple files can be loaded at once.</p>
-            <!--<h4 class="notFirst">BAM/BAI files</h4>
-            <p>The BAM files are expected to be indexed and to be named according to the convention that if reads.bam is the BAM file then reads.bam.bai is the index file.</p>
-            <h4 class="notFirst">Variant text files</h4>
-            <p>Text files with the variants of interest expects one variant location per line with the locations having the following formats:<br><br>
-            chr:position<br>
-            chr-position<br>
-            chr position<br>
-            chr,position<br>
-        </ul> 
-        </p>
--->
-        <div class="panel panel-default" id="loadedFilesPanel">
-            <div class="panel-heading">Loaded Files</div>
-            <table class="table"i id="loadedFilesTable">
-            </table>
-        </div>
-        <div class="btn btn-primary btn-file">
-            Load Files <input type="file" multiple id="fileLoaded">
-        </div>
-        <div class="btn btn-success" id="loadDalliance">
-            Show Loaded Files
-        </div>
-
-    </div>
-</div>
-<div class="col-md-3"></div>
-</div>
-
-<!--
-            <div class="menu-panel">
-                <table>
-                    <tr>
-                        <td>
-                            <h5>BAM file</h5>
-                            <input type="file" id="bamFile"> 
-                            <h5>BAM index file</h5>
-                            <input type="file" id="baiFile">
-                            <h5>Variant list file</h5>
-                            <input type="file" id="variantListFile">
-                            <br>
-                            <button type="button" onClick="loadFiles();" class="btn btn-default btn-same-size">Load</button>
-                            <button type="button" class="btn btn-default btn-same-size">Clear</button>
-                        </td>
-                        <td class="centered">
-                            <h4>Current Variant</h4>
-                            <h5><div id="currentVariant">23:89238923</div></h5>
-                            <button type="button" onClick="v.prev();" class="btn btn-primary btn-same-size">Previous</button>
-                            <button type="button" onClick="v.next();" class="btn btn-primary btn-same-size">Next</button>
-                        </td>
-                        <td>
-                            <div id="variantSelectListHolder"></div>
-                        </td>
-                    </tr>
-                </table>
+    <body>
+        <div class="container">
+            <div class="header">
+                <ul class="nav nav-pills pull-right">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+                <h3 class="text-muted">SNPc</h3>
             </div>
--->
-            <div id='svgHolder'>Dalliance genome browser goes here.  Unless you have an ancient web browser or something.</div>
-</body>
+
+            <div class="row" id="fileLoader">
+                <div class="col-md-3"></div>
+                <div class="col-md-6">
+                    <h4 class="first">Load your files</h4>
+                    <p>Using the select button on the right, choose your BAM files, BAM index files and the text file containing the variants of interest. Multiple files can be loaded at once.</p>
+                    <!--<h4 class="notFirst">BAM/BAI files</h4>
+                        <p>The BAM files are expected to be indexed and to be named according to the convention that if reads.bam is the BAM file then reads.bam.bai is the index file.</p>
+                        <h4 class="notFirst">Variant text files</h4>
+                        <p>Text files with the variants of interest expects one variant location per line with the locations having the following formats:<br><br>
+                        chr:position<br>
+                        chr-position<br>
+                        chr position<br>
+                        chr,position<br>
+                        </ul> 
+                        </p>
+                    -->
+                    <br>
+                    <div class="btn btn-primary btn-file">
+                        Load Files <input type="file" multiple id="fileLoaded">
+                    </div>
+
+                    <div class="panel panel-default" id="loadedFilesPanel">
+                        <div class="panel-heading">Loaded Files</div>
+                        <table class="table" id="loadedFilesTable">
+                        </table>
+                    </div>
+                     <div class="btn btn-success" id="loadDalliance">
+                         View Loaded Files <span class="glyphicon glyphicon-chevron-right"></span> 
+                    </div>
+
+               </div>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+
+        <!--
+            <div class="menu-panel">
+            <table>
+            <tr>
+            <td>
+            <h5>BAM file</h5>
+            <input type="file" id="bamFile"> 
+            <h5>BAM index file</h5>
+            <input type="file" id="baiFile">
+            <h5>Variant list file</h5>
+            <input type="file" id="variantListFile">
+            <br>
+            <button type="button" onClick="loadFiles();" class="btn btn-default btn-same-size">Load</button>
+            <button type="button" class="btn btn-default btn-same-size">Clear</button>
+            </td>
+            <td class="centered">
+            <h4>Current Variant</h4>
+            <h5><div id="currentVariant">23:89238923</div></h5>
+            <button type="button" onClick="v.prev();" class="btn btn-primary btn-same-size">Previous</button>
+            <button type="button" onClick="v.next();" class="btn btn-primary btn-same-size">Next</button>
+            </td>
+            <td>
+            <div id="variantSelectListHolder"></div>
+            </td>
+            </tr>
+            </table>
+            </div>
+        -->
+        <div id='svgHolder'>Dalliance genome browser goes here.  Unless you have an ancient web browser or something.</div>
+    </body>
 </html>
 
 
