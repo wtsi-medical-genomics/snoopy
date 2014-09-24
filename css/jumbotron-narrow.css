@@ -1,9 +1,27 @@
-.panel {
-    margin-top: 20px;
+.qc {
+    padding-top: 30px;
+}
+.row {
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
-#svgHolder {
+#control-center {
+    padding-top: 10px;
+    text-align: center;
     display: none;
+}
+
+.control-center-left {
+    padding-right: 5px;
+}
+
+.control-center-right {
+    padding-left: 5px;
+}
+
+#bigSpacer {
+    height: 3000px;    
 }
 .btn-file {
     position: relative;
@@ -33,13 +51,6 @@
 #loadDalliance {
     display: none;
 }
-
-h4 {
-    margin-bottom: 0px;
-    margin-top: 0px;
-    font-weight: bold;
-}
-
 
 h4.notFirst {
     margin-top: 25px;

@@ -15,10 +15,11 @@
 
         <!-- Custom styles for this template -->
         <link href="css/jumbotron-narrow.css" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> 
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
         <script language="javascript" src="dalliance/dalliance-all.js"></script>
         <script language="javascript" src="main.js"></script>
         <script language="javascript">
-var v = new variantLocations();
 
         </script>
 
@@ -55,19 +56,66 @@ var v = new variantLocations();
                     <div class="btn btn-primary btn-file">
                         Load Files <input type="file" multiple id="fileLoaded">
                     </div>
-
+                    <br>
+                    <br>
                     <div class="panel panel-default" id="loadedFilesPanel">
                         <div class="panel-heading">Loaded Files</div>
                         <table class="table" id="loadedFilesTable">
                         </table>
                     </div>
-                     <div class="btn btn-success" id="loadDalliance">
-                         View Loaded Files <span class="glyphicon glyphicon-chevron-right"></span> 
+                    <div class="btn btn-success" id="loadDalliance">
+                        View Loaded Files <span class="glyphicon glyphicon-chevron-right"></span> 
                     </div>
 
-               </div>
+                </div>
+                <div class="col-md-3"></div>
             </div>
-            <div class="col-md-3"></div>
+            <div class="row" id="control-center">
+                <div class="col-md-2"></div>
+                <div class="col-md-4 control-center-left">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div class="panel-title">Candidate Variant</div>
+                        </div>
+                        <div class="panel-body">
+                            <h4><div id="currentVariant"></div></h4>
+                            <br>
+                            <button type="button" onClick="v.prev();" class="btn btn-success btn-same-size">Previous</button>
+                            <button type="button" onClick="v.next();" class="btn btn-success btn-same-size">Next</button>
+                            <div class="qc">Quality control: Is this a varaiant?
+                                <div class="btn-group" data-toggle="buttons" id="qcDecision">
+                                    <label class="btn btn-default" id="qcNo">
+                                        <input type="radio" name="options" value="-1">No
+                                    </label>
+                                    <label class="btn btn-default">
+                                        <input type="radio" name="options" id="qcMaybe" value="0">Maybe
+                                    </label>
+                                    <label class="btn btn-default">
+                                        <input type="radio" name="options" id="qcYes" value="1">Yes
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 control-center-right">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div class="panel-title">Candidate Variant List</div>
+                        </div>
+                        <div class="panel-body">
+                            <div id="variantSelectListHolder"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+            <div id="bigSpacer"></div>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id='svgHolder'>Dalliance genome browser goes here.  Unless you have an ancient web browser or something.</div>
+                </div>
+            </div>
         </div>
 
         <!--
@@ -98,7 +146,6 @@ var v = new variantLocations();
             </table>
             </div>
         -->
-        <div id='svgHolder'>Dalliance genome browser goes here.  Unless you have an ancient web browser or something.</div>
     </body>
 </html>
 
