@@ -293,18 +293,7 @@ for (i = 0; i < textArray.length; i++) {
     }
 }
 
-var myDiv = document.getElementById("variantSelectListHolder");
 
-
-//Create and append select list
-var selectList = document.createElement("select");
-selectList.id = "mySelect";
-selectList.className = "form-control";
-selectList.size = 10;
-selectList.onchange = function(){v.updateByList();};
-myDiv.appendChild(selectList);
-
-this.refreshSelectList();
 
 //var option = document.getElementById("").options[0];
 //option.value = option.text = getYear();
@@ -479,6 +468,16 @@ function loadDalliance() {
         console.log(bamObj);
         b.addTier(bamObj);
     }
+    //Create and append select list
+    var myDiv = document.getElementById("variantSelectListHolder");
+    var selectList = document.createElement("select");
+    selectList.id = "mySelect";
+    selectList.className = "form-control";
+    selectList.size = 10;
+    selectList.onchange = function(){v.updateByList();};
+    myDiv.appendChild(selectList);
+
+
 
     var reader = new FileReader();
     reader.readAsText(variantFiles[0].file);
@@ -486,6 +485,7 @@ function loadDalliance() {
         console.log(reader.result);
         v.processVariantFile(reader.result);
         v.gotoCurrentVariant();
+        v.refreshSelectList();
     }
     setTimeout(function(){b.zoomStep(-1000000)}, 1000);    
     document.getElementById("fileLoader").setAttribute("style", "display: none");
