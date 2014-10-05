@@ -60,7 +60,7 @@ var b = new Browser({
     }],
     setDocumentTitle: true,
     //uiPrefix: 'file:///home/daniel/repositories/snpshow/dalliance/',
-    uiPrefix: 'file:///Users/dr9/Developer/snpshow/dalliance/',
+    uiPrefix: 'file:///Users/dr9/Developer/snoop/dalliance/',
         fullScreen: false,
 
     browserLinks: {
