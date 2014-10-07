@@ -3,10 +3,14 @@
 }i*/
 
 #my-dalliance-holder {
-    visibility: hidden;
+    opacity: 0;
     background-color: white;
-    height: 100%;
 }
+
+p.justify {
+    text-align: justify;
+}
+
 .qc {
     padding-top: 30px;
 }
@@ -28,6 +32,11 @@
 .center.navbar .navbar-nav > li > a:hover, .nav > li > a:focus {
     text-decoration: none;
     background-color: lightgrey;
+}
+
+li.spaced {
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .center .navbar-inner {

@@ -15,6 +15,7 @@
         <!-- Custom styles for this template -->
         <link href="css/style.css" rel="stylesheet">
         <script language="javascript" src="dalliance/dalliance-all.js"></script>
+        <script language="javascript" src="js/loadedfiletypes.js"></script>
         <script language="javascript" src="js/main.js"></script>
 
         <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
@@ -53,24 +54,29 @@
         <div class="navbar navbar-default navbar-fixed-top nav-toolbar center" role="navigation">
             <div class="navbar-inner">
                 <ul class="nav navbar-nav">
-                    <li><a href="#"><span class="glyphicon glyphicon-download-alt"></span> Download</a></li>
-                    <li><a href="#"><span class="glyphicon glyphicon-chevron-left"></span> Previous</a></li>
-                    <li><select class="form-control">
-                            <option>16 : 48,000,281 + </option>
-                            <option>16 : 48,000,281 - </option>
-                        </select></li>
-                        <li><a href="#about">Not a Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
-                        <li><a href="#contact"> Potential Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
-                        <li><a href="#contact">Certain Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                    <li class="spaced"><div class="btn-group">
+                            <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-repeat"></span></button>
+                            <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-plus"></span></button>
+                            <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-download-alt"></span></button>
+                        </div></li>
+                        <li><a href="#"><span class="glyphicon glyphicon-chevron-left"></span> Previous</a></li>
+                        <li class="spaced"><select class="form-control">
+                                <option>16 : 48,000,281 &#x2713; </option>
+                                <option>16 : 48,000,281 &#x2717; </option>
+                                <option>16 : 48,000,281 ? </option>
+                            </select></li>
+                            <li><a href="#" id="qcNotVariant">Not a Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                            <li><a href="#" id="qcPotentialVariant"> Potential Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                            <li><a href="#" id="qcCertainVariant">Certain Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
                 </ul>
             </div>
         </div>
-        
+
         <div class="progress">
             <div class="progress-bar" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width: 10%;">
             </div>
         </div>
-        
+
         <div class="container">
             <div class="row" id="fileLoader">
                 <div class="col-md-3"></div>
@@ -78,8 +84,8 @@
 
                     <div class="panel panel-default" id="stepOne">
                         <div class="panel-body">
-                            <h4 class="first">Load your files</h4>
-                            <p>Using the select button on the right, choose your BAM files, BAM index files and the text file containing the variants of interest. Multiple files can be loaded at once.</p>
+                            <h4 class="first">Welcome to SNooP</h4>
+                            <p class="justify">With this tool you can review potential variant sites in short reads. The first step is to load your BAM and BAI files (x.bam will expect x.bam.bai) along with a text file containing the variant locations of interest. Note that multiple files can be selected at once.</p>
                             <!--<h4 class="notFirst">BAM/BAI files</h4>
                                 <p>The BAM files are expected to be indexed and to be named according to the convention that if reads.bam is the BAM file then reads.bam.bai is the index file.</p>
                                 <h4 class="notFirst">Variant text files</h4>
@@ -92,23 +98,26 @@
                                 </p>
                             -->
                             <br>
-                            <div class="btn btn-primary btn-file">
-                                Load Files <input type="file" multiple id="fileLoaded">
-                            </div>
                         </div>
                     </div>
                     <div class="panel panel-default step-two" id="loadedFilesPanel">
-                        <div class="panel-body">
-                            <div class="panel panel-default">
-                                <div class="panel-heading">Loaded Files</div>
-                                <table class="table" id="loadedFilesTable">
-                                </table>
-                            </div>
-                            <div class="btn btn-success" id="loadDalliance">
-                                View Loaded Files <span class="glyphicon glyphicon-chevron-right"></span> 
-                            </div>
+                        <div class="panel-heading">Loaded Files</div>
+                        <table class="table" id="loadedFilesTable">
+                        </table>
+                    </div>
+                    <div class="btn-group">
+                        <div class="file-input btn btn-primary btn-file">
+                            <span class="glyphicon glyphicon-upload"></span> <span id="loadFilesText">Load Files</span><input type="file" multiple id="fileLoaded">
                         </div>
                     </div>
+
+
+                    <div class="btn-group">
+                        <div class="btn btn-success" id="loadDalliance">
+                            <span class="glyphicon glyphicon-search"></span> Start Qaulity Control Review 
+                        </div>
+                    </div>
+
                 </div>
                 <div class="col-md-3"></div>
             </div>
