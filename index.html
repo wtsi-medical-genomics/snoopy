@@ -31,49 +31,46 @@
     <body>
 
         <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-            <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="#">SNooP</a>
-                </div>
-                <div class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav">
-                        <li class="active"><a href="#">Help</a></li>
-                        <li><a href="#about">About</a></li>
-                        <li><a href="#contact">GitHub</a></li>
-                    </ul>
-                </div><!--/.nav-collapse -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand navbar-center" href="#">SNooP</a>
             </div>
+            <div class="collapse navbar-collapse navbar-right">
+                <ul class="nav navbar-nav">
+                    <li><a href="#">Help</a></li>
+                    <li><a href="#">Settings</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">GitHub</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
         </div>
 
-        <div class="navbar navbar-default " role="navigation">
-            <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="#">SNooP</a>
-                </div>
-                <div class="collapse navbar-collapse">
-                    <ul class="nav navbar-nav">
-                        <li class="active"><a href="#">Help</a></li>
-                        <li><a href="#about">About</a></li>
-                        <li><a href="#contact">GitHub</a></li>
-                    </ul>
-                </div><!--/.nav-collapse -->
+        <div class="navbar navbar-default navbar-fixed-top nav-toolbar center" role="navigation">
+            <div class="navbar-inner">
+                <ul class="nav navbar-nav">
+                    <li><a href="#"><span class="glyphicon glyphicon-download-alt"></span> Download</a></li>
+                    <li><a href="#"><span class="glyphicon glyphicon-chevron-left"></span> Previous</a></li>
+                    <li><select class="form-control">
+                            <option>16 : 48,000,281 + </option>
+                            <option>16 : 48,000,281 - </option>
+                        </select></li>
+                        <li><a href="#about">Not a Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                        <li><a href="#contact"> Potential Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                        <li><a href="#contact">Certain Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                </ul>
             </div>
         </div>
-
-
-
+        
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width: 10%;">
+            </div>
+        </div>
+        
         <div class="container">
             <div class="row" id="fileLoader">
                 <div class="col-md-3"></div>
@@ -158,7 +155,7 @@
                             <div class="panel-title">Settings</div>
                         </div>
                         <div class="panel-body">
-                        Hellow
+                            Hellow
                         </div>
                     </div>
                 </div>

@@ -15,7 +15,37 @@
     padding-bottom: 5px;
 }
 
+.nav-toolbar {
+    margin-top:50px;
+}
 
+.center.navbar .nav,
+.center.navbar .nav > li {
+    float:none;
+    display:inline-block;
+}
+
+.center.navbar .navbar-nav > li > a:hover, .nav > li > a:focus {
+    text-decoration: none;
+    background-color: lightgrey;
+}
+
+.center .navbar-inner {
+    text-align:center;
+}
+
+.navbar-nav-center {
+    width: 40%;
+    text-align: center;
+    > li {
+        float: none;
+        display: inline-block;
+    }
+}
+
+.toolbar-holder {
+    width: 100%;
+}
 #control-center {
     padding: 0px;
     text-align: center;
@@ -130,7 +160,7 @@ menu-panel table tr th:last-child {
 /* Space out content a bit */
 body {
     background-color: Gainsboro;
-    padding-top: 50px;
+    padding-top: 100px;
     padding-bottom: 20px;
 }
 
