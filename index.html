@@ -16,6 +16,7 @@
         <link href="css/style.css" rel="stylesheet">
         <script language="javascript" src="dalliance/dalliance-all.js"></script>
         <script language="javascript" src="js/loadedfiletypes.js"></script>
+        <script language="javascript" src="js/variants.js"></script>
         <script language="javascript" src="js/main.js"></script>
 
         <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
@@ -60,19 +61,17 @@
                             <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-download-alt"></span></button>
                         </div></li>
                         <li><a href="#"><span class="glyphicon glyphicon-chevron-left"></span> Previous</a></li>
-                        <li class="spaced"><select class="form-control">
-                                <option>16 : 48,000,281 &#x2713; </option>
-                                <option>16 : 48,000,281 &#x2717; </option>
-                                <option>16 : 48,000,281 ? </option>
-                            </select></li>
-                            <li><a href="#" id="qcNotVariant">Not a Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
-                            <li><a href="#" id="qcPotentialVariant"> Potential Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
-                            <li><a href="#" id="qcCertainVariant">Certain Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                        <li class="spaced">
+                            <div id="variantSelectListHolder"></div>
+                        </li>
+                        <li><a href="#" id="qcNotVariant">Not a Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                        <li><a href="#" id="qcPotentialVariant"> Potential Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                        <li><a href="#" id="qcCertainVariant">Certain Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
                 </ul>
             </div>
         </div>
 
-        <div class="progress">
+        <div class="progress progress-bar-fixed">
             <div class="progress-bar" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width: 10%;">
             </div>
         </div>
@@ -128,7 +127,6 @@
                             <div class="panel-title">Candidate Variant List</div>
                         </div>
                         <div class="panel-body">
-                            <div id="variantSelectListHolder"></div>
                         </div>
                     </div>
                 </div>

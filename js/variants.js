@@ -1,14 +1,27 @@
 "use strict";
 
-variantLocations.prototype.setQC = function() {
+function variantLocations() {
+    this.variantArray = [];
+    this.current = 0;
+}
+
+variantLocations.prototype.updateByList = function() {
+    this.setQC();
+    var selected = document.getElementById("mySelect");
+    console.log(selected);
+    this.current = selected.value;
+    this.gotoCurrentVariant();
+}
+
+variantLocations.prototype.setQC = function(decision) {
     console.log("setQC");
-    var decision = $("#qcDecision input:radio:checked").val();
-    if (decision !== undefined) {
-        this.variantArray[this.current][2] = parseInt(decision);
-        $("#qcDecision input:radio:checked").prop("checked", false);
-        $("#qcDecision label").removeClass("active");
-        this.refreshSelectList();
-    }
+    var variant = this.variantArray[this.current];
+    variant[2] = decision;
+    this.variantArray[this.current] = variant;
+    //    $("#qcDecision input:radio:checked").prop("checked", false);
+    //    $("#qcDecision label").removeClass("active");
+    this.refreshSelectList();
+    v.next();
 }
 
 variantLocations.prototype.processVariantFile = function(fileText) {
@@ -35,7 +48,7 @@ variantLocations.prototype.refreshSelectList = function() {
     for (var i = 0; i < stringArray.length; i++) {
         var option = document.createElement("option");
         option.value = i;
-        option.text = stringArray[i];
+        option.innerHTML = stringArray[i];
         selectList.appendChild(option);
     }
 };
@@ -46,13 +59,13 @@ variantLocations.prototype.getStringArray = function() {
         var s = this.variantArray[i][0] + ":" + this.variantArray[i][1];
         switch (this.variantArray[i][2]) {
             case -1:
-                s += " - not a variant";
+                s += " &#x2717;";
             break;
             case 0:
-                s += " - maybe a variant";
+                s += " ?";
             break;
             case 1:
-                s += " - variant";
+                s += " &#x2713;";
             break;
         }
         stringArray[i] = s;
@@ -73,7 +86,6 @@ variantLocations.prototype.gotoCurrentVariant = function() {
 };
 
 variantLocations.prototype.next = function() {
-    this.setQC();
     if (this.current < this.variantArray.length - 1) {
         this.current++;
         this.gotoCurrentVariant();

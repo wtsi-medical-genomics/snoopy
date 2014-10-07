@@ -7,15 +7,17 @@
 //    }
 //});
 
+var v = new variantLocations();
+
 window.onload = function() {
     // Listen for button to load files
     document.getElementById("fileLoaded").addEventListener("change", loadFiles, false);
     // Listen for butoon to load the dalliance viwer
     document.getElementById("loadDalliance").addEventListener("click", loadDalliance, false);
     //Licsten for quality control
-    document.getElementById("qcNotVariant").addEventListener("click", v.setQC(-1), false);
-    document.getElementById("qcPotentialVariant").addEventListener("click", v.setQC-(0), false);
-    document.getElementById("qcCertainVariant").addEventListener("click", v.setQC(1), false);
+    document.getElementById("qcNotVariant").addEventListener("click", function(){v.setQC(-1);}, false);
+    document.getElementById("qcPotentialVariant").addEventListener("click", function(){v.setQC(0);}, false);
+    document.getElementById("qcCertainVariant").addEventListener("click", function(){v.setQC(1);}, false);
 };
 
 var b = new Browser({
@@ -172,10 +174,6 @@ function resetFileLoaded() {
     father.replaceChild(newFileLoad, oldFileLoad); 
 }
 
-var v = new variantLocations();
-
-
-
 function loadDalliance() {
     for (var i=0; i < bamFiles.length; ++i) {
         var bamFile = bamFiles[i];
@@ -195,7 +193,6 @@ function loadDalliance() {
     var selectList = document.createElement("select");
     selectList.id = "mySelect";
     selectList.className = "form-control";
-    selectList.size = 10;
     selectList.onchange = function(){v.updateByList();};
     myDiv.appendChild(selectList);
 

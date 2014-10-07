@@ -23,6 +23,12 @@ p.justify {
     margin-top:50px;
 }
 
+.progress-bar-fixed {
+    position: fixed;
+    width: 100%;
+    z-index: 1030; 
+}
+
 .center.navbar .nav,
 .center.navbar .nav > li {
     float:none;
@@ -55,6 +61,7 @@ li.spaced {
 .toolbar-holder {
     width: 100%;
 }
+
 #control-center {
     padding: 0px;
     text-align: center;
