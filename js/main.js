@@ -14,7 +14,9 @@ window.onload = function() {
     document.getElementById("fileLoaded").addEventListener("change", loadFiles, false);
     // Listen for butoon to load the dalliance viwer
     document.getElementById("loadDalliance").addEventListener("click", loadDalliance, false);
-    //Licsten for quality control
+    // Listen for previous click
+    document.getElementById("goBack").addEventListener("click", function(){v.prev();}, false);
+    // Listen for quality control
     document.getElementById("qcNotVariant").addEventListener("click", function(){v.setQC(-1);}, false);
     document.getElementById("qcPotentialVariant").addEventListener("click", function(){v.setQC(0);}, false);
     document.getElementById("qcCertainVariant").addEventListener("click", function(){v.setQC(1);}, false);

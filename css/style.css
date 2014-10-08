@@ -23,6 +23,10 @@ p.justify {
     margin-top:50px;
 }
 
+.progress {
+    height: 10px;
+}
+
 .progress-bar-fixed {
     position: fixed;
     width: 100%;

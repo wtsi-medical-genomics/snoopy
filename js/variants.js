@@ -13,14 +13,23 @@ variantLocations.prototype.updateByList = function() {
 }
 
 variantLocations.prototype.setQC = function(decision) {
-    console.log("setQC");
-    var variant = this.variantArray[this.current];
-    variant[2] = decision;
-    this.variantArray[this.current] = variant;
-    //    $("#qcDecision input:radio:checked").prop("checked", false);
-    //    $("#qcDecision label").removeClass("active");
+    this.variantArray[this.current][2] = decision;
     this.refreshSelectList();
+    this.refreshProgressBar();
     v.next();
+}
+
+variantLocations.prototype.refreshProgressBar = function() {
+    var progress = 0;
+    for (var i=0; i<this.variantArray.length; i++) {
+        if(this.variantArray[i][2] > -99) {
+            progress++;
+        }
+    }
+    var percent = "" + (100*progress/this.variantArray.length)|0;
+    var progressBar = document.getElementById("variantProgress");
+    progressBar.setAttribute("aria-valuenow", percent);
+    progressBar.style.width = percent + "%";
 }
 
 variantLocations.prototype.processVariantFile = function(fileText) {
@@ -90,11 +99,9 @@ variantLocations.prototype.next = function() {
 };
 
 variantLocations.prototype.prev = function() {
-    this.setQC();
     if (this.current > 0) {
         this.current--;
         this.gotoCurrentVariant();
-
     }
 };
 
