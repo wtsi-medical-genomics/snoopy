@@ -104,10 +104,7 @@ function printFilesTable() {
        // document.getElementById("loadFiles").setAttribute("style", "margin-top: 0px");
         document.getElementById("stepOne").setAttribute("style", "margin-top: 5%");
         document.getElementById("loadFilesText").innerHTML = "Load More Files";
-
     }
-
-
 }
 
 

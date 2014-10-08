@@ -6,7 +6,6 @@ function variantLocations() {
 }
 
 variantLocations.prototype.updateByList = function() {
-    this.setQC();
     var selected = document.getElementById("mySelect");
     console.log(selected);
     this.current = selected.value;
@@ -81,8 +80,6 @@ variantLocations.prototype.gotoCurrentVariant = function() {
     b.setLocation("chr" + c[0], c[1] - 55, c[1] + 55);
     b.zoomStep(-1000000);
     document.getElementById("mySelect").value = this.current;
-
-
 };
 
 variantLocations.prototype.next = function() {
