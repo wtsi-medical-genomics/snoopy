@@ -8,29 +8,34 @@ function variantLocations() {
 variantLocations.prototype.updateByList = function() {
     var selected = document.getElementById("mySelect");
     console.log(selected);
-    this.current = selected.value;
+    this.current = parseInt(selected.value);
     this.gotoCurrentVariant();
-}
+};
 
 variantLocations.prototype.setQC = function(decision) {
     this.variantArray[this.current][2] = decision;
     this.refreshSelectList();
     this.refreshProgressBar();
     v.next();
-}
+};
 
-variantLocations.prototype.refreshProgressBar = function() {
+variantLocations.prototype.getProgress = function() {
     var progress = 0;
     for (var i=0; i<this.variantArray.length; i++) {
         if(this.variantArray[i][2] > -99) {
             progress++;
         }
     }
+    return progress;
+} 
+
+variantLocations.prototype.refreshProgressBar = function() {
+    var progress = this.getProgress();
     var percent = "" + (100*progress/this.variantArray.length)|0;
     var progressBar = document.getElementById("variantProgress");
     progressBar.setAttribute("aria-valuenow", percent);
     progressBar.style.width = percent + "%";
-}
+};
 
 variantLocations.prototype.processVariantFile = function(fileText) {
     var textArray = fileText.split("\n");
@@ -45,6 +50,31 @@ for (var i = 0; i < textArray.length; i++) {
     }
 }
 };
+
+variantLocations.prototype.generateQCreport = function() {
+    var str = Date() + "\n";
+    var fname = $("#QCreportFilename").val();
+    
+    for (var i = 0; i < b.tiers.length; i++) {
+        if (b.tiers[i].featureSource.source) {
+           var bamName = b.tiers[i].featureSource.source.bamSource.name;
+            str += bamName + "\n";
+    //        fname += bamName + "_";
+        }
+    }
+   
+    str += "\n"; 
+
+    for (var i = 0; i < this.variantArray.length; i++) {
+        var v = this.variantArray[i];
+        console.log(v);
+        str += v[0] + ":" +  v[1] + " " + v[2] + "\n"; 
+    }
+
+    var blob = new Blob([str], {type: "text/plain;charset=utf-8"});
+    fname += ".txt"
+    saveAs(blob, fname); 
+}
 
 variantLocations.prototype.refreshSelectList = function() {
 
@@ -83,18 +113,22 @@ variantLocations.prototype.getStringArray = function() {
 
 variantLocations.prototype.gotoCurrentVariant = function() {
     console.log(this.current);
-    console.log(this.variantArray); 
     var c = this.variantArray[this.current];
-    document.getElementById("currentVariant").innerHTML = String(c[0]) + " : " + String(c[1]);
     b.setLocation("chr" + c[0], c[1] - 55, c[1] + 55);
-    b.zoomStep(-1000000);
+    //b.zoomStep(-1000000);
     document.getElementById("mySelect").value = this.current;
 };
 
 variantLocations.prototype.next = function() {
-    if (this.current < this.variantArray.length - 1) {
+    console.log("this.current =  " + this.current);
+    console.log("this.variantArray.length =  " + this.variantArray.length);
+    if ((this.current + 1) < this.variantArray.length) {
+        console.log("I'm moving on");
         this.current++;
         this.gotoCurrentVariant();
+    } else {
+        console.log("I'm not moving");
+        document.getElementById("mySelect").value = this.current;
     }
 };
 

@@ -14,6 +14,12 @@ window.onload = function() {
     document.getElementById("fileLoaded").addEventListener("change", loadFiles, false);
     // Listen for butoon to load the dalliance viwer
     document.getElementById("loadDalliance").addEventListener("click", loadDalliance, false);
+    // Listen for download event
+    document.getElementById("prepareDownloadQCreport").addEventListener("click", function(){generateQCreport();}, false);
+    document.getElementById("downloadQCreport").addEventListener("click", function(){
+        v.generateQCreport();
+        $("#modalDownloadQCreport").modal('hide');
+    }, false);
     // Listen for previous click
     document.getElementById("goBack").addEventListener("click", function(){v.prev();}, false);
     // Listen for quality control
@@ -46,7 +52,7 @@ var b = new Browser({
         })
     },
 
-    /*noTrackAdder : true,
+    noTrackAdder : true,
     noLeapButtons : true,
     noLocationField : true,
     noZoomSlider : true,
@@ -55,7 +61,7 @@ var b = new Browser({
     noExport : true,
     noOptions : true,
     noHelp : true,
-    disableDefaultFeaturePopup : true,i*/
+    disableDefaultFeaturePopup : true,
     noPersist : true,
     noPersistView : true,
     sources: [
@@ -109,6 +115,19 @@ function printFilesTable() {
     }
 }
 
+
+function generateQCreport() {
+   var progress = v.getProgress(); 
+   var total = v.variantArray.length;
+   var message = "You have reviewed ";
+   message += "<b>" + progress + "</b>";
+   message += " of ";
+   message += "<b>" + total + "</b>";
+   message += " variant locations. Enter desired filename for quality control report.";
+   message += "<div class=\"input-group\"><input type=\"text\" class=\"form-control\" id=\"QCreportFilename\"><span class=\"input-group-addon\">.txt</span> </div>";
+   $("#modalDownloadQCreport .modal-body").html(message);
+   $("#modalDownloadQCreport").modal('show');
+}
 
 function loadFiles() {
     var files = document.getElementById("fileLoaded").files;
@@ -176,15 +195,16 @@ function resetFileLoaded() {
 function loadDalliance() {
     for (var i=0; i < bamFiles.length; ++i) {
         var bamFile = bamFiles[i];
-        console.log(bamFile.index.file); 
-        var bamObj = {
-            baiBlob : bamFile.index.file,
-            bamBlob : bamFile.file,
-            name : bamFile.file.name, 
-            noPersist : true,
+        if (bamFile.index) { 
+            var bamObj = {
+                baiBlob : bamFile.index.file,
+                bamBlob : bamFile.file,
+                name : bamFile.file.name, 
+                noPersist : true,
+            }
+            console.log(bamObj);
+            b.addTier(bamObj);
         }
-        console.log(bamObj);
-        b.addTier(bamObj);
     }
 
     //Create and append select list
@@ -203,10 +223,11 @@ function loadDalliance() {
         v.gotoCurrentVariant();
         v.refreshSelectList();
     }
-    setTimeout(function(){b.zoomStep(-1000000)}, 1000);    
+    //setTimeout(function(){b.zoomStep(-1000000)}, 1000);    
     document.getElementById("fileLoader").setAttribute("style", "display: none");
-    document.getElementById("control-center").setAttribute("style", "display: block");
+    document.getElementById("controlCenter").setAttribute("style", "display: block");
+    document.getElementById("progressBar").setAttribute("style", "display: block");
     //document.getElementById("my-dalliance-holder").setAttribute("style", "opactiy: 1");
     document.getElementById("my-dalliance-holder").style.opacity = "1";
-    console.log("hello");
+    document.body.style.backgroundColor = "white";
 }

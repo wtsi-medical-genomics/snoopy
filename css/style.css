@@ -4,7 +4,7 @@
 
 #my-dalliance-holder {
     opacity: 0;
-    background-color: white;
+    padding-top: 10px;
 }
 
 p.justify {
@@ -24,7 +24,7 @@ p.justify {
 }
 
 .progress {
-    height: 10px;
+   /* height: 10px;*/
 }
 
 .progress-bar-fixed {
@@ -66,7 +66,11 @@ li.spaced {
     width: 100%;
 }
 
-#control-center {
+#progressBar {
+    display: none;
+}
+
+#controlCenter {
     padding: 0px;
     text-align: center;
     display: none;

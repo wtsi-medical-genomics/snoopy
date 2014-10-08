@@ -15,6 +15,7 @@
         <!-- Custom styles for this template -->
         <link href="css/style.css" rel="stylesheet">
         <script language="javascript" src="dalliance/dalliance-all.js"></script>
+        <script language="javascript" src="js/FileSaver.min.js"></script>
         <script language="javascript" src="js/loadedfiletypes.js"></script>
         <script language="javascript" src="js/variants.js"></script>
         <script language="javascript" src="js/main.js"></script>
@@ -52,13 +53,13 @@
             </div><!--/.nav-collapse -->
         </div>
 
-        <div class="navbar navbar-default navbar-fixed-top nav-toolbar center" role="navigation">
+        <div class="navbar navbar-default navbar-fixed-top nav-toolbar center" id="controlCenter" role="navigation">
             <div class="navbar-inner">
                 <ul class="nav navbar-nav">
                     <li class="spaced"><div class="btn-group">
                             <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-repeat"></span></button>
                             <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-plus"></span></button>
-                            <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-download-alt"></span></button>
+                            <button type="button" class="btn btn-default btn-sm" id="prepareDownloadQCreport"><span class="glyphicon glyphicon-download-alt"></span></button>
                         </div></li>
                         <li><a href="#" id="goBack"><span class="glyphicon glyphicon-chevron-left"></span> Previous</a></li>
                         <li class="spaced">
@@ -71,7 +72,7 @@
             </div>
         </div>
 
-        <div class="progress progress-bar-fixed">
+        <div class="progress progress-bar-fixed" id="progressBar">
             <div class="progress-bar" id="variantProgress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
             </div>
         </div>
@@ -120,58 +121,31 @@
                 </div>
                 <div class="col-md-3"></div>
             </div>
-            <div class="row" id="control-center">
-                <div class="col-md-4">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <div class="panel-title">Candidate Variant List</div>
-                        </div>
-                        <div class="panel-body">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <div class="panel-title">Candidate Variant</div>
-                        </div>
-                        <div class="panel-body">
-                            <h4><div id="currentVariant"></div></h4>
-                            <br>
-                            <button type="button" onClick="v.prev();" class="btn btn-success btn-same-size">Previous</button>
-                            <button type="button" onClick="v.next();" class="btn btn-success btn-same-size">Next</button>
-                            <div class="qc">Quality control: Is this a varaiant?
-                                <div class="btn-group" data-toggle="buttons" id="qcDecision">
-                                    <label class="btn btn-default" id="qcNo">
-                                        <input type="radio" name="options" value="-1">No
-                                    </label>
-                                    <label class="btn btn-default">
-                                        <input type="radio" name="options" id="qcMaybe" value="0">Maybe
-                                    </label>
-                                    <label class="btn btn-default">
-                                        <input type="radio" name="options" id="qcYes" value="1">Yes
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <div class="panel-title">Settings</div>
-                        </div>
-                        <div class="panel-body">
-                            Hellow
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div><!-- /.container -->
 
         <div id="my-dalliance-holder">
             <div id="svgHolder">Dalliance genome browser goes here.  Unless you have an ancient web browser or something.</div>
         </div>
+
+        <!-- Download QC Report Modal -->
+        <div class="modal fade" id="modalDownloadQCreport" tabindex="-1" role="dialog" aria-labelledby="myModalDownloadQCreport" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="myModalDownloadQCreport">Download QC Report</h4>
+                    </div>
+                    <div class="modal-body">
+                        You have reviewed all of the 43 variant locations. 
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="downloadQCreport">Download Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Bootstrap core JavaScript -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> 
