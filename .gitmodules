@@ -1,3 +1,6 @@
 [submodule "dalliance"]
 	path = dalliance
 	url = https://github.com/dasmoth/dalliance.git
+[submodule "FileSaver.js"]
+	path = FileSaver.js
+	url = https://github.com/eligrey/FileSaver.js.git
