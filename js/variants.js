@@ -91,10 +91,14 @@ variantLocations.prototype.refreshSelectList = function() {
     }
 };
 
+function formatLongInt(n) {
+    return (n|0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
 variantLocations.prototype.getStringArray = function() {
     var stringArray = Array(this.variantArray.length);
     for (var i = 0; i<this.variantArray.length; i++) {
-        var s = this.variantArray[i][0] + ":" + this.variantArray[i][1];
+        var s = this.variantArray[i][0] + ":" + formatLongInt(this.variantArray[i][1]);
         switch (this.variantArray[i][2]) {
             case -1:
                 s += " &#x2717;";
@@ -114,7 +118,9 @@ variantLocations.prototype.getStringArray = function() {
 variantLocations.prototype.gotoCurrentVariant = function() {
     console.log(this.current);
     var c = this.variantArray[this.current];
-    b.setLocation("chr" + c[0], c[1] - 55, c[1] + 55);
+    console.log(c);
+   // b.setLocation(+ c[0] - 100, c[1] + 100);
+    b.setCentreLocation('chr' + c[0], c[1], c[2]);
     //b.zoomStep(-1000000);
     document.getElementById("mySelect").value = this.current;
 };

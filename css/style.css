@@ -4,7 +4,14 @@
 
 #my-dalliance-holder {
     opacity: 0;
-    padding-top: 10px;
+    margin-top: 35px;
+    width: 97%;
+    position: relative;
+    left: 1.5%;
+    background-color: white;
+    border: 1px solid silver;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 p.justify {
@@ -164,7 +171,7 @@ menu-panel table tr th:last-child {
 }
 
 #stepOne {
-    margin-top: 20%;
+    margin-top: 10%;
 }
 
 

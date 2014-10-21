@@ -14,6 +14,9 @@ window.onload = function() {
     document.getElementById("fileLoaded").addEventListener("change", loadFiles, false);
     // Listen for butoon to load the dalliance viwer
     document.getElementById("loadDalliance").addEventListener("click", loadDalliance, false);
+
+    // Listen for reload event
+    document.getElementById("reload").addEventListener("click", function(){document.location.reload();}, false);
     // Listen for download event
     document.getElementById("prepareDownloadQCreport").addEventListener("click", function(){generateQCreport();}, false);
     document.getElementById("downloadQCreport").addEventListener("click", function(){
@@ -51,15 +54,15 @@ var b = new Browser({
             version: 37
         })
     },
-
+    maxHeight : 10000,
     noTrackAdder : true,
     noLeapButtons : true,
-    noLocationField : true,
-    noZoomSlider : true,
-    noTitle : true,
-    noTrackEditor : true,
+    noLocationField : true, //false,
+    noZoomSlider : true, //false,
+    noTitle : true, //false,
+    noTrackEditor : true, //false,
     noExport : true,
-    noOptions : true,
+    noOptions : true, //false,
     noHelp : true,
     disableDefaultFeaturePopup : true,
     noPersist : true,
@@ -92,6 +95,7 @@ b.addFeatureInfoPlugin(function(f, info) {
     info.add('Testing', 'This is a test!');
 });
 
+b.zoomMin = 20;
 
 var bamFiles = [];
 var baiFiles = [];
@@ -201,6 +205,40 @@ function loadDalliance() {
                 bamBlob : bamFile.file,
                 name : bamFile.file.name, 
                 noPersist : true,
+                style: [
+                    {
+                    "type": "density",
+                    "zoom": "low",
+                    "style": {
+                        "glyph": "HISTOGRAM",
+                        "COLOR1": "black",
+                        "COLOR2": "red",
+                        "HEIGHT": 30
+                    }
+                },
+                {
+                    "type": "density",
+                    "zoom": "medium",
+                    "style": {
+                        "glyph": "HISTOGRAM",
+                        "COLOR1": "black",
+                        "COLOR2": "red",
+                        "HEIGHT": 30
+                    }
+                },
+                {
+                    "type": "bam",
+                    "zoom": "high",
+                    "style": {
+                        "glyph": "__SEQUENCE",
+                        "HEIGHT": 8,
+                        "BUMP": true,
+                        "LABEL": false,
+                        "ZINDEX": 20,
+                        "__SEQCOLOR": "mismatch"
+                    }
+                }
+                ]
             }
             console.log(bamObj);
             b.addTier(bamObj);
@@ -223,11 +261,11 @@ function loadDalliance() {
         v.gotoCurrentVariant();
         v.refreshSelectList();
     }
-    //setTimeout(function(){b.zoomStep(-1000000)}, 1000);    
+//    setTimeout(function(){b.zoomStep(-1000000)}, 1000);    
     document.getElementById("fileLoader").setAttribute("style", "display: none");
     document.getElementById("controlCenter").setAttribute("style", "display: block");
     document.getElementById("progressBar").setAttribute("style", "display: block");
     //document.getElementById("my-dalliance-holder").setAttribute("style", "opactiy: 1");
     document.getElementById("my-dalliance-holder").style.opacity = "1";
-    document.body.style.backgroundColor = "white";
+    //document.body.style.backgroundColor = "white";
 }
