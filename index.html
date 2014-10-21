@@ -13,6 +13,7 @@
         <!-- Bootstrap core CSS -->
         <link href="css/bootstrap.min.css" rel="stylesheet">
         <!-- Custom styles for this template -->
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
         <link href="css/style.css" rel="stylesheet">
         <script language="javascript" src="dalliance/dalliance-all.js"></script>
         <script language="javascript" src="FileSaver.js/FileSaver.min.js"></script>
@@ -60,14 +61,23 @@
                             <button type="button" class="btn btn-default btn-sm" id="reload"><span class="glyphicon glyphicon-repeat"></span></button>
                             <!-- <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-plus"></span></button> -->
                             <button type="button" class="btn btn-default btn-sm" id="prepareDownloadQCreport"><span class="glyphicon glyphicon-download-alt"></span></button>
-                        </div></li>
-                        <li><a href="#" id="goBack"><span class="glyphicon glyphicon-chevron-left"></span> Previous</a></li>
-                        <li class="spaced">
-                            <div id="variantSelectListHolder"></div>
-                        </li>
+                        </div>
+                    </li>
+                    <li><a href="#" id="goBack"><span class="glyphicon glyphicon-chevron-left"></span> Previous</a></li>
+                    <li class="spaced">
+                        <div id="variantSelectListHolder"></div>
+                    </li>
+                    <!--
                         <li><a href="#" id="qcNotVariant">Not a Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
                         <li><a href="#" id="qcPotentialVariant"> Uncertain<span class="glyphicon glyphicon-chevron-right"></span></a></li>
                         <li><a href="#" id="qcCertainVariant">Certain Variant <span class="glyphicon glyphicon-chevron-right"></span></a></li>
+                    -->
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-chevron-left"></span></button>
+                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-remove"></span></button>
+                        <button type="button" class="btn btn-default btn-sm"><span class="fa fa-question fa-lg"></span></button>
+                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-ok"></span></button>
+                    </div>
                 </ul>
             </div>
         </div>
@@ -162,52 +172,52 @@
                             <li>Load BAM files, BAI files.</li>
                             <li> Load text file with variant locations, one per line. The format of each variant can be any of the following:</li>
 
-                        chr:loc
-                        chr-loc
-                        chr,loc
-                        chr loc
+                            chr:loc
+                            chr-loc
+                            chr,loc
+                            chr loc
 
-                        As soon as all the files are loaded, click "Start Quality Control Review".
-                        This will load the Biodalliance genome viewer.
-                        By default the plus strand is is salmon colored and the negative strand is a pastel blue.
-                        Any differences will be colored with the standard base colors of
+                            As soon as all the files are loaded, click "Start Quality Control Review".
+                            This will load the Biodalliance genome viewer.
+                            By default the plus strand is is salmon colored and the negative strand is a pastel blue.
+                            Any differences will be colored with the standard base colors of
 
-                        <table>
-                            <tr><td>A</td><td>Green</td></tr>
-                            <tr><td>C</td><td>Blue</td></tr>
-                            <tr><td>T</td><td>Red</td></tr>
-                            <tr><td>G</td><td>Yellow</td></tr>
-                        </table>
+                            <table>
+                                <tr><td>A</td><td>Green</td></tr>
+                                <tr><td>C</td><td>Blue</td></tr>
+                                <tr><td>T</td><td>Red</td></tr>
+                                <tr><td>G</td><td>Yellow</td></tr>
+                            </table>
 
 
-                        The first variant from your text file will be in the center under the ruler. Make a decision about this variant and advance to the next by clicking one of 
+                            The first variant from your text file will be in the center under the ruler. Make a decision about this variant and advance to the next by clicking one of 
 
-                        <table>
-                            <tr><td>&#x2717;</td><td>Not a Variant</td></tr>
-                            <tr><td>?</td><td>Uncertain</td></tr>
-                            <tr><td>&#x2713;</td><td>Certain Variant</td></tr>
-                        </table>
+                            <table>
+                                <tr><td>&#x2717;</td><td>Not a Variant</td></tr>
+                                <tr><td>?</td><td>Uncertain</td></tr>
+                                <tr><td>&#x2713;</td><td>Certain Variant</td></tr>
+                            </table>
 
-                        To go back you can either click the Previous button or select from the drop down list any variant site from your text file. The drop down list also displays your previous QC decision with the symbols listed in the table above.
-                        As you progress through your variants you will notice the status bar growing to reflect this.
-                        When you are finished you will be asked if you would like to download the QC decisions for each file. Note that you can download this at anytime in the process by clicking on the download icon <span class="glyphicon glyphicon-download-alt"></span>.
-                        Enter the filename and this will be downloaded onto your machine.
-                        This file has the following format
+                            To go back you can either click the Previous button or select from the drop down list any variant site from your text file. The drop down list also displays your previous QC decision with the symbols listed in the table above.
+                            As you progress through your variants you will notice the status bar growing to reflect this.
+                            When you are finished you will be asked if you would like to download the QC decisions for each file. Note that you can download this at anytime in the process by clicking on the download icon <span class="glyphicon glyphicon-download-alt"></span>.
+                            Enter the filename and this will be downloaded onto your machine.
+                            This file has the following format
 
-                        <date and time of download>
-                        <BAM files loaded>
+                            <date and time of download>
+                            <BAM files loaded>
 
-                        <chr:variant location> : <QC decision>
+                            <chr:variant location> : <QC decision>
 
-                        With the following encoding.
-                        <table>
-                            <tr><td>-1</td><td>Not a Variant</td></tr>
-                            <tr><td>0</td><td>Uncertain</td></tr>
-                            <tr><td>1</td><td>Certain Variant</td></tr>
-                            <tr><td>-99</td><td>No Decision Made</td></tr>  
-                        </table>
+                            With the following encoding.
+                            <table>
+                                <tr><td>-1</td><td>Not a Variant</td></tr>
+                                <tr><td>0</td><td>Uncertain</td></tr>
+                                <tr><td>1</td><td>Certain Variant</td></tr>
+                                <tr><td>-99</td><td>No Decision Made</td></tr>  
+                            </table>
 
-                        To restart at any time (which will lose all work unless you have downloaded your progress) click the restart button <span class="glyphicon glyphicon-repeat"></span>.
+                            To restart at any time (which will lose all work unless you have downloaded your progress) click the restart button <span class="glyphicon glyphicon-repeat"></span>.
                     </div>
                 </div>
             </div>
