@@ -120,8 +120,10 @@ variantLocations.prototype.gotoCurrentVariant = function() {
     var c = this.variantArray[this.current];
     console.log(c);
    // b.setLocation(+ c[0] - 100, c[1] + 100);
-    b.setCentreLocation('chr' + c[0], c[1], c[2]);
-    //b.zoomStep(-1000000);
+    b.setCentreLocation('chr' + c[0], c[1]);
+    b.clearHighlights();
+    b.highlightRegion('chr' + c[0], c[1], c[1] + 1);
+    b.zoomStep(-1000000);
     document.getElementById("mySelect").value = this.current;
 };
 

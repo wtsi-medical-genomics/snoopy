@@ -17,6 +17,9 @@ window.onload = function() {
 
     // Listen for reload event
     document.getElementById("reload").addEventListener("click", function(){document.location.reload();}, false);
+//    document.getElementById("loadModalHelp").addEventListener("click", function(){
+//        $("#modalHelp").modal('show');
+//    }, false);
     // Listen for download event
     document.getElementById("prepareDownloadQCreport").addEventListener("click", function(){generateQCreport();}, false);
     document.getElementById("downloadQCreport").addEventListener("click", function(){
@@ -54,15 +57,18 @@ var b = new Browser({
             version: 37
         })
     },
+    singleBaseHighlight : false,
+    defaultHighlightFill : 'black',
+    defaultHighlightAlpha : 0.15,
     maxHeight : 10000,
     noTrackAdder : true,
     noLeapButtons : true,
-    noLocationField : true, //false,
-    noZoomSlider : true, //false,
-    noTitle : true, //false,
-    noTrackEditor : true, //false,
+    noLocationField : true,
+    noZoomSlider : false,
+    noTitle : false,
+    noTrackEditor : false,
     noExport : true,
-    noOptions : true, //false,
+    noOptions : false,
     noHelp : true,
     disableDefaultFeaturePopup : true,
     noPersist : true,
@@ -261,7 +267,7 @@ function loadDalliance() {
         v.gotoCurrentVariant();
         v.refreshSelectList();
     }
-//    setTimeout(function(){b.zoomStep(-1000000)}, 1000);    
+    setTimeout(function(){b.zoomStep(-1000000)}, 1000);    
     document.getElementById("fileLoader").setAttribute("style", "display: none");
     document.getElementById("controlCenter").setAttribute("style", "display: block");
     document.getElementById("progressBar").setAttribute("style", "display: block");
