@@ -258,19 +258,30 @@
                     <div class="modal-body">
                         <table>
                             <tr>
-                                <td>
+                                <td rowspan="2">
                                     Default zoom level
                                 </td>
                                 <td>
-                                    <input type="radio" name="defaultZoomLevel" id="defaultZoomLevelUnit"> Unit base level<br>
-                                    <input type="radio" name="defaultZoomLevel" id="defaultZoomLevelCurrent"> Current zoom level
+                                    <input type="radio" name="defaultZoomLevel" id="defaultZoomLevelUnit">
+                                </td>
+                                <td>
+                                    Unit base
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="radio" name="defaultZoomLevel" id="defaultZoomLevelCurrent">
+                                </td>
+                                <td>
+                                    <input type="text"> bp<br> 
+                                    <button type="button" class="btn btn-primary btn-sm">Capture current zoom level</button>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     Automatically zoom to default level when visiting new candidate variant
                                 </td>
-                                <td>
+                                <td colspan="2">
                                     <input type="checkbox" id="autoZoom">
                                 </td>
                             </tr>
@@ -278,7 +289,7 @@
                                 <td>
                                     Highlight mismatches & strands by default
                                 </td>
-                                <td>
+                                <td colspan="2">
                                     <input type="checkbox" id="highlightDiff">
                                 </td>
                             </tr>
