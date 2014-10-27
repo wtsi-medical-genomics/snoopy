@@ -79,12 +79,15 @@ p.justify {
 
 #modalSettings td {
     vertical-align: top;
-    padding: 15px;
+    padding: 5px;
 }
 
 
 #modalSettings td:first-child {
-    width: 60%;
+}
+
+.no-break {
+    white-space: nowrap;
 }
 
 table.color-code tr.a td {
