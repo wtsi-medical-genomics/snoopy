@@ -126,6 +126,12 @@ table.color-code tr.a td {
     width: 100%;
 }
 
+.snoop-toolbar .row {
+    margin-right: 0px;
+    margin-left: 0px;
+}
+
+
 .go-right {
     margin-left: 10px;
 }

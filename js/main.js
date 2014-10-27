@@ -8,16 +8,22 @@
 //});
 
 var v = new variantLocations();
-
-var settings = {
-    defaultZoomLevelUnit : true,
-    autoZoom : true,
-    highlightDiff : true,
-    currentZoom : 10
+var settings;
+    
+var storedSettings = localStorage.getItem("snoopSettings");
+if (storedSettings) {
+    settings = JSON.parse(storedSettings);
+} else {
+    settings = {
+        defaultZoomLevelUnit : true,
+        autoZoom : true,
+        highlightDiff : true,
+        currentZoom : false 
+    }
 }
 
-
 window.onload = function() {
+
     // Listen for button to load files
     document.getElementById("fileLoaded").addEventListener("change", loadFiles, false);
     // Listen for butoon to load the dalliance viwer
@@ -48,8 +54,13 @@ $("#modalSettings").on("hidden.bs.modal", function (e) {
     settings.highlightDiff = $("#highlightDiff").prop("checked"); 
 
     if(!settings.defaultZoomLevelUnit) {
-        var w = $("#zoomLevelText").val() | 0;
+        var w = $("#zoomLevelText").val() | 0; // don't worry about type, it will be caught below
+        if (w <= 0) { // if the user has not entered a sensible value use b.zoomMin
+           settings.currentZoom = Math.exp(b.zoomMin/b.zoomExpt);
+           settings.defaultZoomLevelUnit = true;
+        } else {
         settings.currentZoom = w / b.zoomBase; 
+        }
     }
     console.log(settings);
 })
