@@ -68,11 +68,8 @@ p.justify {
     border-right: 1px solid lightgrey;
 }
 
-#modalSettings tr:first-child {
-    border-top: none;
-}
 
-#modalSettings tr {
+#modalSettings tr.border-top {
     border-top: 1px solid lightgrey;
 }
 
@@ -84,6 +81,14 @@ p.justify {
 
 
 #modalSettings td:first-child {
+}
+
+#captureZoom {
+    margin-top: 5px;
+} 
+
+label {
+    font-weight: normal;
 }
 
 .no-break {

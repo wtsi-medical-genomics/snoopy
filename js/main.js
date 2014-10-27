@@ -48,9 +48,9 @@ $("#modalSettings").on("hidden.bs.modal", function (e) {
     settings.highlightDiff = $("#highlightDiff").prop("checked"); 
 
     if(!settings.defaultZoomLevelUnit) {
-        settings.currentZoom = b.zoomFactor;
+        var w = $("#zoomLevelText").val() | 0;
+        settings.currentZoom = w / b.zoomBase; 
     }
-
     console.log(settings);
 })
 
@@ -59,6 +59,17 @@ $("#modalSettings").on("show.bs.modal", function (e) {
     $("#defaultZoomLevelCurrent").prop("checked", !settings.defaultZoomLevelUnit);
     $("#autoZoom").prop("checked", settings.autoZoom); 
     $("#highlightDiff").prop("checked", settings.highlightDiff); 
+
+    $("#zoomLevelText").focus(function() {
+        $("#defaultZoomLevelCurrent").prop("checked", true);
+    });
+
+    $("#captureZoom").click(function() {
+        $("#defaultZoomLevelCurrent").prop("checked", true);
+        var cz = Math.round(b.viewEnd - b.viewStart);
+        $("#zoomLevelText").val(cz);
+    });
+
     console.log(settings);
 })
 

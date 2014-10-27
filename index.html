@@ -45,7 +45,6 @@
             <div class="collapse navbar-collapse navbar-right">
                 <ul class="nav navbar-nav">
                     <li><a href="#" data-toggle="modal" data-target="#modalHelp">Help</a></li>
-                    <li><a href="#" data-toggle="modal" data-target="#modalSettings">Settings</a></li>
                     <li><a href="#about">About</a></li>
                     <li><a href="https://github.com/wtsi-medical-genomics/snoop/" target="_blank">GitHub</a></li>
                 </ul>
@@ -68,6 +67,7 @@
                     </div>
                     <div class="col-md-3 col-right">
                         <div class="btn-group">
+                            <button type="button" class="btn btn-default"  data-toggle="modal" data-target="#modalSettings"><span class="glyphicon glyphicon-wrench"></span></button>
                             <button type="button" class="btn btn-default" id="reload"><span class="glyphicon glyphicon-repeat"></span></button>
                             <!-- <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-plus"></span></button> -->
                             <button type="button" class="btn btn-default" id="prepareDownloadQCreport"><span class="glyphicon glyphicon-floppy-save"></span></button>
@@ -265,7 +265,9 @@
                                     <input type="radio" name="defaultZoomLevel" id="defaultZoomLevelUnit">
                                 </td>
                                 <td>
-                                    Unit base
+                                    <label for="defaultZoomLevelUnit">
+                                        Unit base
+                                    </label>
                                 </td>
                             </tr>
                             <tr>
@@ -273,11 +275,11 @@
                                     <input type="radio" name="defaultZoomLevel" id="defaultZoomLevelCurrent">
                                 </td>
                                 <td>
-                                    <div class="no-break"><input type="text"> bp</div> 
-                                    <button type="button" class="btn btn-primary btn-sm">Capture current zoom level</button>
+                                    <div class="no-break"><input type="text" id="zoomLevelText"> bp</div>
+                                    <button type="button" class="btn btn-primary btn-sm" id="captureZoom">Capture current zoom level</button>
                                 </td>
                             </tr>
-                            <tr>
+                            <tr class="border-top">
                                 <td>
                                     Automatically zoom to default level when visiting new candidate variant
                                 </td>
@@ -285,7 +287,7 @@
                                     <input type="checkbox" id="autoZoom">
                                 </td>
                             </tr>
-                            <tr>
+                            <tr class="border-top">
                                 <td>
                                     Highlight mismatches & strands by default
                                 </td>
