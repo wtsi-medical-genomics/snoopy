@@ -17,7 +17,6 @@
         <script language="javascript" src="FileSaver.js/FileSaver.min.js"></script>
         <script language="javascript" src="js/loadedfiletypes.js"></script>
         <script language="javascript" src="js/variants.js"></script>
-        <script language="javascript" src="js/main.js"></script>
         <link href="css/style.css" rel="stylesheet">
 
         <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
@@ -46,7 +45,7 @@
             <div class="collapse navbar-collapse navbar-right">
                 <ul class="nav navbar-nav">
                     <li><a href="#" data-toggle="modal" data-target="#modalHelp">Help</a></li>
-                    <li><a href="#">Settings</a></li>
+                    <li><a href="#" data-toggle="modal" data-target="#modalSettings">Settings</a></li>
                     <li><a href="#about">About</a></li>
                     <li><a href="https://github.com/wtsi-medical-genomics/snoop/" target="_blank">GitHub</a></li>
                 </ul>
@@ -71,7 +70,7 @@
                         <div class="btn-group">
                             <button type="button" class="btn btn-default" id="reload"><span class="glyphicon glyphicon-repeat"></span></button>
                             <!-- <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-plus"></span></button> -->
-                            <button type="button" class="btn btn-default" id="prepareDownloadQCreport"><span class="glyphicon glyphicon-download-alt"></span></button>
+                            <button type="button" class="btn btn-default" id="prepareDownloadQCreport"><span class="glyphicon glyphicon-floppy-save"></span></button>
                         </div>
                     </div>
                 </div>
@@ -166,12 +165,12 @@
                             Load Your Files
                         </h4>
                         Load BAM files, BAI files and a text file (.txt) with variant locations, one per line. The format of each variant in the text file can be any of the following
-                                <ul class="list-unstyled">
-                                    <li>chr:loc</li>
-                                    <li>chr-loc</li>
-                                    <li>chr,loc</li>
-                                    <li>chr loc</li>
-                                </ul>
+                        <ul class="list-unstyled">
+                            <li>chr:loc</li>
+                            <li>chr-loc</li>
+                            <li>chr,loc</li>
+                            <li>chr loc</li>
+                        </ul>
                         You can repeatedly press Load More Files, that is, you don't have to select all of your files from a single open file dialog.  Once you have loaded all of your files, click 
                         <button type="button" class="btn btn-success btn-sm">
                             <span class="glyphicon glyphicon-search"></span> Start Qaulity Control 
@@ -185,7 +184,7 @@
                         <button type="button" class="btn btn-default btn-sm" >Variant <span class="glyphicon glyphicon-chevron-right"></span></button>
                         To go back you can either click 
                         <button type="button" class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-chevron-left"></span> Previous</button>
-                         or select from the drop down list any variant site from your text file. The drop down list also displays your previous QC decision with the symbols listed in the table below.
+                        or select from the drop down list any variant site from your text file. The drop down list also displays your previous QC decision with the symbols listed in the table below.
                         <table>
                             <thead>
                                 <tr>
@@ -203,8 +202,8 @@
                         <h4 class="page-header">
                             QC Review File
                         </h4>
-                        When you are finished you will be asked if you would like to download the QC decisions for each file. Note that you can download your progress (even if you haven't reviewed all variants) by clicking on the download icon 
-                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-download-alt"></span></button>. Enter the filename and this will be downloaded onto your machine as a text file. The results file has the following format
+                        When you have reached the final candidate variant, you will be asked if you would like to download the QC decisions. Note that you can download your progress before this point (i.e. you haven't reviewed all of the variants) by clicking on the download icon 
+                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-floppy-save"></span></button>. When prompred, provide a filename and this will be downloaded onto your machine as a text file. The results file has the following format
                         <div class="panel panel-default qc-file-format">
                             <div class="panel-body">
                                 date and time of report creation<br>
@@ -248,14 +247,54 @@
             </div>
         </div>
 
+        <!-- Settings Modal -->
+        <div class="modal fade" id="modalSettings" tabindex="-1" role="dialog" aria-labelledby="myModalSettings" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="myModalSettings">Settings</h4>
+                    </div>
+                    <div class="modal-body">
+                        <table>
+                            <tr>
+                                <td>
+                                    Default zoom level
+                                </td>
+                                <td>
+                                    <input type="radio" name="defaultZoomLevel" id="defaultZoomLevelUnit"> Unit base level<br>
+                                    <input type="radio" name="defaultZoomLevel" id="defaultZoomLevelCurrent"> Current zoom level
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Automatically zoom to default level when visiting new candidate variant
+                                </td>
+                                <td>
+                                    <input type="checkbox" id="autoZoom">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Highlight mismatches & strands by default
+                                </td>
+                                <td>
+                                    <input type="checkbox" id="highlightDiff">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-
-
-        <!-- Bootstrap core JavaScript -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> 
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-        <!-- Placed at the end of the document so the pages load faster -->
+        <script language="javascript" src="js/main.js"></script>
 
-
-    </body></html>
+    </body>
+</html>
 

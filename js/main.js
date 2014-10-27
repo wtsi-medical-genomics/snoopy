@@ -9,6 +9,14 @@
 
 var v = new variantLocations();
 
+var settings = {
+    defaultZoomLevelUnit : true,
+    autoZoom : true,
+    highlightDiff : true,
+    currentZoom : 10
+}
+
+
 window.onload = function() {
     // Listen for button to load files
     document.getElementById("fileLoaded").addEventListener("change", loadFiles, false);
@@ -33,6 +41,22 @@ window.onload = function() {
     document.getElementById("qcPotentialVariant").addEventListener("click", function(){v.setQC(0);}, false);
     document.getElementById("qcCertainVariant").addEventListener("click", function(){v.setQC(1);}, false);
 };
+
+$("#modalSettings").on("hidden.bs.modal", function (e) {
+    settings.defaultZoomLevelUnit = $("#defaultZoomLevelUnit").prop("checked");
+    settings.autoZoom = $("#autoZoom").prop("checked"); 
+    settings.highlightDiff = $("#highlightDiff").prop("checked"); 
+    console.log(settings);
+})
+
+$("#modalSettings").on("show.bs.modal", function (e) {
+    $("#defaultZoomLevelUnit").prop("checked", settings.defaultZoomLevelUnit);
+    $("#defaultZoomLevelCurrent").prop("checked", !settings.defaultZoomLevelUnit);
+    $("#autoZoom").prop("checked", settings.autoZoom); 
+    $("#highlightDiff").prop("checked", settings.highlightDiff); 
+    console.log(settings);
+})
+
 
 var b = new Browser({
     chr:          '22',

@@ -68,6 +68,25 @@ p.justify {
     border-right: 1px solid lightgrey;
 }
 
+#modalSettings tr:first-child {
+    border-top: none;
+}
+
+#modalSettings tr {
+    border-top: 1px solid lightgrey;
+}
+
+
+#modalSettings td {
+    vertical-align: top;
+    padding: 15px;
+}
+
+
+#modalSettings td:first-child {
+    width: 70%;
+}
+
 table.color-code tr.a td {
     background-color: green; 
 }

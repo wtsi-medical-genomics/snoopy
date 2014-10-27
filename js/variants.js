@@ -123,7 +123,9 @@ variantLocations.prototype.gotoCurrentVariant = function() {
     b.setCentreLocation('chr' + c[0], c[1]);
     b.clearHighlights();
     b.highlightRegion('chr' + c[0], c[1], c[1] + 1);
-    b.zoomStep(-1000000);
+    if (settings.autoZoom) {
+        b.zoomStep(-1000000);
+    }
     document.getElementById("mySelect").value = this.current;
 };
 
