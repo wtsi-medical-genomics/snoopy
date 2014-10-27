@@ -46,6 +46,11 @@ $("#modalSettings").on("hidden.bs.modal", function (e) {
     settings.defaultZoomLevelUnit = $("#defaultZoomLevelUnit").prop("checked");
     settings.autoZoom = $("#autoZoom").prop("checked"); 
     settings.highlightDiff = $("#highlightDiff").prop("checked"); 
+
+    if(!settings.defaultZoomLevelUnit) {
+        settings.currentZoom = b.zoomFactor;
+    }
+
     console.log(settings);
 })
 

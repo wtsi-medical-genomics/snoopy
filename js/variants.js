@@ -124,7 +124,11 @@ variantLocations.prototype.gotoCurrentVariant = function() {
     b.clearHighlights();
     b.highlightRegion('chr' + c[0], c[1], c[1] + 1);
     if (settings.autoZoom) {
-        b.zoomStep(-1000000);
+        if (settings.defaultZoomLevelUnit) { 
+            b.zoomStep(-1000000);
+        } else {
+            b.zoom(settings.currentZoom);
+        }
     }
     document.getElementById("mySelect").value = this.current;
 };
