@@ -30,7 +30,7 @@ window.onload = function() {
     document.getElementById("loadDalliance").addEventListener("click", loadDalliance, false);
 
     // Listen for reload event
-    document.getElementById("reload").addEventListener("click", function(){document.location.reload();}, false);
+    document.getElementById("restart").addEventListener("click", function(){document.location.reload();}, false);
 //    document.getElementById("loadModalHelp").addEventListener("click", function(){
 //        $("#modalHelp").modal('show');
 //    }, false);
@@ -46,6 +46,8 @@ window.onload = function() {
     document.getElementById("qcNotVariant").addEventListener("click", function(){v.setQC(-1);}, false);
     document.getElementById("qcPotentialVariant").addEventListener("click", function(){v.setQC(0);}, false);
     document.getElementById("qcCertainVariant").addEventListener("click", function(){v.setQC(1);}, false);
+
+    document.getElementById("returnHome").addEventListener("click", function(){v.gotoCurrentVariant();}, false);
 };
 
 $("#modalSettings").on("hidden.bs.modal", function (e) {
@@ -62,6 +64,8 @@ $("#modalSettings").on("hidden.bs.modal", function (e) {
         settings.currentZoom = w / b.zoomBase; 
         }
     }
+
+    localStorage.setItem("snoopSettings", JSON.stringify(settings));
     console.log(settings);
 })
 
@@ -70,7 +74,7 @@ $("#modalSettings").on("show.bs.modal", function (e) {
     $("#defaultZoomLevelCurrent").prop("checked", !settings.defaultZoomLevelUnit);
     $("#autoZoom").prop("checked", settings.autoZoom); 
     $("#highlightDiff").prop("checked", settings.highlightDiff); 
-
+    $("#zoomLevelText").val(b.zoomBase * settings.currentZoom);
     $("#zoomLevelText").focus(function() {
         $("#defaultZoomLevelCurrent").prop("checked", true);
     });
@@ -318,7 +322,15 @@ function loadDalliance() {
         v.gotoCurrentVariant();
         v.refreshSelectList();
     }
-    setTimeout(function(){b.zoomStep(-1000000)}, 1000);    
+
+    setTimeout(function() {
+        if (settings.defaultZoomLevelUnit) { 
+            b.zoomStep(-1000000);
+        } else {
+            b.zoom(settings.currentZoom);
+        }
+    }, 1000);
+    //    setTimeout(function(){b.zoomStep(-1000000)}, 1000);    
     document.getElementById("fileLoader").setAttribute("style", "display: none");
     document.getElementById("controlCenter").setAttribute("style", "display: block");
     document.getElementById("progressBar").setAttribute("style", "display: block");

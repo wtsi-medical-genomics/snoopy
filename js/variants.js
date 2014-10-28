@@ -119,7 +119,6 @@ variantLocations.prototype.gotoCurrentVariant = function() {
     console.log(this.current);
     var c = this.variantArray[this.current];
     console.log(c);
-   // b.setLocation(+ c[0] - 100, c[1] + 100);
     b.setCentreLocation('chr' + c[0], c[1]);
     b.clearHighlights();
     b.highlightRegion('chr' + c[0], c[1], c[1] + 1);
@@ -140,9 +139,10 @@ variantLocations.prototype.next = function() {
         console.log("I'm moving on");
         this.current++;
         this.gotoCurrentVariant();
-    } else {
+    } else { // at the end now
         console.log("I'm not moving");
         document.getElementById("mySelect").value = this.current;
+        generateQCreport();
     }
 };
 
