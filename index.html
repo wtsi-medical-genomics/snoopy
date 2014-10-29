@@ -52,29 +52,29 @@
         </div>
         <!-- Fixed navbar -->
         <div class="navbar navbar-default navbar-fixed-top snoop-toolbar" id="controlCenter" role="navigation">
-            <div class="containerfluid">
-                <div class="row">
-                    <div class="col-md-3 col-left">
-                        Candidate Variant <div id="variantSelectListHolder"></div>
-                        <button type="button" class="btn btn-default" id="returnHome"><span class="glyphicon glyphicon-home"></span></button>
-                    </div>
-                    <div class="col-md-6 col-center">    
-                        <button type="button" class="btn btn-default" id="goBack"><span class="glyphicon glyphicon-chevron-left"></span> Previous</button>
-                        <div class="btn-group go-right">
+            <div class="navbar-inner">
+                <ul class="nav navbar-nav">
+                    <li>Candidate Variant <div id="variantSelectListHolder"></div></li>
+                    <li><button type="button" class="btn btn-default" id="returnHome"><span class="glyphicon glyphicon-home"></span></button></li>
+                    <li><button type="button" class="btn btn-default" id="goBack"><span class="glyphicon glyphicon-chevron-left"></span> Previous</button></li>
+                    <li>
+                        <div class="btn-group">
                             <button type="button" class="btn btn-default" id="qcNotVariant">Not a Variant <span class="glyphicon glyphicon-chevron-right"></span></button>
                             <button type="button" class="btn btn-default" id="qcPotentialVariant">Uncertain <span class="glyphicon glyphicon-chevron-right"></span></button>
                             <button type="button" class="btn btn-default" id="qcCertainVariant">Variant <span class="glyphicon glyphicon-chevron-right"></span></button>
                         </div>
-                    </div>
-                    <div class="col-md-3 col-right">
+                    </li>            
+                </ul>        
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
                         <div class="btn-group">
                             <button type="button" class="btn btn-default"  data-toggle="modal" data-target="#modalSettings"><span class="glyphicon glyphicon-wrench"></span></button>
                             <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modalRestart"><span class="glyphicon glyphicon-repeat"></span></button>
                             <!-- <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-plus"></span></button> -->
                             <button type="button" class="btn btn-default" id="prepareDownloadQCreport"><span class="glyphicon glyphicon-floppy-save"></span></button>
                         </div>
-                    </div>
-                </div>
+                    </li>
+                </ul>
             </div>
         </div>
 

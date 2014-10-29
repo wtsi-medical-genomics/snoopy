@@ -118,8 +118,7 @@ table.color-code tr.a td {
 
 .snoop-toolbar {
     margin-top: 50px;
-    display: inline;
-    padding-top: 3px;
+    padding-top: 7px;
 }
 
 .snoop-toolbar table {
@@ -164,14 +163,19 @@ table.color-code tr.a td {
     background-color: lightgrey;
 }
 
-li.spaced {
-    padding-left: 10px;
-    padding-right: 10px;
+.snoop-toolbar li {
+    padding-left: 6px;
+    padding-right: 6px;
 }
 
-.toolbar .navbar-inner {
-    text-align:center;
+.snoop-toolbar .navbar-nav.navbar-right:last-child {
+    margin-right: 0px;
 }
+
+/*.snoop-toolbar .navbar-inner {
+    padding-left: 15px;
+    padding-right: 15px; 
+}*/
 
 #progressBar {
     display: none;
