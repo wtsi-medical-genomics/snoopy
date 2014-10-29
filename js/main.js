@@ -300,9 +300,49 @@ function loadDalliance() {
                     }
                 }
                 ]
-            }
+            };
             console.log(bamObj);
             b.addTier(bamObj);
+           
+            var covObj = {
+                baiBlob : bamFile.index.file,
+                bamBlob : bamFile.file,
+                name : bamFile.file.name + ' coverage', 
+                noPersist : true,
+                style: [
+                    {
+                    "type": "density",
+                    "zoom": "low",
+                    "style": {
+                        "glyph": "HISTOGRAM",
+                        "COLOR1": "gray",
+                        "HEIGHT": 30
+                    }
+                },
+                {
+                    "type": "density",
+                    "zoom": "medium",
+                    "style": {
+                        "glyph": "HISTOGRAM",
+                        "COLOR1": "gray",
+                        "HEIGHT": 30
+                    }
+                },
+                {
+                    "type": "base-coverage",
+                    "zoom": "high",
+                    "style": {
+                        "glyph": "HISTOGRAM",
+                        "COLOR1": "lightgray",
+                        "BGITEM": true,
+                        "HEIGHT": 30
+                    }
+                }
+                ]
+            };
+
+            console.log(covObj);
+            b.addTier(covObj);
         }
     }
 
@@ -318,7 +358,7 @@ function loadDalliance() {
     reader.readAsText(variantFiles[0].file);
     reader.onload = function() {
         console.log(reader.result);
-        v.processVariantFile(reader.result);
+        v.processVariantFile(reader.result, variantFiles[0].file.name);
         v.gotoCurrentVariant();
         v.refreshSelectList();
     }
@@ -330,11 +370,9 @@ function loadDalliance() {
             b.zoom(settings.currentZoom);
         }
     }, 1000);
-    //    setTimeout(function(){b.zoomStep(-1000000)}, 1000);    
     document.getElementById("fileLoader").setAttribute("style", "display: none");
     document.getElementById("controlCenter").setAttribute("style", "display: block");
     document.getElementById("progressBar").setAttribute("style", "display: block");
     //document.getElementById("my-dalliance-holder").setAttribute("style", "opactiy: 1");
     document.getElementById("my-dalliance-holder").style.opacity = "1";
-    //document.body.style.backgroundColor = "white";
 }

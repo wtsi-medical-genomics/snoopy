@@ -3,6 +3,7 @@
 function variantLocations() {
     this.variantArray = [];
     this.current = 0;
+    this.fileName = "";
 }
 
 variantLocations.prototype.updateByList = function() {
@@ -37,7 +38,8 @@ variantLocations.prototype.refreshProgressBar = function() {
     progressBar.style.width = percent + "%";
 };
 
-variantLocations.prototype.processVariantFile = function(fileText) {
+variantLocations.prototype.processVariantFile = function(fileText, fileName) {
+    this.fileName = fileName; 
     var textArray = fileText.split("\n");
     var pattern = /\s*[-:,\s]+\s*/;
 for (var i = 0; i < textArray.length; i++) {
@@ -52,8 +54,8 @@ for (var i = 0; i < textArray.length; i++) {
 };
 
 variantLocations.prototype.generateQCreport = function() {
-    var str = Date() + "\n";
-    var fname = $("#QCreportFilename").val();
+    var out = $("#QCreportFilename").val();
+    var str = Date() + "\n\n";
     
     for (var i = 0; i < b.tiers.length; i++) {
         if (b.tiers[i].featureSource.source) {
@@ -62,7 +64,8 @@ variantLocations.prototype.generateQCreport = function() {
     //        fname += bamName + "_";
         }
     }
-   
+  
+    str += "\n" + this.fileName + "\n"; 
     str += "\n"; 
 
     for (var i = 0; i < this.variantArray.length; i++) {
@@ -73,7 +76,7 @@ variantLocations.prototype.generateQCreport = function() {
 
     var blob = new Blob([str], {type: "text/plain;charset=utf-8"});
     fname += ".txt"
-    saveAs(blob, fname); 
+    saveAs(blob, out); 
 }
 
 variantLocations.prototype.refreshSelectList = function() {
@@ -152,5 +155,4 @@ variantLocations.prototype.prev = function() {
         this.gotoCurrentVariant();
     }
 };
-
 
