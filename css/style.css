@@ -27,6 +27,9 @@ p.justify {
     display: inline-block;
 }
 
+.form-stretch {
+    width: 100% !important;
+}
 
 #modalHelp ul {
     margin: 1em;

@@ -10,7 +10,7 @@
 var v = new variantLocations();
 var settings;
     
-var storedSettings = localStorage.getItem("snoopSettings");
+var storedSettings = localStorage.getItem("snoopySettings");
 if (storedSettings) {
     settings = JSON.parse(storedSettings);
 } else {
@@ -22,7 +22,7 @@ if (storedSettings) {
     }
 }
 
-window.onload = function() {
+$(document).ready(function() {
 
     // Listen for button to load files
     document.getElementById("fileLoaded").addEventListener("change", loadFiles, false);
@@ -46,9 +46,16 @@ window.onload = function() {
     document.getElementById("qcNotVariant").addEventListener("click", function(){v.setQC(-1);}, false);
     document.getElementById("qcPotentialVariant").addEventListener("click", function(){v.setQC(0);}, false);
     document.getElementById("qcCertainVariant").addEventListener("click", function(){v.setQC(1);}, false);
-
     document.getElementById("returnHome").addEventListener("click", function(){v.gotoCurrentVariant();}, false);
-};
+    $("#loadRemoteFileButton").on("click", function() {
+        $("#modalLoadRemote").modal("show");
+    });
+
+    $("#loadRemoteFile").on("click", function() {
+        loadRemoteFile();
+        $("#modalDownloadQCreport").modal('hide');
+    });
+});
 
 $("#modalSettings").on("hidden.bs.modal", function (e) {
     settings.defaultZoomLevelUnit = $("#defaultZoomLevelUnit").prop("checked");
@@ -65,7 +72,7 @@ $("#modalSettings").on("hidden.bs.modal", function (e) {
         }
     }
 
-    localStorage.setItem("snoopSettings", JSON.stringify(settings));
+    localStorage.setItem("snoopySettings", JSON.stringify(settings));
     console.log(settings);
 })
 
@@ -115,8 +122,8 @@ var b = new Browser({
     singleBaseHighlight : false,
     defaultHighlightFill : 'black',
     defaultHighlightAlpha : 0.15,
-    maxHeight : 10000,
-    noTrackAdder : true,
+    maxHeight : 500,
+    noTrackAdder : false,
     noLeapButtons : true,
     noLocationField : true,
     noZoomSlider : false,
@@ -145,15 +152,6 @@ var b = new Browser({
             UCSC: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr${chr}:${start}-${end}',
                 Sequence: 'http://www.derkholm.net:8080/das/hg19comp/sequence?segment=${chr}:${start},${end}'
     }
-});
-
-b.hubs = [
-    'http://www.biodalliance.org/datasets/testhub/hub.txt',
-        'http://ftp.ebi.ac.uk/pub/databases/ensembl/encode/integration_data_jan2011/hub.txt'
-];
-
-b.addFeatureInfoPlugin(function(f, info) {
-    info.add('Testing', 'This is a test!');
 });
 
 b.zoomMin = 20;
@@ -200,15 +198,15 @@ function loadFiles() {
         var f = files[i];
         switch (getExtension(f)) {
             case "bam":
-                var newBam = new LoadedBamFile(f);
+                var newBam = new LoadedBamFile(f, false);
             bamFiles.push(newBam);
             break;
             case "bai":
-                var newBai = new LoadedBaiFile(f);
+                var newBai = new LoadedBaiFile(f, false);
             baiFiles.push(newBai);
             break;
             case "txt":
-                var newVariant = new LoadedVariantFile(f);
+                var newVariant = new LoadedVariantFile(f, false);
             variantFiles.push(newVariant);
             break;
         }
@@ -257,10 +255,15 @@ function resetFileLoaded() {
     father.replaceChild(newFileLoad, oldFileLoad); 
 }
 
+function loadRemoteFile() {
+    var remoteFilename = $("#remoteFilename").val();
+    console.log(remoteFilename);
+}
+
 function loadDalliance() {
     for (var i=0; i < bamFiles.length; ++i) {
         var bamFile = bamFiles[i];
-        if (bamFile.index) { 
+        if (bamFile.remote== false && bamFile.index) { 
             var bamObj = {
                 baiBlob : bamFile.index.file,
                 bamBlob : bamFile.file,

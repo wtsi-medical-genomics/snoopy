@@ -1,12 +1,12 @@
 "use strict";
 
-function LoadedFile(file) {
+function LoadedFile(file, remote) {
     this.file = file || null;
+    this.remote = remote || null;
 }
 
 LoadedFile.prototype.print = function(message) {
 }
-
 
 function LoadedBamFile(file) {
     this.base = LoadedFile;
