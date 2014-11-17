@@ -49,11 +49,12 @@ $(document).ready(function() {
     document.getElementById("returnHome").addEventListener("click", function(){v.gotoCurrentVariant();}, false);
     $("#loadRemoteFileButton").on("click", function() {
         $("#modalLoadRemote").modal("show");
+
     });
 
     $("#loadRemoteFile").on("click", function() {
         loadRemoteFile();
-        $("#modalDownloadQCreport").modal('hide');
+        $("#modalLoadRemote").modal('hide');
     });
 });
 
@@ -91,7 +92,6 @@ $("#modalSettings").on("show.bs.modal", function (e) {
         var cz = Math.round(b.viewEnd - b.viewStart);
         $("#zoomLevelText").val(cz);
     });
-
     console.log(settings);
 })
 
@@ -122,7 +122,7 @@ var b = new Browser({
     singleBaseHighlight : false,
     defaultHighlightFill : 'black',
     defaultHighlightAlpha : 0.15,
-    maxHeight : 500,
+    maxHeight : 550,
     noTrackAdder : false,
     noLeapButtons : true,
     noLocationField : true,
@@ -159,8 +159,10 @@ b.zoomMin = 20;
 var bamFiles = [];
 var baiFiles = [];
 var variantFiles = [];
+var listFiles = [];
 
 function printFilesTable() {
+    console.log(bamFiles);
     var str = printfArray(bamFiles);
     str += printfArray(baiFiles);
     str += printfArray(variantFiles);
@@ -198,15 +200,15 @@ function loadFiles() {
         var f = files[i];
         switch (getExtension(f)) {
             case "bam":
-                var newBam = new LoadedBamFile(f, false);
+                var newBam = new LoadedBamFile(f);
             bamFiles.push(newBam);
             break;
             case "bai":
-                var newBai = new LoadedBaiFile(f, false);
+                var newBai = new LoadedBaiFile(f);
             baiFiles.push(newBai);
             break;
             case "txt":
-                var newVariant = new LoadedVariantFile(f, false);
+                var newVariant = new LoadedVariantFile(f);
             variantFiles.push(newVariant);
             break;
         }
@@ -214,10 +216,13 @@ function loadFiles() {
 
     for (var i=0; i < bamFiles.length; ++i) {
         console.log(i);
-        var baiEquivName = bamFiles[i].file.name + ".bai";
-        var baiIndex = fileArrayContains(baiFiles, baiEquivName);
-        if (baiIndex >= 0) {
-            bamFiles[i].index = baiFiles.splice(baiIndex, 1)[0];
+        console.log(bamFiles[i]);
+        if (bamFiles[i]) {
+            var baiEquivName = bamFiles[i].file.name + ".bai";
+            var baiIndex = fileArrayContains(baiFiles, baiEquivName);
+            if (baiIndex >= 0) {
+                bamFiles[i].index = baiFiles.splice(baiIndex, 1)[0];
+            }
         }
     }
     printFilesTable();
@@ -256,97 +261,51 @@ function resetFileLoaded() {
 }
 
 function loadRemoteFile() {
-    var remoteFilename = $("#remoteFilename").val();
-    console.log(remoteFilename);
+    var f = $("#remoteFilename").val();
+    console.log(f);
+    switch (getExtension(f)) {
+        case "bam":
+            var newBam = new RemoteBam(f);
+            bamFiles.push(newBam);
+            printFilesTable();
+        break;
+        case "json":
+            $.ajax({
+                url: "https://web-lustre-01.internal.sanger.ac.uk/" + f,
+                xhrFields: { withCredentials: true }
+            }).done(function(data) {
+               loadListFileContents(data);
+            });
+        break;
+        case "txt":
+            var newVariant = new LoadedVariantFile(f);
+            variantFiles.push(newVariant);
+            printFilesTable();
+        break;
+    }
+    console.log('print the files!'); 
+}
+
+function loadListFileContents(jsonFile) {
+    console.log('what the heck');
+    var fileObj = JSON.parse(jsonFile);
+    var newVariant = new RemoteVariantList(fileObj.variant_locations);
+    variantFiles.push(newVariant);
+    
+    for (var i=0; i < fileObj.bams.length; ++i) { 
+        var newBam = new RemoteBam(fileObj.bams[i]);
+        bamFiles.push(newBam);
+    }
+    printFilesTable();
 }
 
 function loadDalliance() {
     for (var i=0; i < bamFiles.length; ++i) {
-        var bamFile = bamFiles[i];
-        if (bamFile.remote== false && bamFile.index) { 
-            var bamObj = {
-                baiBlob : bamFile.index.file,
-                bamBlob : bamFile.file,
-                name : bamFile.file.name, 
-                noPersist : true,
-                style: [
-                    {
-                    "type": "density",
-                    "zoom": "low",
-                    "style": {
-                        "glyph": "HISTOGRAM",
-                        "COLOR1": "black",
-                        "COLOR2": "red",
-                        "HEIGHT": 30
-                    }
-                },
-                {
-                    "type": "density",
-                    "zoom": "medium",
-                    "style": {
-                        "glyph": "HISTOGRAM",
-                        "COLOR1": "black",
-                        "COLOR2": "red",
-                        "HEIGHT": 30
-                    }
-                },
-                {
-                    "type": "bam",
-                    "zoom": "high",
-                    "style": {
-                        "glyph": "__SEQUENCE",
-                        "HEIGHT": 8,
-                        "BUMP": true,
-                        "LABEL": false,
-                        "ZINDEX": 20,
-                        "__SEQCOLOR": "mismatch"
-                    }
-                }
-                ]
-            };
+        var bamObj = bamFiles[i].getTier();
+        if (bamObj) { 
             console.log(bamObj);
             b.addTier(bamObj);
-           
-            var covObj = {
-                baiBlob : bamFile.index.file,
-                bamBlob : bamFile.file,
-                name : bamFile.file.name + ' coverage', 
-                noPersist : true,
-                style: [
-                    {
-                    "type": "density",
-                    "zoom": "low",
-                    "style": {
-                        "glyph": "HISTOGRAM",
-                        "COLOR1": "gray",
-                        "HEIGHT": 30
-                    }
-                },
-                {
-                    "type": "density",
-                    "zoom": "medium",
-                    "style": {
-                        "glyph": "HISTOGRAM",
-                        "COLOR1": "gray",
-                        "HEIGHT": 30
-                    }
-                },
-                {
-                    "type": "base-coverage",
-                    "zoom": "high",
-                    "style": {
-                        "glyph": "HISTOGRAM",
-                        "COLOR1": "lightgray",
-                        "BGITEM": true,
-                        "HEIGHT": 30
-                    }
-                }
-                ]
-            };
-
-            console.log(covObj);
-            b.addTier(covObj);
-        }
+        } 
     }
 
     //Create and append select list
@@ -357,14 +316,7 @@ function loadDalliance() {
     selectList.onchange = function(){v.updateByList();};
     myDiv.appendChild(selectList);
 
-    var reader = new FileReader();
-    reader.readAsText(variantFiles[0].file);
-    reader.onload = function() {
-        console.log(reader.result);
-        v.processVariantFile(reader.result, variantFiles[0].file.name);
-        v.gotoCurrentVariant();
-        v.refreshSelectList();
-    }
+    v.init(variantFiles[0]);
 
     setTimeout(function() {
         if (settings.defaultZoomLevelUnit) { 
@@ -378,4 +330,7 @@ function loadDalliance() {
     document.getElementById("progressBar").setAttribute("style", "display: block");
     //document.getElementById("my-dalliance-holder").setAttribute("style", "opactiy: 1");
     document.getElementById("my-dalliance-holder").style.opacity = "1";
+
 }
+
+

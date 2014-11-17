@@ -1,8 +1,7 @@
 "use strict";
 
-function LoadedFile(file, remote) {
+function LoadedFile(file) {
     this.file = file || null;
-    this.remote = remote || null;
 }
 
 LoadedFile.prototype.print = function(message) {
@@ -26,9 +25,121 @@ LoadedBamFile.prototype.print = function(index) {
         str += "Index loaded";
     }
     str += "</td><td><a href=\"#\" onclick=\"removeBAM(";
-                                                       str += String(index);
-                                                       str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
-                                                       return str
+    str += String(index);
+    str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
+    return str;
+}
+
+LoadedBamFile.prototype.getTier = function() {
+    var tier = {
+        baiBlob : this.index.file,
+        bamBlob : this.file,
+        name : this.file.name, 
+        noPersist : true,
+        subtierMax : 1000,
+        style: [
+            {
+            "type": "density",
+            "zoom": "low",
+            "style": {
+                "glyph": "HISTOGRAM",
+                "COLOR1": "black",
+                "COLOR2": "red",
+                "HEIGHT": 30
+            }
+        },
+        {
+            "type": "density",
+            "zoom": "medium",
+            "style": {
+                "glyph": "HISTOGRAM",
+                "COLOR1": "black",
+                "COLOR2": "red",
+                "HEIGHT": 30
+            }
+        },
+        {
+            "type": "bam",
+            "zoom": "high",
+            "style": {
+                "glyph": "__SEQUENCE",
+                "HEIGHT": 8,
+                "BUMP": true,
+                "LABEL": false,
+                "ZINDEX": 20,
+                "__SEQCOLOR": "mismatch"
+            }
+        }
+        ]
+    };
+    return tier;
+}
+
+function RemoteBam(file) {
+    this.base = LoadedFile;
+    this.base(file);
+    this.name = getName(file);
+}
+
+RemoteBam.prototype = new LoadedFile;
+
+RemoteBam.prototype.print = function(index) {
+    var str = "<tr><td>";
+    str += this.name;
+    str += "</td><td>";
+    str += "</td><td><a href=\"#\" onclick=\"removeBAM(";
+    str += String(index);
+    str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
+    console.log('remotebam print');
+    return str;
+}
+
+RemoteBam.prototype.getTier = function() {
+    if (typeof(this.file) === "string") {
+
+        var tier = {
+            bamURI : "https://web-lustre-01.internal.sanger.ac.uk/" + this.file,
+            name : this.name, 
+            credentials : true,
+            noPersist : true,
+            subtierMax : 1000,
+            style: [
+                {
+                "type": "density",
+                "zoom": "low",
+                "style": {
+                    "glyph": "HISTOGRAM",
+                    "COLOR1": "black",
+                    "COLOR2": "red",
+                    "HEIGHT": 30
+                }
+            },
+            {
+                "type": "density",
+                "zoom": "medium",
+                "style": {
+                    "glyph": "HISTOGRAM",
+                    "COLOR1": "black",
+                    "COLOR2": "red",
+                    "HEIGHT": 30
+                }
+            },
+            {
+                "type": "bam",
+                "zoom": "high",
+                "style": {
+                    "glyph": "__SEQUENCE",
+                    "HEIGHT": 8,
+                    "BUMP": true,
+                    "LABEL": false,
+                    "ZINDEX": 20,
+                    "__SEQCOLOR": "mismatch"
+                }
+            }
+            ]
+        };
+    }
+    return tier;
 }
 
 function LoadedBaiFile(file) {
@@ -82,7 +193,6 @@ LoadedVariantFile.prototype = new LoadedFile;
 //    return this.file.name;
 //}
 
-
 LoadedVariantFile.prototype.print = function(index) {
     var str = "<tr><td>";
     str += this.file.name;
@@ -92,6 +202,25 @@ LoadedVariantFile.prototype.print = function(index) {
                                                                str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
                                                                return str
 }
+
+function RemoteVariantList(file) {
+    this.base = LoadedFile;
+    this.base(file);
+    this.name = getName(file);
+}
+
+RemoteVariantList.prototype = new LoadedFile;
+
+RemoteVariantList.prototype.print = function(index) {
+    var str = "<tr><td>";
+    str += this.name;
+    str += "</td><td>";
+    str += "</td><td><a href=\"#\" onclick=\"removeVariantFile("
+                                                               str += String(index)
+                                                               str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
+                                                               return str
+}
+
 
 function removeVariantFile(index) {
     if (typeof(index) === "string") {
@@ -122,10 +251,23 @@ LoadedFilesList.prototype.length = function() {
     return this.files.length;
 }
 
-var getExtension = function(file) {
-    var parts = file.name.split(".");
+function getExtension(f) {
+    if (typeof(f) !== "string") {
+        f = f.name;
+    }
+    var parts = f.split(".");
     return parts[parts.length - 1].toLowerCase();
 };
+
+function getName(f) {
+    if (typeof(f) !== "string") {
+        f = f.name;
+    }
+    var parts = f.split("/");
+    return parts[parts.length - 1];
+};
+
+
 
 var fileArrayContains = function(fArray, fname) {
     for (var i=0; i < fArray.length; ++i) {
@@ -144,5 +286,4 @@ var printfArray = function(fArray) {
     }
     return str;
 }
-
 

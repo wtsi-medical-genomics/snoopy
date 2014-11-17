@@ -38,6 +38,30 @@ variantLocations.prototype.refreshProgressBar = function() {
     progressBar.style.width = percent + "%";
 };
 
+variantLocations.prototype.init = function(f) {
+    if (f instanceof RemoteVariantList) {
+        $.ajax({
+            url: "https://web-lustre-01.internal.sanger.ac.uk/" + f.file,
+                xhrFields: { withCredentials: true }
+        }).done(function(fileText) {
+            console.log(fileText);
+            v.init2(fileText, f.name);
+        });
+    } else {
+        var reader = new FileReader();
+        reader.readAsText(f.file);
+        reader.onload = function() {
+            v.init2(reader.result, f.name);
+       }
+    }
+};
+
+variantLocations.prototype.init2 = function(fileText, fileName) {
+    this.processVariantFile(fileText, fileName);
+    this.gotoCurrentVariant();
+    this.refreshSelectList();
+}
+
 variantLocations.prototype.processVariantFile = function(fileText, fileName) {
     this.fileName = fileName; 
     var textArray = fileText.split("\n");
@@ -75,7 +99,6 @@ variantLocations.prototype.generateQCreport = function() {
     }
 
     var blob = new Blob([str], {type: "text/plain;charset=utf-8"});
-    fname += ".txt"
     saveAs(blob, out); 
 }
 
