@@ -46,7 +46,7 @@
                 <ul class="nav navbar-nav">
                     <li><a href="#" data-toggle="modal" data-target="#modalHelp">Help</a></li>
                     <li><a href="#about">About</a></li>
-                    <li><a href="https://github.com/wtsi-medical-genomics/snoop/" target="_blank">GitHub</a></li>
+                    <li><a href="https://github.com/wtsi-medical-genomics/snoopy/" target="_blank">GitHub</a></li>
                 </ul>
             </div><!--/.nav-collapse -->
         </div>
@@ -303,7 +303,7 @@
                         <h4 class="modal-title" id="myModalSettings">Settings</h4>
                     </div>
                     <div class="modal-body">
-                        <table>
+                        <table >
                             <tr>
                                 <td rowspan="2">
                                     Default zoom level
@@ -334,15 +334,10 @@
                                     <input type="checkbox" id="autoZoom">
                                 </td>
                             </tr>
-                            <tr class="border-top">
-                                <td>
-                                    Highlight mismatches & strands by default
-                                </td>
-                                <td colspan="2">
-                                    <input type="checkbox" id="highlightDiff">
-                                </td>
-                            </tr>
                         </table>
+                        <br>
+                        <br>
+                        <div id="displaySettings"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

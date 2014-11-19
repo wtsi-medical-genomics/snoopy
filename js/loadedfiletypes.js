@@ -94,51 +94,49 @@ RemoteBam.prototype.print = function(index) {
     return str;
 }
 
-RemoteBam.prototype.getTier = function() {
-    if (typeof(this.file) === "string") {
 
-        var tier = {
-            bamURI : "https://web-lustre-01.internal.sanger.ac.uk/" + this.file,
-            name : this.name, 
-            credentials : true,
-            noPersist : true,
-            subtierMax : 1000,
-            style: [
-                {
-                "type": "density",
-                "zoom": "low",
-                "style": {
-                    "glyph": "HISTOGRAM",
-                    "COLOR1": "black",
-                    "COLOR2": "red",
-                    "HEIGHT": 30
-                }
-            },
+RemoteBam.prototype.getTier = function() {
+    var tier = {
+        bamURI : "https://web-lustre-01.internal.sanger.ac.uk/" + this.file,
+        name : this.name, 
+        credentials : true,
+        noPersist : true,
+        subtierMax : 1000,
+        style: [
             {
-                "type": "density",
-                "zoom": "medium",
-                "style": {
-                    "glyph": "HISTOGRAM",
-                    "COLOR1": "black",
-                    "COLOR2": "red",
-                    "HEIGHT": 30
-                }
-            },
-            {
-                "type": "bam",
-                "zoom": "high",
-                "style": {
-                    "glyph": "__SEQUENCE",
-                    "HEIGHT": 8,
-                    "BUMP": true,
-                    "LABEL": false,
-                    "ZINDEX": 20,
-                    "__SEQCOLOR": "mismatch"
-                }
+            "type": "density",
+            "zoom": "low",
+            "style": {
+                "glyph": "HISTOGRAM",
+                "COLOR1": "black",
+                "COLOR2": "red",
+                "HEIGHT": 30
             }
-            ]
-        };
-    }
+        },
+        {
+            "type": "density",
+            "zoom": "medium",
+            "style": {
+                "glyph": "HISTOGRAM",
+                "COLOR1": "black",
+                "COLOR2": "red",
+                "HEIGHT": 30
+            }
+        },
+        {
+            "type": "bam",
+            "zoom": "high",
+            "style": {
+                "glyph": "__SEQUENCE",
+                "HEIGHT": 8,
+                "BUMP": true,
+                "LABEL": false,
+                "ZINDEX": 20,
+                "__SEQCOLOR": "mismatch"
+            }
+        }
+        ]
+    };
     return tier;
 }
 

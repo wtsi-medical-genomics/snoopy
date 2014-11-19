@@ -6,10 +6,13 @@
 //        app: '../app'
 //    }
 //});
+var baseCoverage = {styles: [ { "type": "density", "zoom": "low", "style": { "glyph": "HISTOGRAM",  "COLOR1": "gray", "HEIGHT": 30 } }, { "type": "density", "zoom": "medium", "style": {"glyph": "HISTOGRAM", "COLOR1": "gray",  "HEIGHT": 30 } }, { "type":  "base-coverage", "zoom": "high", "style": { "glyph":  "HISTOGRAM", "COLOR1": "lightgray", "BGITEM":true, "HEIGHT": 110 } } ] };
+
+var mismatch = {styles: [ { "type": "density", "zoom": "low", "style": { "glyph": "HISTOGRAM", "COLOR1": "black", "COLOR2": "red", "HEIGHT": 30 } }, { "type": "density", "zoom": "medium", "style": { "glyph": "HISTOGRAM", "COLOR1": "black", "COLOR2": "red", "HEIGHT": 30 } }, { "type": "bam", "zoom": "high", "style": { "glyph": "__SEQUENCE", "HEIGHT": 8, "BUMP": true, "LABEL": false, "ZINDEX": 20, "__SEQCOLOR": "mismatch" } } ] };
 
 var v = new variantLocations();
 var settings;
-    
+var displaySettings = [];
 var storedSettings = localStorage.getItem("snoopySettings");
 if (storedSettings) {
     settings = JSON.parse(storedSettings);
@@ -56,6 +59,7 @@ $(document).ready(function() {
         loadRemoteFile();
         $("#modalLoadRemote").modal('hide');
     });
+
 });
 
 $("#modalSettings").on("hidden.bs.modal", function (e) {
@@ -72,9 +76,21 @@ $("#modalSettings").on("hidden.bs.modal", function (e) {
         settings.currentZoom = w / b.zoomBase; 
         }
     }
-
     localStorage.setItem("snoopySettings", JSON.stringify(settings));
     console.log(settings);
+
+    for (var i=1; i<b.tiers.length; ++i) { 
+        var cs = $("#displaySelect" + i).val(); 
+        console.log(cs);
+        if(cs === "mismatch") {
+            b.tiers[i].init();
+            displaySettings[i] = "mismatch";
+        } else {
+            b.tiers[i].setStylesheet(baseCoverage);
+            displaySettings[i] = "coverage";
+        }
+    }
+    b.refresh();
 })
 
 $("#modalSettings").on("show.bs.modal", function (e) {
@@ -92,7 +108,29 @@ $("#modalSettings").on("show.bs.modal", function (e) {
         var cz = Math.round(b.viewEnd - b.viewStart);
         $("#zoomLevelText").val(cz);
     });
-    console.log(settings);
+    var str = "<table style=\"width: 100%;\">";
+    for (var i=1; i<b.tiers.length; ++i) { 
+        var bamName = b.tiers[i].featureSource.source.bamSource.name;
+        str += "<tr>";
+        str += "<td>";
+        str += bamName;
+        str += "</td>";
+        str += "<td colspan=\"2\">";
+        str += "<select class=\"form-control\" id=\"displaySelect" + i + "\">";
+        if (displaySettings[i] && displaySettings[i] === "coverage") {
+            str += "<option value='mismatch'>Highlight mismatches</option>";
+            str += "<option value='coverage' selected='selected'>Coverage histogram</option>";
+        } else {
+            str += "<option value='mismatch' selected='selected'>Highlight mismatches</option>";
+            str += "<option value='coverage'>Coverage histogram</option>";
+        }
+        str += "</select>";
+        str += "</td>";
+        str += "</tr>";
+    }
+    str += "</table>"
+    $("#displaySettings").html(str);
+
 })
 
 
@@ -121,7 +159,7 @@ var b = new Browser({
     },
     singleBaseHighlight : false,
     defaultHighlightFill : 'black',
-    defaultHighlightAlpha : 0.15,
+    defaultHighlightAlpha : 0.10,
     maxHeight : 550,
     noTrackAdder : false,
     noLeapButtons : true,
@@ -144,7 +182,7 @@ var b = new Browser({
     }],
     setDocumentTitle: true,
     //uiPrefix: 'file:///home/daniel/repositories/snpshow/dalliance/',
-    uiPrefix: 'file:///Users/dr9/Developer/snoop/dalliance/',
+    uiPrefix: 'file:///Users/dr9/Developer/snoopy/dalliance/',
         fullScreen: false,
 
     browserLinks: {

@@ -145,7 +145,7 @@ variantLocations.prototype.gotoCurrentVariant = function() {
     console.log(this.current);
     var c = this.variantArray[this.current];
     console.log(c);
-    b.setCentreLocation('chr' + c[0], c[1]);
+    b.setCenterLocation('chr' + c[0], c[1]);
     b.clearHighlights();
     b.highlightRegion('chr' + c[0], c[1], c[1] + 1);
     if (settings.autoZoom) {
