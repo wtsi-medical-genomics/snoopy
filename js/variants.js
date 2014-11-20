@@ -38,25 +38,44 @@ variantLocations.prototype.refreshProgressBar = function() {
     progressBar.style.width = percent + "%";
 };
 
-variantLocations.prototype.init = function(f, variant_instance) {
-    if (f instanceof RemoteVariantList) {
-        $.ajax({
-            url: "https://web-lustre-01.internal.sanger.ac.uk/" + f.file,
-                xhrFields: { withCredentials: true }
-        }).done(function(fileText) {
-            console.log(fileText);
-            variant_instance.init2(fileText, f.name);
-        });
-    } else {
-        var reader = new FileReader();
-        reader.readAsText(f.file);
-        reader.onload = function() {
-            variant_instance.init2(reader.result, f.name);
-       }
-    }
-};
+//variantLocations.prototype.inita = function(f, variant_instance) {
+//    if (f instanceof RemoteVariantList) {
+//        $.ajax({
+//            url: "https://web-lustre-01.internal.sanger.ac.uk/" + f.file,
+//                xhrFields: { withCredentials: true }
+//        }).done(function(fileText) {
+//            console.log(fileText);
+//            variant_instance.init2(fileText, f.name);
+//        });
+//    } else {
+//        var reader = new FileReader();
+//        reader.readAsText(f.file);
+//        reader.onload = function() {
+//            variant_instance.init2(reader.result, f.name);
+//       }
+//    }
+//};
+//
+//variantLocations.prototype.init = function(f, variant_instance) {
+//    if (f instanceof RemoteVariantList) {
+//        $.ajax({
+//            url: "https://web-lustre-01.internal.sanger.ac.uk/" + f.file,
+//                xhrFields: { withCredentials: true }
+//        }).done(function(fileText) {
+//            console.log(fileText);
+//            variant_instance.init2(fileText, f.name);
+//        });
+//    } else {
+//        var reader = new FileReader();
+//        reader.readAsText(f.file);
+//        reader.onload = function() {
+//            variant_instance.init2(reader.result, f.name);
+//       }
+//    }
+//};
 
-variantLocations.prototype.init2 = function(fileText, fileName) {
+variantLocations.prototype.init = function(fileText, fileName) {
+    console.log(fileName);
     this.processVariantFile(fileText, fileName);
     this.gotoCurrentVariant();
     this.refreshSelectList();
@@ -85,7 +104,6 @@ variantLocations.prototype.generateQCreport = function() {
         if (b.tiers[i].featureSource.source) {
            var bamName = b.tiers[i].featureSource.source.bamSource.name;
             str += bamName + "\n";
-    //        fname += bamName + "_";
         }
     }
   
@@ -94,7 +112,6 @@ variantLocations.prototype.generateQCreport = function() {
 
     for (var i = 0; i < this.variantArray.length; i++) {
         var v = this.variantArray[i];
-        console.log(v);
         str += v[0] + ":" +  v[1] + " " + v[2] + "\n"; 
     }
 

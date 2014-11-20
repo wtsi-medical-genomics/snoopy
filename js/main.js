@@ -1,11 +1,5 @@
 "use strict";
 
-//requirejs.config({
-//    baseUrl: 'lib',
-//    paths: {
-//        app: '../app'
-//    }
-//});
 var baseCoverage = {styles: [ { "type": "density", "zoom": "low", "style": { "glyph": "HISTOGRAM",  "COLOR1": "gray", "HEIGHT": 30 } }, { "type": "density", "zoom": "medium", "style": {"glyph": "HISTOGRAM", "COLOR1": "gray",  "HEIGHT": 30 } }, { "type":  "base-coverage", "zoom": "high", "style": { "glyph":  "HISTOGRAM", "COLOR1": "lightgray", "BGITEM":true, "HEIGHT": 110 } } ] };
 
 var mismatch = {styles: [ { "type": "density", "zoom": "low", "style": { "glyph": "HISTOGRAM", "COLOR1": "black", "COLOR2": "red", "HEIGHT": 30 } }, { "type": "density", "zoom": "medium", "style": { "glyph": "HISTOGRAM", "COLOR1": "black", "COLOR2": "red", "HEIGHT": 30 } }, { "type": "bam", "zoom": "high", "style": { "glyph": "__SEQUENCE", "HEIGHT": 8, "BUMP": true, "LABEL": false, "ZINDEX": 20, "__SEQCOLOR": "mismatch" } } ] };
@@ -14,6 +8,7 @@ var v = new variantLocations();
 var settings;
 var displaySettings = [];
 var storedSettings = localStorage.getItem("snoopySettings");
+
 if (storedSettings) {
     settings = JSON.parse(storedSettings);
 } else {
@@ -29,37 +24,42 @@ $(document).ready(function() {
 
     // Listen for button to load files
     document.getElementById("fileLoaded").addEventListener("change", loadFiles, false);
+    
     // Listen for butoon to load the dalliance viwer
     document.getElementById("loadDalliance").addEventListener("click", loadDalliance, false);
 
     // Listen for reload event
     document.getElementById("restart").addEventListener("click", function(){document.location.reload();}, false);
-//    document.getElementById("loadModalHelp").addEventListener("click", function(){
-//        $("#modalHelp").modal('show');
-//    }, false);
+    
     // Listen for download event
     document.getElementById("prepareDownloadQCreport").addEventListener("click", function(){generateQCreport();}, false);
     document.getElementById("downloadQCreport").addEventListener("click", function(){
         v.generateQCreport();
         $("#modalDownloadQCreport").modal('hide');
     }, false);
+    
     // Listen for previous click
     document.getElementById("goBack").addEventListener("click", function(){v.prev();}, false);
+    
     // Listen for quality control
     document.getElementById("qcNotVariant").addEventListener("click", function(){v.setQC(-1);}, false);
     document.getElementById("qcPotentialVariant").addEventListener("click", function(){v.setQC(0);}, false);
     document.getElementById("qcCertainVariant").addEventListener("click", function(){v.setQC(1);}, false);
+    
+    // Listen for return to current variant click
     document.getElementById("returnHome").addEventListener("click", function(){v.gotoCurrentVariant();}, false);
+    
+    // Listen for load remote file prompt click
     $("#loadRemoteFileButton").on("click", function() {
         $("#modalLoadRemote").modal("show");
 
     });
 
+    // Listen for load remote file OK click 
     $("#loadRemoteFile").on("click", function() {
         loadRemoteFile();
         $("#modalLoadRemote").modal('hide');
     });
-
 });
 
 $("#modalSettings").on("hidden.bs.modal", function (e) {
@@ -77,7 +77,6 @@ $("#modalSettings").on("hidden.bs.modal", function (e) {
         }
     }
     localStorage.setItem("snoopySettings", JSON.stringify(settings));
-    console.log(settings);
 
     for (var i=1; i<b.tiers.length; ++i) { 
         var cs = $("#displaySelect" + i).val(); 
@@ -148,15 +147,6 @@ var b = new Browser({
         ucscName: 'hg19',
     },
 
-    chains: {
-        hg18ToHg19: new Chainset('http://www.derkholm.net:8080/das/hg18ToHg19/', 'NCBI36', 'GRCh37',
-                                 {
-            speciesName: 'Human',
-            taxon: 9606,
-            auth: 'GRCh',
-            version: 37
-        })
-    },
     singleBaseHighlight : false,
     defaultHighlightFill : 'black',
     defaultHighlightAlpha : 0.10,
@@ -181,9 +171,8 @@ var b = new Browser({
             pinned: true
     }],
     setDocumentTitle: true,
-    //uiPrefix: 'file:///home/daniel/repositories/snpshow/dalliance/',
-    uiPrefix: 'file:///Users/dr9/Developer/snoopy/dalliance/',
-        fullScreen: false,
+    //uiPrefix: 'file:///Users/dr9/Developer/snoopy/dalliance/',
+    fullScreen: false,
 
     browserLinks: {
         Ensembl: 'http://ncbi36.ensembl.org/Homo_sapiens/Location/View?r=${chr}:${start}-${end}',
@@ -206,8 +195,9 @@ function printFilesTable() {
     str += printfArray(variantFiles);
     document.getElementById("loadedFilesTable").innerHTML = str;
     if (bamFiles.length + baiFiles.length + variantFiles.length === 0) {
-        document.getElementById("loadedFilesPanel").setAttribute("style", "display:none");
-        document.getElementById("loadDalliance").setAttribute("style", "display:none");
+        $("#loadedFilePanel, #loadDalliance").css("display", "none");
+        //document.getElementById("loadedFilesPanel").setAttribute("style", "display:none");
+        //document.getElementById("loadDalliance").setAttribute("style", "display:none");
         //document.getElementById("loadFiles").setAttribute("style", "margin-top: 20px");
     } else {
         document.getElementById("loadedFilesPanel").setAttribute("style", "display:block");
@@ -238,16 +228,16 @@ function loadFiles() {
         var f = files[i];
         switch (getExtension(f)) {
             case "bam":
-                var newBam = new LoadedBamFile(f);
-            bamFiles.push(newBam);
+                var newBam = new LocalBAM(f);
+                bamFiles.push(newBam);
             break;
             case "bai":
-                var newBai = new LoadedBaiFile(f);
-            baiFiles.push(newBai);
+                var newBai = new LocalBAI(f);
+                baiFiles.push(newBai);
             break;
             case "txt":
-                var newVariant = new LoadedVariantFile(f);
-            variantFiles.push(newVariant);
+                var newVariant = new LocalVariantFile(f);
+                variantFiles.push(newVariant);
             break;
         }
     }
@@ -264,28 +254,6 @@ function loadFiles() {
         }
     }
     printFilesTable();
-
-    /* console.log(BAMfile);
-    console.log(BAIfile);
-    console.log(variantFile);
-
-    var reader = new FileReader();
-    reader.readAsText(variantFile);
-    reader.onload = function() {
-    console.log(reader.result);
-    v.processVariantFile(reader.result);
-    v.gotoCurrentVariant();
-    }
-
-    var myBAM = {
-    baiBlob : BAIfile,
-    bamBlob : BAMfile,
-    name : "example",
-    noPersist : true,
-    };
-
-    b.addTier(myBAM);
-*/
     resetFileLoaded();
 };
 
@@ -312,26 +280,25 @@ function loadRemoteFile() {
                 url: "https://web-lustre-01.internal.sanger.ac.uk/" + f,
                 xhrFields: { withCredentials: true }
             }).done(function(data) {
-               loadListFileContents(data);
+               loadJSON(data);
             });
         break;
         case "txt":
-            var newVariant = new LoadedVariantFile(f);
-            variantFiles.push(newVariant);
+            var newVariantFile = new RemoteVariantFile(f);
+            variantFiles.push(newVariantFile);
             printFilesTable();
         break;
     }
     console.log('print the files!'); 
 }
 
-function loadListFileContents(jsonFile) {
-    console.log('what the heck');
+function loadJSON(jsonFile) {
     var fileObj = JSON.parse(jsonFile);
-    var newVariant = new RemoteVariantList(fileObj.variant_locations);
-    variantFiles.push(newVariant);
+    var newVariantFile = new RemoteVariantFile(fileObj.variant_locations);
+    variantFiles.push(newVariantFile);
     
     for (var i=0; i < fileObj.bams.length; ++i) { 
-        var newBam = new RemoteBam(fileObj.bams[i]);
+        var newBam = new RemoteBAM(fileObj.bams[i]);
         bamFiles.push(newBam);
     }
     printFilesTable();
@@ -354,7 +321,7 @@ function loadDalliance() {
     selectList.onchange = function(){v.updateByList();};
     myDiv.appendChild(selectList);
 
-    v.init(variantFiles[0], v);
+    variantFiles[0].get(v);
 
     setTimeout(function() {
         if (settings.defaultZoomLevelUnit) { 
@@ -366,9 +333,65 @@ function loadDalliance() {
     document.getElementById("fileLoader").setAttribute("style", "display: none");
     document.getElementById("controlCenter").setAttribute("style", "display: block");
     document.getElementById("progressBar").setAttribute("style", "display: block");
-    //document.getElementById("my-dalliance-holder").setAttribute("style", "opactiy: 1");
     document.getElementById("my-dalliance-holder").style.opacity = "1";
-
 }
 
+// Need to keep the remove*** functions seperate because they are called
+// by clicking the remove button in the HTML
+function removeBAM(index) {
+    if (typeof(index) === "string") {
+       index = parseInt(index);
+    }
+    bamFiles.splice(index, 1);
+    printFilesTable();
+}
 
+function removeBAI(index) {
+    if (typeof(index) === "string") {
+        index = parseInt(index);
+    }
+    baiFiles.splice(index, 1);
+    printFilesTable();
+}
+
+function removeVariantFile(index) {
+    if (typeof(index) === "string") {
+        index = parseInt(index);
+    }
+    variantFiles.splice(index, 1);
+    printFilesTable();
+}
+
+var fileArrayContains = function(fArray, fname) {
+    for (var i=0; i < fArray.length; ++i) {
+        var f = fArray[i];      
+        if (f.file.name === fname) {
+            return i;
+        }
+    }
+    return -1;
+};
+
+var printfArray = function(fArray) {
+    var str = ""
+    for (var i=0; i<fArray.length; ++i) {
+        str += fArray[i].print(i);
+    }
+    return str;
+}
+
+function getExtension(f) {
+    if (typeof(f) !== "string") {
+        f = f.name;
+    }
+    var parts = f.split(".");
+    return parts[parts.length - 1].toLowerCase();
+}
+
+function getName(f) {
+    if (typeof(f) !== "string") {
+        f = f.name;
+    }
+    var parts = f.split("/");
+    return parts[parts.length - 1];
+}
