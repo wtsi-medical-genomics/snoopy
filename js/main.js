@@ -23,31 +23,30 @@ if (storedSettings) {
 $(document).ready(function() {
 
     // Listen for button to load files
-    document.getElementById("fileLoaded").addEventListener("change", loadFiles, false);
-    
-    // Listen for butoon to load the dalliance viwer
-    document.getElementById("loadDalliance").addEventListener("click", loadDalliance, false);
+    document.getElementById("fileLoaded").addEventListener("change", loadFiles, false); 
+    // Listen for button to load the dalliance viwer
+    $("#loadDalliance").on("click", loadDalliance);
 
     // Listen for reload event
-    document.getElementById("restart").addEventListener("click", function(){document.location.reload();}, false);
+    $("#restart").on("click", function(){document.location.reload();});
     
     // Listen for download event
-    document.getElementById("prepareDownloadQCreport").addEventListener("click", function(){generateQCreport();}, false);
-    document.getElementById("downloadQCreport").addEventListener("click", function(){
+    $("#prepareDownloadQCreport").on("click", function(){generateQCreport();});
+    $("#downloadQCreport").on("click", function(){
         v.generateQCreport();
         $("#modalDownloadQCreport").modal('hide');
-    }, false);
+    });
     
     // Listen for previous click
-    document.getElementById("goBack").addEventListener("click", function(){v.prev();}, false);
+    $("#goBack").on("click", function(){v.prev();});
     
     // Listen for quality control
-    document.getElementById("qcNotVariant").addEventListener("click", function(){v.setQC(-1);}, false);
-    document.getElementById("qcPotentialVariant").addEventListener("click", function(){v.setQC(0);}, false);
-    document.getElementById("qcCertainVariant").addEventListener("click", function(){v.setQC(1);}, false);
+    $("#qcNotVariant").on("click", function(){v.setQC(-1);});
+    $("#qcPotentialVariant").on("click", function(){v.setQC(0);});
+    $("#qcCertainVariant").on("click", function(){v.setQC(1);});
     
     // Listen for return to current variant click
-    document.getElementById("returnHome").addEventListener("click", function(){v.gotoCurrentVariant();}, false);
+    $("#returnHome").on("click", function(){v.gotoCurrentVariant();});
     
     // Listen for load remote file prompt click
     $("#loadRemoteFileButton").on("click", function() {
@@ -193,18 +192,15 @@ function printFilesTable() {
     var str = printfArray(bamFiles);
     str += printfArray(baiFiles);
     str += printfArray(variantFiles);
-    document.getElementById("loadedFilesTable").innerHTML = str;
+    console.log(str);
+    $("#loadedFilesTable").html(str);
     if (bamFiles.length + baiFiles.length + variantFiles.length === 0) {
         $("#loadedFilePanel, #loadDalliance").css("display", "none");
-        //document.getElementById("loadedFilesPanel").setAttribute("style", "display:none");
-        //document.getElementById("loadDalliance").setAttribute("style", "display:none");
-        //document.getElementById("loadFiles").setAttribute("style", "margin-top: 20px");
     } else {
-        document.getElementById("loadedFilesPanel").setAttribute("style", "display:block");
-        document.getElementById("loadDalliance").setAttribute("style", "display:inline");
-       // document.getElementById("loadFiles").setAttribute("style", "margin-top: 0px");
-        document.getElementById("stepOne").setAttribute("style", "margin-top: 5%");
-        document.getElementById("loadFilesText").innerHTML = "Load More Files";
+        $("#loadedFilesPanel").css("display", "block");
+        $("#loadDalliance").css("display", "inline");
+        $("#stepOne").css("margin-top", "5%");
+        $("#loadFilesText").html("Load More Files");
     }
 }
 
@@ -330,10 +326,10 @@ function loadDalliance() {
             b.zoom(settings.currentZoom);
         }
     }, 1000);
-    document.getElementById("fileLoader").setAttribute("style", "display: none");
-    document.getElementById("controlCenter").setAttribute("style", "display: block");
-    document.getElementById("progressBar").setAttribute("style", "display: block");
-    document.getElementById("my-dalliance-holder").style.opacity = "1";
+
+    $("#fileLoader").css("display", "none");
+    $("#controlCenter, #progressBar").css("display", "block");
+    $("#my-dalliance-holder").css("opacity", "1");
 }
 
 // Need to keep the remove*** functions seperate because they are called
