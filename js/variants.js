@@ -17,7 +17,7 @@ variantLocations.prototype.setQC = function(decision) {
     this.variantArray[this.current][2] = decision;
     this.refreshSelectList();
     this.refreshProgressBar();
-    v.next();
+    this.next();
 };
 
 variantLocations.prototype.getProgress = function() {
@@ -38,20 +38,20 @@ variantLocations.prototype.refreshProgressBar = function() {
     progressBar.style.width = percent + "%";
 };
 
-variantLocations.prototype.init = function(f) {
+variantLocations.prototype.init = function(f, variant_instance) {
     if (f instanceof RemoteVariantList) {
         $.ajax({
             url: "https://web-lustre-01.internal.sanger.ac.uk/" + f.file,
                 xhrFields: { withCredentials: true }
         }).done(function(fileText) {
             console.log(fileText);
-            v.init2(fileText, f.name);
+            variant_instance.init2(fileText, f.name);
         });
     } else {
         var reader = new FileReader();
         reader.readAsText(f.file);
         reader.onload = function() {
-            v.init2(reader.result, f.name);
+            variant_instance.init2(reader.result, f.name);
        }
     }
 };

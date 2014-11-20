@@ -160,7 +160,7 @@ var b = new Browser({
     singleBaseHighlight : false,
     defaultHighlightFill : 'black',
     defaultHighlightAlpha : 0.10,
-    maxHeight : 550,
+    maxHeight : 10000,
     noTrackAdder : false,
     noLeapButtons : true,
     noLocationField : true,
@@ -354,7 +354,7 @@ function loadDalliance() {
     selectList.onchange = function(){v.updateByList();};
     myDiv.appendChild(selectList);
 
-    v.init(variantFiles[0]);
+    v.init(variantFiles[0], v);
 
     setTimeout(function() {
         if (settings.defaultZoomLevelUnit) { 

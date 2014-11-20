@@ -147,7 +147,7 @@ function LoadedBaiFile(file) {
 
 function removeBAM(index) {
     if (typeof(index) === "string") {
-        index = parseInt(index);
+       index = parseInt(index);
     }
     bamFiles.splice(index, 1);
     printFilesTable();
@@ -161,9 +161,9 @@ LoadedBaiFile.prototype.print = function(index) {
     str += "</td><td>";
     str += "Missing BAM file";
     str += "</td><td><a href=\"#\" onclick=\"removeBAI(";
-                                                       str += String(index);
-                                                       str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
-                                                       return str
+    str += String(index);
+    str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
+    return str
 }
 
 function removeBAI(index) {
@@ -174,12 +174,6 @@ function removeBAI(index) {
     printFilesTable();
 }
 
-
-
-//LoadedBaiFile.prototype.print = function() {
-//    this.__proto__.print("No BAM File Found");
-//}
-
 function LoadedVariantFile(file) {
     this.base = LoadedFile;
     this.base(file);
@@ -187,18 +181,14 @@ function LoadedVariantFile(file) {
 
 LoadedVariantFile.prototype = new LoadedFile;
 
-//LoadedVariantFile.prototype.print = function() {
-//    return this.file.name;
-//}
-
 LoadedVariantFile.prototype.print = function(index) {
     var str = "<tr><td>";
     str += this.file.name;
     str += "</td><td>";
     str += "</td><td><a href=\"#\" onclick=\"removeVariantFile("
-                                                               str += String(index)
-                                                               str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
-                                                               return str
+    str += String(index)
+    str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
+    return str
 }
 
 function RemoteVariantList(file) {
@@ -214,9 +204,9 @@ RemoteVariantList.prototype.print = function(index) {
     str += this.name;
     str += "</td><td>";
     str += "</td><td><a href=\"#\" onclick=\"removeVariantFile("
-                                                               str += String(index)
-                                                               str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
-                                                               return str
+    str += String(index)
+    str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
+    return str;
 }
 
 
@@ -264,8 +254,6 @@ function getName(f) {
     var parts = f.split("/");
     return parts[parts.length - 1];
 };
-
-
 
 var fileArrayContains = function(fArray, fname) {
     for (var i=0; i < fArray.length; ++i) {
