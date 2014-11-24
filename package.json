@@ -1,0 +1,17 @@
+{
+  "name": "snoopy",
+  "version": "0.0.2-dev",
+  "description": "Web-based quality control tool to review predicted variants in BAM files. Utilises the Dalliance genome browser",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wtsi-medical-genomics/snoopy.git"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "gulp": "*",
+    "gulp-closure-compiler": "*",
+    "closure-compiler": "*",
+    "gulp-replace-task": "*"
+  }
+}
