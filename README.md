@@ -15,8 +15,8 @@ Development
         npm install
         gulp compile
 
-# npm install inspects the file package.json for any required packages and automatically installs these.
-# gulp compile runs the task compile defined within gulpfile.js.
+* npm install inspects the file package.json for any required packages and automatically installs these.
+* gulp compile runs the task compile defined within gulpfile.js.
 
 3. Change back to the Snoopy's root directory.
 4. Run:
