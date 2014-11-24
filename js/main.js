@@ -137,15 +137,13 @@ var b = new Browser({
     viewStart:    30000000,
     viewEnd:      30000100,
     cookieKey:    'human-grc_h37',
-
     coordSystem: {
         speciesName: 'Human',
         taxon: 9606,
         auth: 'GRCh',
         version: '37',
-        ucscName: 'hg19',
+        ucscName: 'hg19'
     },
-
     singleBaseHighlight : false,
     defaultHighlightFill : 'black',
     defaultHighlightAlpha : 0.10,
