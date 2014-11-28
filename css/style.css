@@ -277,6 +277,12 @@ menu-panel table tr th:last-child {
     min-height: 200px;
 }
 
+pre {
+    border: 0px;
+    padding: 0px !important;
+    background-color: transparent !important;
+}
+
 [class*="col-"] {
     padding-top: 0px;
     padding-bottom: 0px;

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta http-equiv="X-Pagesmith-Decor" content="no" />
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -122,7 +123,7 @@
                     </div>
                     <div class="btn-group">
                         <div class="btn btn-success" id="loadDalliance">
-                            <span class="glyphicon glyphicon-search"></span> Start Qaulity Control 
+                            <span class="glyphicon glyphicon-search"></span> Start Quality Control 
                         </div>
                     </div>
 
@@ -220,8 +221,34 @@
                         </ul>
                         You can repeatedly press Load More Files, that is, you don't have to select all of your files from a single open file dialog.  Once you have loaded all of your files, click 
                         <button type="button" class="btn btn-success btn-sm">
-                            <span class="glyphicon glyphicon-search"></span> Start Qaulity Control 
+                            <span class="glyphicon glyphicon-search"></span> Start Quality Control 
                         </button>
+                        <h4 class="page-header">
+                           Loading a batch of remote files 
+                        </h4>
+                        You can load a batch of remote BAM files and a variant file by listing them in a JavaScript Object Notation (JSON) file. JSON files have a dictionary like structure (key:value) which makes them useful for transferring data that can be easily read by many programming languages. The template of a JSON file that Snoopy expects is found below:<br><br>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                    BATCH_FILENAME.json
+                            </div>
+                            <div class="panel-body">
+                                <pre>
+{
+    "variant_locations": "PATH/TO/VARIANT_FILE.TXT",
+    "bams": [
+        "PATH/TO/BAM_1",
+        "PATH/TO/BAM_2",
+        ...
+        "/ABSOLUTE/PATH/TO/BAM_n"
+    ]
+}
+                                </pre>
+                            </div>
+                        </div>
+                        In the template you have the freedom to change whatever is capitalised but you must leave the keys (<code>variant_locations</code>, <code>bams</code>) alone. The paths can be relative to your home directory <code>~/...</code> or absolute <code>/lustre/scratch113/...</code>. Lastly, quotation marks must wrap everything.
+
+                        <br><br>Note that only remote files can be loaded in batches.
+
                         <h4 class="page-header">
                             Quality Control 
                         </h4>

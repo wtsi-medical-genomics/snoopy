@@ -12,6 +12,7 @@
     "gulp": "*",
     "gulp-closure-compiler": "*",
     "closure-compiler": "*",
-    "gulp-replace-task": "*"
+    "gulp-replace-task": "*",
+    "del": "*"
   }
 }

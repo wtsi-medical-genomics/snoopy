@@ -2,8 +2,16 @@ var gulp = require('gulp');
 var closureCompiler = require('gulp-closure-compiler');
 var replace = require('gulp-replace-task');
 var run = require('gulp-run');
+var del = require('del');
 
 gulp.task('default', function() {
+    
+    // remove current dist directory
+    del('dist', function (err) {
+        console.log('Files deleted');
+    });
+
+    // compile code
     gulp.src('js/*.js')
     .pipe(closureCompiler({
         compilerPath: 'node_modules/closure-compiler/lib/vendor/compiler.jar',
@@ -11,6 +19,7 @@ gulp.task('default', function() {
     }))
     .pipe(gulp.dest('dist'));
 
+    // remove references to uncompiled js code 
     gulp.src('index.html')
     .pipe(replace({
         patterns: [
@@ -31,14 +40,15 @@ gulp.task('default', function() {
         usePrefix: false
     }))
     .pipe(gulp.dest('dist'));
-   
+  
+    // copy over the necessary parts of dalliance 
     var files_dirs = [
         'css/*',
         'fonts/*',
         ['FileSaver.js/FileSaver.min.js' , 'FileSaver.js'],
         ['dalliance/build/*' , 'dalliance/'],
         'dalliance/css/*',
-        'dalliance/fonts/*',
+//        'dalliance/fonts/*',
         'dalliance/img/*'
     ]; 
 
