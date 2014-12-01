@@ -265,7 +265,7 @@ function loadRemoteFile() {
     console.log(f);
     switch (getExtension(f)) {
         case "bam":
-            var newBam = new RemoteBam(f);
+            var newBam = new RemoteBAM(f);
             bamFiles.push(newBam);
             printFilesTable();
         break;
