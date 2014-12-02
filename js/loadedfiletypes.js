@@ -139,14 +139,14 @@ function LocalVariantFile(file) {
 
 LocalVariantFile.prototype = new VariantFile;
 
-LocalVariantFile.prototype.get = function(variantInstance) {
+LocalVariantFile.prototype.get = function(sessionInstance, dallianceBrowser) {
     var thatName = this.name;
     var reader = new FileReader();
     reader.readAsText(this.file);
     reader.onload = function() {
-        variantInstance.init(reader.result, thatName);
+        sessionInstance.load(reader.result, dallianceBrowser);
     };
-}
+};
 
 function RemoteVariantFile(file) {
     this.base = LoadedFile;

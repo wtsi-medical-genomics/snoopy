@@ -4,7 +4,7 @@ var baseCoverage = {styles: [ { "type": "density", "zoom": "low", "style": { "gl
 
 var mismatch = {styles: [ { "type": "density", "zoom": "low", "style": { "glyph": "HISTOGRAM", "COLOR1": "black", "COLOR2": "red", "HEIGHT": 30 } }, { "type": "density", "zoom": "medium", "style": { "glyph": "HISTOGRAM", "COLOR1": "black", "COLOR2": "red", "HEIGHT": 30 } }, { "type": "bam", "zoom": "high", "style": { "glyph": "__SEQUENCE", "HEIGHT": 8, "BUMP": true, "LABEL": false, "ZINDEX": 20, "__SEQCOLOR": "mismatch" } } ] };
 
-var v = new variantLocations();
+var sessions = new Sessions();
 var settings;
 var displaySettings = [];
 var storedSettings = localStorage.getItem("snoopySettings");
@@ -38,20 +38,31 @@ $(document).ready(function() {
     });
     
     // Listen for previous click
-    $("#goBack").on("click", function(){v.prev();});
+    $("#goBack").on("click", function() {
+        sessions.prev();
+    });
     
     // Listen for quality control
-    $("#qcNotVariant").on("click", function(){v.setQC(-1);});
-    $("#qcPotentialVariant").on("click", function(){v.setQC(0);});
-    $("#qcCertainVariant").on("click", function(){v.setQC(1);});
+    $("#qcNotVariant").on("click", function() {
+        sessions.setQC(-1);
+    });
+
+    $("#qcPotentialVariant").on("click", function() {
+        sessions.setQC(0);
+    });
+
+    $("#qcCertainVariant").on("click", function() {
+        sessions.setQC(1);
+    });
     
     // Listen for return to current variant click
-    $("#returnHome").on("click", function(){v.gotoCurrentVariant();});
+    $("#returnHome").on("click", function() {
+        sessions.gotoCurrentVariant();
+    });
     
     // Listen for load remote file prompt click
     $("#loadRemoteFileButton").on("click", function() {
         $("#modalLoadRemote").modal("show");
-
     });
 
     // Listen for load remote file OK click 
@@ -186,7 +197,6 @@ var variantFiles = [];
 var listFiles = [];
 
 function printFilesTable() {
-    console.log(bamFiles);
     var str = printfArray(bamFiles);
     str += printfArray(baiFiles);
     str += printfArray(variantFiles);
@@ -287,37 +297,51 @@ function loadRemoteFile() {
 }
 
 function loadJSON(jsonFile) {
-    var fileObj = JSON.parse(jsonFile);
-    var newVariantFile = new RemoteVariantFile(fileObj.variant_locations);
-    variantFiles.push(newVariantFile);
-    
-    for (var i=0; i < fileObj.bams.length; ++i) { 
-        var newBam = new RemoteBAM(fileObj.bams[i]);
-        bamFiles.push(newBam);
+    var loadedJSON = JSON.parse(jsonFile);
+
+    // determine if this is a single session
+    if (loadedJSON.hasOwnProperty("variant_locations")) { 
+        var newVariantFile = new RemoteVariantFile(loadedJSON.variant_locations);
+        variantFiles.push(newVariantFile);
+        
+        for (var i=0; i < loadedJSON.bams.length; ++i) { 
+            var newBam = new RemoteBAM(loadedJSON.bams[i]);
+            bamFiles.push(newBam);
+        }
+        printFilesTable();
+    } else { // multi-session
+        variantFiles = [];
+        bamFiles = [];
+        baiFiles = [];
+        for (sessionName in loadedJSON) {
+                
+        } 
     }
-    printFilesTable();
 }
 
 function loadDalliance() {
-    for (var i=0; i < bamFiles.length; ++i) {
-        var bamObj = bamFiles[i].getTier();
-        if (bamObj) { 
-            console.log(bamObj);
-            b.addTier(bamObj);
-        } 
-    }
-
-    //Create and append select list
+    
+    // Create and append select list
     var myDiv = document.getElementById("variantSelectListHolder");
     var selectList = document.createElement("select");
     selectList.id = "mySelect";
     selectList.className = "form-control";
-    selectList.onchange = function(){v.updateByList();};
+    selectList.onchange = function() {
+        sessions.updateByList();
+    } 
     myDiv.appendChild(selectList);
 
-    variantFiles[0].get(v);
+   if (sessions.getLength() === 0) {
+        // create a single session from whatever is present in the file loader
+        var s = new Session(bamFiles, variantFiles[0]);
+        sessions.addSession(s);
+        sessions.load(b);
+     } else {
+        // a multi-session is already loaded
 
-    setTimeout(function() {
+    }
+    
+      setTimeout(function() {
         if (settings.defaultZoomLevelUnit) { 
             b.zoomStep(-1000000);
         } else {

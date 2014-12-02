@@ -1,52 +1,22 @@
 "use strict";
 
-function VariantLocations() {
-    this.variantArray = [];
-    this.current = 0;
-    this.fileName = "";
+function Session(bamFiles, variantFile) {
+   this.bamFiles = bamFiles || null;
+   this.variantFile = variantFile || null;
+   this.variantArray = [];
+   this.current = 0;
 }
 
-VariantLocations.prototype.updateByList = function() {
-    var selected = document.getElementById("mySelect");
-    console.log(selected);
-    this.current = parseInt(selected.value);
-    this.gotoCurrentVariant();
-};
-
-VariantLocations.prototype.setQC = function(decision) {
-    this.variantArray[this.current][2] = decision;
-    this.refreshSelectList();
-    this.refreshProgressBar();
-    return this.next();
-};
-
-VariantLocations.prototype.getProgress = function() {
-    var progress = 0;
-    for (var i=0; i<this.variantArray.length; i++) {
-        if(this.variantArray[i][2] > -99) {
-            progress++;
-        }
-    }
-    return progress;
-} 
-
-VariantLocations.prototype.refreshProgressBar = function() {
-    var progress = this.getProgress();
-    var percent = "" + (100*progress/this.variantArray.length)|0;
-    var progressBar = document.getElementById("variantProgress");
-    progressBar.setAttribute("aria-valuenow", percent);
-    progressBar.style.width = percent + "%";
-};
-
-VariantLocations.prototype.init = function(fileText, fileName) {
+Session.prototype.init = function(fileText, fileName) {
     this.processVariantFile(fileText, fileName);
     this.gotoCurrentVariant();
     this.refreshSelectList();
-}
+};
 
-VariantLocations.prototype.processVariantFile = function(fileText, fileName) {
-    this.fileName = fileName; 
-    var textArray = fileText.split("\n");
+Session.prototype.load = function(variantText, dallianceBrowser) {
+
+    // process the contents of the variant file text
+    var textArray = variantText.split("\n");
     var pattern = /\s*[-:,\s]+\s*/;
     for (var i = 0; i < textArray.length; i++) {
         var variant = textArray[i].trim();
@@ -57,9 +27,53 @@ VariantLocations.prototype.processVariantFile = function(fileText, fileName) {
             this.variantArray.push([chr, loc, -99]);
         }
     }
+
+    // setup the variant file drop down
+    for (var i=0; i < this.bamFiles.length; ++i) {
+        var bamTier = this.bamFiles[i].getTier();
+        if (bamTier) { 
+            console.log(bamTier);
+            dallianceBrowser.addTier(bamTier);
+        } 
+    }
+    
+    this.gotoCurrentVariant();
+    this.refreshSelectList();
 };
 
-VariantLocations.prototype.generateQCreport = function() {
+Session.prototype.updateByList = function() {
+    var selected = document.getElementById("mySelect");
+    console.log(selected);
+    this.current = parseInt(selected.value);
+    this.gotoCurrentVariant();
+};
+
+Session.prototype.setQC = function(decision) {
+    this.variantArray[this.current][2] = decision;
+    this.refreshSelectList();
+    this.refreshProgressBar();
+    return this.next();
+};
+
+Session.prototype.getProgress = function() {
+    var progress = 0;
+    for (var i=0; i<this.variantArray.length; i++) {
+        if(this.variantArray[i][2] > -99) {
+            progress++;
+        }
+    }
+    return progress;
+};
+
+Session.prototype.refreshProgressBar = function() {
+    var progress = this.getProgress();
+    var percent = "" + (100*progress/this.variantArray.length)|0;
+    var progressBar = document.getElementById("variantProgress");
+    progressBar.setAttribute("aria-valuenow", percent);
+    progressBar.style.width = percent + "%";
+};
+
+Session.prototype.generateQCreport = function() {
     // parts of this will be moved to session.js
     var out = $("#QCreportFilename").val();
     var str = Date() + "\n\n";
@@ -81,9 +95,9 @@ VariantLocations.prototype.generateQCreport = function() {
 
     var blob = new Blob([str], {type: "text/plain;charset=utf-8"});
     saveAs(blob, out); 
-}
+};
 
-VariantLocations.prototype.refreshSelectList = function() {
+Session.prototype.refreshSelectList = function() {
 
     var stringArray = this.getStringArray();
     var selectList = document.getElementById("mySelect"); 
@@ -100,9 +114,9 @@ VariantLocations.prototype.refreshSelectList = function() {
 
 function formatLongInt(n) {
     return (n|0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-}
+};
 
-VariantLocations.prototype.getStringArray = function() {
+Session.prototype.getStringArray = function() {
     var stringArray = Array(this.variantArray.length);
     for (var i = 0; i<this.variantArray.length; i++) {
         var s = this.variantArray[i][0] + ":" + formatLongInt(this.variantArray[i][1]);
@@ -122,7 +136,7 @@ VariantLocations.prototype.getStringArray = function() {
     return stringArray;
 };
 
-VariantLocations.prototype.gotoCurrentVariant = function() {
+Session.prototype.gotoCurrentVariant = function() {
     console.log(this.current);
     var c = this.variantArray[this.current];
     console.log(c);
@@ -139,7 +153,7 @@ VariantLocations.prototype.gotoCurrentVariant = function() {
     document.getElementById("mySelect").value = this.current;
 };
 
-VariantLocations.prototype.next = function() {
+Session.prototype.next = function() {
     console.log("this.current =  " + this.current);
     console.log("this.variantArray.length =  " + this.variantArray.length);
     if ((this.current + 1) < this.variantArray.length) {
@@ -155,10 +169,58 @@ VariantLocations.prototype.next = function() {
     }
 };
 
-VariantLocations.prototype.prev = function() {
+Session.prototype.prev = function() {
     if (this.current > 0) {
         this.current--;
         this.gotoCurrentVariant();
     }
 };
 
+function Sessions() {
+    this.sessions = [];
+    this.current = null;
+}
+
+Sessions.prototype.load = function(dallianceBrowser) {
+    this.sessions[0].variantFile.get(this.sessions[0], dallianceBrowser);
+    this.current = 0;
+}
+
+Sessions.prototype.getLength = function() {
+    return this.sessions.length;
+}   
+
+Sessions.prototype.addSession = function(session) {
+    this.sessions.push(session);
+}
+
+Sessions.prototype.setQC = function(decision) {
+    if(!this.sessions[this.current].setQC(decision)) {
+        var progress = v.getProgress(); 
+        var total = v.variantArray.length;
+        var message = "You have reviewed ";
+        message += "<b>" + progress + "</b>";
+        message += " of ";
+        message += "<b>" + total + "</b>";
+        message += " variant locations. Enter desired filename for quality control report.";
+            message += "<div class=\"input-group\"><input type=\"text\" class=\"form-control\" id=\"QCreportFilename\"><span class=\"input-group-addon\">.txt</span> </div>";
+        $("#modalDownloadQCreport .modal-body").html(message);
+        $("#modalDownloadQCreport").modal('show');
+        $('#modalConfirmNextSet').modal('show');
+        console.log('zzz');
+    }
+}
+
+Sessions.prototype.prev = function() {
+    this.sessions[this.current].prev();
+}
+
+Sessions.prototype.gotoCurrentVariant = function() {
+    this.sessions[this.current].gotoCurrentVariant();
+}
+
+Sessions.prototype.updateByList = function() {
+    this.sessions[this.current].updateByList();
+}
+
+ 
