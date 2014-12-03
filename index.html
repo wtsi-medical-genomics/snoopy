@@ -92,41 +92,43 @@
                     <div class="panel panel-default" id="stepOne">
                         <div class="panel-body">
                             <h4 class="first">Welcome to Snoopy</h4>
-                            <p class="justify">With this tool you can review potential variant sites in short reads. The first step is to load your BAM and BAI files (x.bam will expect x.bam.bai) along with a text file containing the variant locations of interest. Note that multiple files can be selected at once.</p>
-                            <!--<h4 class="notFirst">BAM/BAI files</h4>
-                                <p>The BAM files are expected to be indexed and to be named according to the convention that if reads.bam is the BAM file then reads.bam.bai is the index file.</p>
-                                <h4 class="notFirst">Variant text files</h4>
-                                <p>Text files with the variants of interest expects one variant location per line with the locations having the following formats:<br><br>
-                                chr:position<br>
-                                chr-position<br>
-                                chr position<br>
-                                chr,position<br>
-                                </ul> 
-                                </p>
-                            -->
-                            <br>
+                            <p class="justify">Snoopy is a quality control tool to review predicted variants in BAM files. There are few ways to use this tool.</p>
                         </div>
                     </div>
-                    <div class="panel panel-default step-two" id="loadedFilesPanel">
-                        <div class="panel-heading">Loaded Files</div>
-                        <table class="table" id="loadedFilesTable">
-                        </table>
+                    <div class="panel panel-default choice" id="choiceManual">
+                        <div class="panel-body">
+                            <h4 class="first">Manual</h4>
+                            <p class="justify">This mode is used when you want to manually add files from your local machine or from a server. Using Snoopy in this way will limit you to only one variant file.</p>
+                        </div>
                     </div>
                     <div class="btn-group">
                         <div class="file-input btn btn-primary btn-file">
                             <span class="glyphicon glyphicon-floppy-disk"></span><span id="loadFilesText"> Load Local Files</span><input type="file" multiple id="fileLoaded">
                         </div>
                     </div>
-                    
                     <div class="file-input btn btn-primary btn-file" id="loadRemoteFileButton">
                         <span class="glyphicon glyphicon-open"></span> Load Remote File 
+                    </div>
+                    <div class="panel panel-default choice" id="choiceJSON">
+                        <div class="panel-body">
+                            <h4 class="first">JSON</h4>
+                            <p class="justify">In this mode you have a JSON file prepared that lists multiple “sessions”. Each session consists of a remote file listing variants along with a collection of remote BAM files.</p>
+                        </div>
+                    </div>
+                    <div class="file-input btn btn-success btn-file" id="loadJSONbutton">
+                        <span class="glyphicon glyphicon-th-list"></span> Load JSON File 
+                    </div>
+
+                    <div class="panel panel-default step-two" id="loadedFilesPanel">
+                        <div class="panel-heading">Loaded Files</div>
+                        <table class="table" id="loadedFilesTable">
+                        </table>
                     </div>
                     <div class="btn-group">
                         <div class="btn btn-success" id="loadDalliance">
                             <span class="glyphicon glyphicon-search"></span> Start Quality Control 
                         </div>
                     </div>
-
                 </div>
                 <div class="col-md-3"></div>
             </div>

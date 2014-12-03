@@ -1,8 +1,8 @@
 "use strict";
 
 function Session(bamFiles, variantFile) {
-   this.bamFiles = bamFiles || null;
-   this.variantFile = variantFile || null;
+   this.bamFiles = bamFiles || [];
+   this.variantFile = variantFile || [];
    this.variantArray = [];
    this.current = 0;
 }
@@ -74,18 +74,13 @@ Session.prototype.refreshProgressBar = function() {
 };
 
 Session.prototype.generateQCreport = function() {
-    // parts of this will be moved to session.js
-    var out = $("#QCreportFilename").val();
-    var str = Date() + "\n\n";
     
-    for (var i = 0; i < b.tiers.length; i++) {
-        if (b.tiers[i].featureSource.source) {
-           var bamName = b.tiers[i].featureSource.source.bamSource.name;
-            str += bamName + "\n";
-        }
+    var str = "\n\nVariant File\n" + this.variantFile.name;
+    str += "\n\nBAM Files\n";
+    for (var i = 0; i < this.bamFiles.length; i++) {
+            str += this.bamFiles[i].name + "\n";
     }
   
-    str += "\n" + this.fileName + "\n";
     str += "\n";
 
     for (var i = 0; i < this.variantArray.length; i++) {
@@ -93,8 +88,7 @@ Session.prototype.generateQCreport = function() {
         str += v[0] + ":" +  v[1] + " " + v[2] + "\n"; 
     }
 
-    var blob = new Blob([str], {type: "text/plain;charset=utf-8"});
-    saveAs(blob, out); 
+    return str;
 };
 
 Session.prototype.refreshSelectList = function() {
@@ -164,7 +158,6 @@ Session.prototype.next = function() {
     } else { // at the end now
         console.log("I'm not moving");
         document.getElementById("mySelect").value = this.current;
-        //generateQCreport();
         return false;
     }
 };
@@ -196,18 +189,19 @@ Sessions.prototype.addSession = function(session) {
 
 Sessions.prototype.setQC = function(decision) {
     if(!this.sessions[this.current].setQC(decision)) {
-        var progress = v.getProgress(); 
-        var total = v.variantArray.length;
-        var message = "You have reviewed ";
-        message += "<b>" + progress + "</b>";
-        message += " of ";
-        message += "<b>" + total + "</b>";
-        message += " variant locations. Enter desired filename for quality control report.";
-            message += "<div class=\"input-group\"><input type=\"text\" class=\"form-control\" id=\"QCreportFilename\"><span class=\"input-group-addon\">.txt</span> </div>";
-        $("#modalDownloadQCreport .modal-body").html(message);
-        $("#modalDownloadQCreport").modal('show');
-        $('#modalConfirmNextSet').modal('show');
-        console.log('zzz');
+        if (this.current === this.sessions.length - 1) {
+            if (this.sessions.length > 1) {
+                console.log('I still live');
+                var progress = this.sessions[this.current].getProgress(); 
+                var total = this.sessions[this.current].variantArray.length;
+                var message = "You have reviewed <b>" + progress + "</b> of <b>" + total + "</b> variant locations. Do you want to continue to the next set of variants?";
+                $('#modalConfirmNextSet .modal-body').html(message);
+                $('#modalConfirmNextSet').modal('show');
+            }
+            else {
+                this.promptQCdownload();
+            }
+        }
     }
 }
 
@@ -220,7 +214,54 @@ Sessions.prototype.gotoCurrentVariant = function() {
 }
 
 Sessions.prototype.updateByList = function() {
-    this.sessions[this.current].updateByList();
+    this.getCurrent().updateByList();
+};
+
+Sessions.prototype.getCurrent = function() {
+    return this.sessions[this.current];
+}; 
+
+Sessions.prototype.downloadQCreport = function() {
+
+    var str = Date();
+    
+    for (var i=0; i<this.sessions.length; i++) {
+        str += this.sessions[i].generateQCreport(); 
+    }
+    
+    var out = $("#QCreportFilename").val();
+    var blob = new Blob([str], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, out); 
+};
+
+Sessions.prototype.getNumberVariants = function() {
+    var numVariants = 0;
+    for (var i=0; i<this.sessions.length; i++) {
+        numVariants += this.sessions[i].variantArray.length;
+    }
+    return numVariants;
+};
+
+Sessions.prototype.getProgress = function() {
+    var progress = 0;
+    for (var i=0; i<this.sessions.length; i++) {
+        progress += this.sessions[i].getProgress();
+    }
+    return progress;
+};
+
+Sessions.prototype.promptQCdownload = function() {
+    var progress = this.getProgress();
+    var total = this.getNumberVariants();
+    var message = "You have reviewed ";
+    message += "<b>" + progress + "</b>";
+    message += " of ";
+    message += "<b>" + total + "</b>";
+    message += " variant locations. ";
+    message += "Enter desired filename for quality control report.";
+    message += "<div class=\"input-group\"><input type=\"text\" class=\"form-control\" id=\"QCreportFilename\"><span class=\"input-group-addon\">.txt</span> </div>";
+    $("#modalDownloadQCreport .modal-body").html(message);
+    $("#modalDownloadQCreport").modal('show');
 }
 
- 
+

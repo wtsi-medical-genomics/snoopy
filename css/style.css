@@ -233,10 +233,6 @@ h4.first {
     margin-right: 15px;
 }
 
-.container {
-    width: 1200px;
-}
-
 .menu-panel table {
     width: 100%;
     border: 0px;
@@ -264,10 +260,23 @@ menu-panel table tr th:last-child {
     text-align: center;
 }
 
-#stepOne {
-    margin-top: 10%;
+.choice {
+    margin-bottom: 10px;
+    margin-top: 25px;
+}
+#choiceManual {
+    background-color: #D5EBF6;
 }
 
+#choiceJSON {
+    background-color: #EEFFEB;
+}
+
+
+
+#stepOne {
+    margin-top: 5%;
+}
 
 .btn-same-size {
     width: 100px;
@@ -323,12 +332,11 @@ body {
     border-top: 1px solid #e5e5e5;
 }
 
-/* Customize container 
 @media (min-width: 768px) {
 .container {
 max-width: 1200px;
 }
-} */
+}
 .container-narrow > hr {
     margin: 30px 0;
 }

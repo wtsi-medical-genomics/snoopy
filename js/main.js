@@ -23,17 +23,23 @@ if (storedSettings) {
 $(document).ready(function() {
 
     // Listen for button to load files
-    document.getElementById("fileLoaded").addEventListener("change", loadFiles, false); 
+    document.getElementById("fileLoaded").addEventListener("change", loadLocalFiles, false); 
+    
     // Listen for button to load the dalliance viwer
     $("#loadDalliance").on("click", loadDalliance);
 
     // Listen for reload event
-    $("#restart").on("click", function(){document.location.reload();});
+    $("#restart").on("click", function() {
+        document.location.reload();
+    });
     
     // Listen for download event
-    $("#prepareDownloadQCreport").on("click", function(){generateQCreport();});
+    $("#prepareDownloadQCreport").on("click", function() {
+        sessions.promptQCdownload();
+    });
+   
     $("#downloadQCreport").on("click", function(){
-        v.generateQCreport();
+        sessions.downloadQCreport();
         $("#modalDownloadQCreport").modal('hide');
     });
     
@@ -69,6 +75,16 @@ $(document).ready(function() {
     $("#loadRemoteFile").on("click", function() {
         loadRemoteFile();
         $("#modalLoadRemote").modal('hide');
+    });
+    
+    // Listen for load remote file prompt click
+    $("#loadJSONbutton").on("click", function() {
+        $("#modalLoadJSON").modal('show');
+    });
+
+    // Listen for load remote file prompt click
+    $("#loadJSONfile").on("click", function() {
+        
     });
 });
 
@@ -197,36 +213,27 @@ var variantFiles = [];
 var listFiles = [];
 
 function printFilesTable() {
-    var str = printfArray(bamFiles);
-    str += printfArray(baiFiles);
-    str += printfArray(variantFiles);
-    console.log(str);
-    $("#loadedFilesTable").html(str);
-    if (bamFiles.length + baiFiles.length + variantFiles.length === 0) {
-        $("#loadedFilePanel, #loadDalliance").css("display", "none");
-    } else {
-        $("#loadedFilesPanel").css("display", "block");
-        $("#loadDalliance").css("display", "inline");
-        $("#stepOne").css("margin-top", "5%");
-        $("#loadFilesText").html("Load More Files");
+    if (sessions.getLength() === 0) {
+        var str = printfArray(bamFiles);
+        str += printfArray(baiFiles);
+        str += printfArray(variantFiles);
+        console.log(str);
+        $("#loadedFilesTable").html(str);
+        if (bamFiles.length + baiFiles.length + variantFiles.length === 0) {
+            $("#loadedFilePanel, #loadDalliance").css("display", "none");
+        } else {
+            $("#loadedFilesPanel").css("display", "block");
+            $("#loadDalliance").css("display", "inline");
+            $("#stepOne").css("margin-top", "5%");
+            $("#loadFilesText").html("Load More Files");
+        }
+    } else { // multi-session so need to print straight from the Sessions object
+        console.log('multi-session');
     }
 }
 
 
-function generateQCreport() {
-   var progress = v.getProgress(); 
-   var total = v.variantArray.length;
-   var message = "You have reviewed ";
-   message += "<b>" + progress + "</b>";
-   message += " of ";
-   message += "<b>" + total + "</b>";
-   message += " variant locations. Enter desired filename for quality control report.";
-   message += "<div class=\"input-group\"><input type=\"text\" class=\"form-control\" id=\"QCreportFilename\"><span class=\"input-group-addon\">.txt</span> </div>";
-   $("#modalDownloadQCreport .modal-body").html(message);
-   $("#modalDownloadQCreport").modal('show');
-}
-
-function loadFiles() {
+function loadLocalFiles() {
     var files = document.getElementById("fileLoaded").files;
     for (var i=0; i < files.length; ++i) {
         var f = files[i];
@@ -264,7 +271,7 @@ function loadFiles() {
 function resetFileLoaded() {
     var oldFileLoad = document.getElementById("fileLoaded");
     var newFileLoad = makeElement('input', null, {id: 'fileLoaded', type: 'file', multiple: 'multiple'});
-    newFileLoad.addEventListener("change", loadFiles, false);
+    newFileLoad.addEventListener("change", loadLocalFiles, false);
     var father = oldFileLoad.parentNode;
     console.log(father);
     father.replaceChild(newFileLoad, oldFileLoad); 
@@ -272,35 +279,39 @@ function resetFileLoaded() {
 
 function loadRemoteFile() {
     var f = $("#remoteFilename").val();
-    console.log(f);
     switch (getExtension(f)) {
         case "bam":
             var newBam = new RemoteBAM(f);
             bamFiles.push(newBam);
             printFilesTable();
         break;
-        case "json":
-            $.ajax({
-                url: "https://web-lustre-01.internal.sanger.ac.uk/" + f,
-                xhrFields: { withCredentials: true }
-            }).done(function(data) {
-               loadJSON(data);
-            });
-        break;
-        case "txt":
+       case "txt":
             var newVariantFile = new RemoteVariantFile(f);
             variantFiles.push(newVariantFile);
             printFilesTable();
         break;
     }
-    console.log('print the files!'); 
+}
+
+function loadJSONfile() {
+    var f = $("#JSONfilename").val();
+    if (getExtension(f) === "json") {
+            $.ajax({
+                url: "https://web-lustre-01.internal.sanger.ac.uk/" + f,
+                xhrFields: { withCredentials: true }
+            }).done(function(data) {
+                loadJSON(data);
+            });
+    } 
 }
 
 function loadJSON(jsonFile) {
     var loadedJSON = JSON.parse(jsonFile);
 
+    console.log(loadedJSON);
     // determine if this is a single session
     if (loadedJSON.hasOwnProperty("variant_locations")) { 
+        console.log('what do you know');
         var newVariantFile = new RemoteVariantFile(loadedJSON.variant_locations);
         variantFiles.push(newVariantFile);
         
@@ -310,11 +321,23 @@ function loadJSON(jsonFile) {
         }
         printFilesTable();
     } else { // multi-session
+        // remove anything that may be loaded 
         variantFiles = [];
         bamFiles = [];
         baiFiles = [];
-        for (sessionName in loadedJSON) {
-                
+        var url = "https://web-lustre-01.internal.sanger.ac.uk/"; // does this need to be here? want to make it generic eventually
+        console.log('whatcha');
+        for (var si in loadedJSON) {
+            var s = new Session();
+            s.variantFile = new RemoteVariantFile(url + loadedJSON[si]["variant_locations"]);
+            console.log(s);
+            for (var bi in loadedJSON[si]["bams"]) {
+                console.log(bi);
+                var newBam = new RemoteBAM(url + loadedJSON[si]["bams"][bi]);
+                s.bamFiles.push(newBam);
+            }
+            console.log(s);
+            sessions.addSession(s);
         } 
     }
 }

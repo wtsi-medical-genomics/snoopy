@@ -164,4 +164,4 @@ RemoteVariantFile.prototype.get = function(variantInstance) {
         console.log(thatName);
         variantInstance.init(fileText, thatName);
     });
-}
+};
