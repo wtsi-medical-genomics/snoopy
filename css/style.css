@@ -209,9 +209,9 @@ table.color-code tr.a td {
     display: block;
 }
 
-#loadedFilesPanel {
+/*#loadedFilesPanel {
     display: none;
-}
+}*/
 
 #loadDalliance {
     display: none;
@@ -270,12 +270,6 @@ menu-panel table tr th:last-child {
 
 #choiceJSON {
     background-color: #EEFFEB;
-}
-
-
-
-#stepOne {
-    margin-top: 5%;
 }
 
 .btn-same-size {

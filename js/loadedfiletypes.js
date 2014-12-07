@@ -59,8 +59,15 @@ function LocalBAM(file) {
 
 LocalBAM.prototype = new BAM;
 
-BAM.prototype.print = function(index) {
-    var str = "<tr><td>";
+BAM.prototype.print = function(index, showDelete, backgroundColor) {
+    if (typeof(showDelete) === "undefined") {
+        showDelete = true;
+    }
+    var str = "<tr";
+    if (backgroundColor) {
+        str += " style='background-color: " + backgroundColor + "'";
+    }
+    str += "><td>";
     str += this.name;
     str += "</td><td>";
     if (!this.index) {
@@ -68,9 +75,13 @@ BAM.prototype.print = function(index) {
     } else {
         str += "Index loaded";
     }
-    str += "</td><td><a href=\"#\" onclick=\"removeBAM(";
-    str += String(index);
-    str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
+    str += "</td><td>";
+    if (showDelete) {
+        str  += "<a href=\"#\" onclick=\"removeBAM(";
+        str += String(index);
+        str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a>"
+    }
+    str += "</td></tr>";
     return str;
 }
 
@@ -85,13 +96,15 @@ LocalBAM.prototype.getTier = function() {
 function RemoteBAM(file) {
     this.base = LoadedFile;
     this.base(file, getName(file) + " [Remote]");
+    this.index = true;
+
 }
 
 RemoteBAM.prototype = new BAM;
 
 RemoteBAM.prototype.getTier = function() {
     var tier = tierMaster; 
-    tier["bamURI"] = "https://web-lustre-01.internal.sanger.ac.uk/" + this.file;
+    tier["bamURI"] = this.file;
     tier["name"] = this.name;
     tier["credentials"] = true;
     return tier;
@@ -122,13 +135,24 @@ function VariantFile(file, name) {
 
 VariantFile.prototype = new LoadedFile;
 
-VariantFile.prototype.print = function(index) {
-    var str = "<tr><td>";
+VariantFile.prototype.print = function(index, showDelete, backgroundColor) {
+    if (typeof(showDelete) === "undefined") {
+        showDelete = true;
+    }
+    var str = "<tr";
+    if (backgroundColor) {
+        str += " style='background-color: " + backgroundColor + "'";
+    }
+    str += "><td>";
     str += this.name;
     str += "</td><td>";
-    str += "</td><td><a href=\"#\" onclick=\"removeVariantFile("
-    str += String(index)
-    str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
+    str += "</td><td>";
+    if (showDelete) {
+        str += "<a href=\"#\" onclick=\"removeVariantFile(";
+        str += String(index);
+        str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a>";
+    }
+    str += "</td></tr>";
     return str
 }
 
@@ -139,12 +163,12 @@ function LocalVariantFile(file) {
 
 LocalVariantFile.prototype = new VariantFile;
 
-LocalVariantFile.prototype.get = function(sessionInstance, dallianceBrowser) {
+LocalVariantFile.prototype.get = function(sessionInstance) {
     var thatName = this.name;
     var reader = new FileReader();
     reader.readAsText(this.file);
     reader.onload = function() {
-        sessionInstance.load(reader.result, dallianceBrowser);
+        sessionInstance.load(reader.result);
     };
 };
 
@@ -155,13 +179,27 @@ function RemoteVariantFile(file) {
 
 RemoteVariantFile.prototype = new VariantFile;
 
-RemoteVariantFile.prototype.get = function(variantInstance) {
-    var thatName = this.name;
+RemoteVariantFile.prototype.get = function(sessionInstance, dallianceBrowser) {
     $.ajax({
-        url: "https://web-lustre-01.internal.sanger.ac.uk/" + this.file,
+        url: this.file,
         xhrFields: { withCredentials: true }
     }).done(function(fileText) {
-        console.log(thatName);
-        variantInstance.init(fileText, thatName);
+        console.log(fileText);
+        sessionInstance.load(fileText, dallianceBrowser);
     });
 };
+
+function doesItExist(url, callback) {
+    $.ajax({
+        url: url,
+        xhrFields: { withCredentials: true },
+        headers : {Range: "bytes=0-1"}
+    }).done(function() {
+        return callback(true);
+    }).fail(function() {
+        return callback(false);
+    });
+}
+
+
+

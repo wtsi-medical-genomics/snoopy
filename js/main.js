@@ -84,8 +84,10 @@ $(document).ready(function() {
 
     // Listen for load remote file prompt click
     $("#loadJSONfile").on("click", function() {
-        
+        loadJSONfile(); 
+        $("#modalLoadJSON").modal('hide');
     });
+
 });
 
 $("#modalSettings").on("hidden.bs.modal", function (e) {
@@ -194,7 +196,7 @@ var b = new Browser({
             provides_entrypoints: true,
             pinned: true
     }],
-    setDocumentTitle: true,
+//    setDocumentTitle: true,
     //uiPrefix: 'file:///Users/dr9/Developer/snoopy/dalliance/',
     fullScreen: false,
 
@@ -213,22 +215,34 @@ var variantFiles = [];
 var listFiles = [];
 
 function printFilesTable() {
+    $("#loadedFilesPanel").remove();
+    var str = '<div class="panel panel-default step-two" id="loadedFilesPanel">';
+    str += '<div class="panel-heading">Loaded Files</div>';
+    str += '<table class="table" id="loadedFilesTable">';
     if (sessions.getLength() === 0) {
-        var str = printfArray(bamFiles);
+        str += printfArray(bamFiles);
         str += printfArray(baiFiles);
         str += printfArray(variantFiles);
-        console.log(str);
-        $("#loadedFilesTable").html(str);
         if (bamFiles.length + baiFiles.length + variantFiles.length === 0) {
             $("#loadedFilePanel, #loadDalliance").css("display", "none");
         } else {
+ //           $("#loadedFilesTable").html(str);
             $("#loadedFilesPanel").css("display", "block");
             $("#loadDalliance").css("display", "inline");
-            $("#stepOne").css("margin-top", "5%");
+            $("#welcome").css("margin-top", "5%");
+            $("#loadJSONbutton, #choiceJSON").css("display", "none");
             $("#loadFilesText").html("Load More Files");
+            str += '</table></div>';
+            $(str).insertAfter("#choiceManual");
         }
     } else { // multi-session so need to print straight from the Sessions object
-        console.log('multi-session');
+//        $("#loadedFilesPanel").css("display", "block");
+        $("#loadDalliance").css("display", "inline");
+        $("#welcome").css("margin-top", "5%");
+        $("#loadRemoteFileButton, #choiceManual, #loadLocalFileButton").css("display", "none");
+        str += sessions.print();
+        str += '</table></div>';
+        $(str).insertAfter("#choiceJSON");
     }
 }
 
@@ -306,65 +320,51 @@ function loadJSONfile() {
 }
 
 function loadJSON(jsonFile) {
-    var loadedJSON = JSON.parse(jsonFile);
-
-    console.log(loadedJSON);
-    // determine if this is a single session
-    if (loadedJSON.hasOwnProperty("variant_locations")) { 
-        console.log('what do you know');
-        var newVariantFile = new RemoteVariantFile(loadedJSON.variant_locations);
-        variantFiles.push(newVariantFile);
-        
-        for (var i=0; i < loadedJSON.bams.length; ++i) { 
-            var newBam = new RemoteBAM(loadedJSON.bams[i]);
-            bamFiles.push(newBam);
+    console.log('it is here');
+    var j = JSON.parse(jsonFile);
+    var inSessions = j["sessions"];
+    console.log(inSessions);
+    // remove anything that may be loaded 
+    variantFiles = [];
+    bamFiles = [];
+    baiFiles = [];
+    var url = "https://web-lustre-01.internal.sanger.ac.uk/"; // does this need to be here? want to make it generic eventually
+    for (var si=0; si<inSessions.length; si++) {
+        var s = new Session();
+        s.variantFile = new RemoteVariantFile(url + inSessions[si]["variant_locations"]);
+        console.log(si);
+        console.log(inSessions[si]["bams"]);
+        for (var bi=0; bi<inSessions[si]["bams"].length; bi++) {
+            console.log(bi);
+            var newBam = new RemoteBAM(url + inSessions[si]["bams"][bi]);
+            s.bamFiles.push(newBam);
         }
-        printFilesTable();
-    } else { // multi-session
-        // remove anything that may be loaded 
-        variantFiles = [];
-        bamFiles = [];
-        baiFiles = [];
-        var url = "https://web-lustre-01.internal.sanger.ac.uk/"; // does this need to be here? want to make it generic eventually
-        console.log('whatcha');
-        for (var si in loadedJSON) {
-            var s = new Session();
-            s.variantFile = new RemoteVariantFile(url + loadedJSON[si]["variant_locations"]);
-            console.log(s);
-            for (var bi in loadedJSON[si]["bams"]) {
-                console.log(bi);
-                var newBam = new RemoteBAM(url + loadedJSON[si]["bams"][bi]);
-                s.bamFiles.push(newBam);
-            }
-            console.log(s);
-            sessions.addSession(s);
-        } 
-    }
+        sessions.addSession(s);
+    } 
+    printFilesTable();
 }
 
 function loadDalliance() {
     
     // Create and append select list
-    var myDiv = document.getElementById("variantSelectListHolder");
+    var myDiv = document.getElementById("variantSelectHolder");
     var selectList = document.createElement("select");
-    selectList.id = "mySelect";
+    selectList.id = "variantSelect";
     selectList.className = "form-control";
     selectList.onchange = function() {
         sessions.updateByList();
     } 
     myDiv.appendChild(selectList);
 
-   if (sessions.getLength() === 0) {
+    if (sessions.getLength() === 0) {
         // create a single session from whatever is present in the file loader
         var s = new Session(bamFiles, variantFiles[0]);
         sessions.addSession(s);
-        sessions.load(b);
      } else {
         // a multi-session is already loaded
-
-    }
-    
-      setTimeout(function() {
+     }
+     sessions.load(0);
+     setTimeout(function() {
         if (settings.defaultZoomLevelUnit) { 
             b.zoomStep(-1000000);
         } else {

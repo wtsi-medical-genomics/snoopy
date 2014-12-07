@@ -55,7 +55,8 @@
         <div class="navbar navbar-default navbar-fixed-top snoop-toolbar" id="controlCenter" role="navigation">
             <div class="navbar-inner">
                 <ul class="nav navbar-nav">
-                    <li>Candidate Variant <div id="variantSelectListHolder"></div></li>
+                    <li id="sessionSelectHolder"></li>
+                    <li id="variantSelectHolder"></li>
                     <li><button type="button" class="btn btn-default" id="returnHome"><span class="glyphicon glyphicon-home"></span></button></li>
                     <li><button type="button" class="btn btn-default" id="goBack"><span class="glyphicon glyphicon-chevron-left"></span> Previous</button></li>
                     <li>
@@ -89,7 +90,7 @@
                 <div class="col-md-3"></div>
                 <div class="col-md-6">
 
-                    <div class="panel panel-default" id="stepOne">
+                    <div class="panel panel-default" id="welcome">
                         <div class="panel-body">
                             <h4 class="first">Welcome to Snoopy</h4>
                             <p class="justify">Snoopy is a quality control tool to review predicted variants in BAM files. There are few ways to use this tool.</p>
@@ -101,7 +102,7 @@
                             <p class="justify">This mode is used when you want to manually add files from your local machine or from a server. Using Snoopy in this way will limit you to only one variant file.</p>
                         </div>
                     </div>
-                    <div class="btn-group">
+                    <div class="btn-group" id="loadLocalFileButton">
                         <div class="file-input btn btn-primary btn-file">
                             <span class="glyphicon glyphicon-floppy-disk"></span><span id="loadFilesText"> Load Local Files</span><input type="file" multiple id="fileLoaded">
                         </div>
@@ -118,14 +119,8 @@
                     <div class="file-input btn btn-success btn-file" id="loadJSONbutton">
                         <span class="glyphicon glyphicon-th-list"></span> Load JSON File 
                     </div>
-
-                    <div class="panel panel-default step-two" id="loadedFilesPanel">
-                        <div class="panel-heading">Loaded Files</div>
-                        <table class="table" id="loadedFilesTable">
-                        </table>
-                    </div>
-                    <div class="btn-group">
-                        <div class="btn btn-success" id="loadDalliance">
+                   <div class="btn-group">
+                        <div class="btn btn-warning" id="loadDalliance">
                             <span class="glyphicon glyphicon-search"></span> Start Quality Control 
                         </div>
                     </div>
@@ -156,6 +151,29 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" id="loadRemoteFile">Load</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Load JSON File Modal -->
+        <div class="modal fade" id="modalLoadJSON" tabindex="-1" role="dialog" aria-labelledby="myModalLoadJSON" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="myModalLoadJSON">Load remote JSON file</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form role="form">
+                            <div class="input-group form-stretch">
+                                <input type="text" class="form-control" placeholder="Absolute path/filename" id="JSONfilename">
+                            </div> 
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="loadJSONfile">Load</button>
                     </div>
                 </div>
             </div>
@@ -386,7 +404,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Stay on this set</button>
-                        <button type="button" class="btn btn-primary">Review the next set</button>
+                        <button type="button" class="btn btn-primary" id="loadNextSession">Review the next set</button>
                     </div>
                 </div>
             </div>

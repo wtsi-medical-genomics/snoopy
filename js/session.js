@@ -10,12 +10,11 @@ function Session(bamFiles, variantFile) {
 Session.prototype.init = function(fileText, fileName) {
     this.processVariantFile(fileText, fileName);
     this.gotoCurrentVariant();
-    this.refreshSelectList();
+    this.refreshVariantList();
 };
 
-Session.prototype.load = function(variantText, dallianceBrowser) {
-
-    // process the contents of the variant file text
+Session.prototype.load = function(variantText) {
+    // the variants have not been loaded so process the contents of the variant file text
     var textArray = variantText.split("\n");
     var pattern = /\s*[-:,\s]+\s*/;
     for (var i = 0; i < textArray.length; i++) {
@@ -27,22 +26,34 @@ Session.prototype.load = function(variantText, dallianceBrowser) {
             this.variantArray.push([chr, loc, -99]);
         }
     }
-
-    // setup the variant file drop down
+    // setup the bam files 
     for (var i=0; i < this.bamFiles.length; ++i) {
         var bamTier = this.bamFiles[i].getTier();
         if (bamTier) { 
             console.log(bamTier);
-            dallianceBrowser.addTier(bamTier);
+            b.addTier(bamTier);
         } 
     }
-    
     this.gotoCurrentVariant();
-    this.refreshSelectList();
+    this.refreshVariantList();
 };
 
-Session.prototype.updateByList = function() {
-    var selected = document.getElementById("mySelect");
+Session.prototype.reload = function(variantIndex) {
+    // setup the bam files 
+    for (var i=0; i < this.bamFiles.length; ++i) {
+        var bamTier = this.bamFiles[i].getTier();
+        if (bamTier) { 
+            console.log(bamTier);
+            b.addTier(bamTier);
+        } 
+    }
+    this.gotoCurrentVariant();
+    this.refreshVariantList();
+};
+
+
+Session.prototype.updateByVariantSelect= function() {
+    var selected = document.getElementById("variantSelect");
     console.log(selected);
     this.current = parseInt(selected.value);
     this.gotoCurrentVariant();
@@ -50,10 +61,17 @@ Session.prototype.updateByList = function() {
 
 Session.prototype.setQC = function(decision) {
     this.variantArray[this.current][2] = decision;
-    this.refreshSelectList();
-    this.refreshProgressBar();
+    this.refreshVariantList();
     return this.next();
 };
+
+Session.prototype.print = function(backgroundColor) {
+    var str = this.variantFile.print(null, false, backgroundColor);
+    for (var i=0; i<this.bamFiles.length; i++) {
+        str += this.bamFiles[i].print(null, false, backgroundColor);
+    }
+    return str;
+}
 
 Session.prototype.getProgress = function() {
     var progress = 0;
@@ -63,14 +81,6 @@ Session.prototype.getProgress = function() {
         }
     }
     return progress;
-};
-
-Session.prototype.refreshProgressBar = function() {
-    var progress = this.getProgress();
-    var percent = "" + (100*progress/this.variantArray.length)|0;
-    var progressBar = document.getElementById("variantProgress");
-    progressBar.setAttribute("aria-valuenow", percent);
-    progressBar.style.width = percent + "%";
 };
 
 Session.prototype.generateQCreport = function() {
@@ -91,19 +101,19 @@ Session.prototype.generateQCreport = function() {
     return str;
 };
 
-Session.prototype.refreshSelectList = function() {
+Session.prototype.refreshVariantList = function() {
 
     var stringArray = this.getStringArray();
-    var selectList = document.getElementById("mySelect"); 
-    selectList.innerHTML = "";
+    var selectList = $("#variantSelect"); 
 
+    selectList.empty() // get rid of any current variants
+    console.log(selectList);
     //Create and append the options
     for (var i = 0; i < stringArray.length; i++) {
-        var option = document.createElement("option");
-        option.value = i;
-        option.innerHTML = stringArray[i];
-        selectList.appendChild(option);
+        selectList.append($("<option>").attr('value', i).html(stringArray[i]));
     }
+    selectList.val(this.current);
+    console.log(selectList);
 };
 
 function formatLongInt(n) {
@@ -144,7 +154,7 @@ Session.prototype.gotoCurrentVariant = function() {
             b.zoom(settings.currentZoom);
         }
     }
-    document.getElementById("mySelect").value = this.current;
+    document.getElementById("variantSelect").value = this.current;
 };
 
 Session.prototype.next = function() {
@@ -157,7 +167,7 @@ Session.prototype.next = function() {
         return true;
     } else { // at the end now
         console.log("I'm not moving");
-        document.getElementById("mySelect").value = this.current;
+        document.getElementById("variantSelect").value = this.current;
         return false;
     }
 };
@@ -166,6 +176,9 @@ Session.prototype.prev = function() {
     if (this.current > 0) {
         this.current--;
         this.gotoCurrentVariant();
+        return true;
+    } else {
+        return false;
     }
 };
 
@@ -174,13 +187,28 @@ function Sessions() {
     this.current = null;
 }
 
-Sessions.prototype.load = function(dallianceBrowser) {
-    this.sessions[0].variantFile.get(this.sessions[0], dallianceBrowser);
-    this.current = 0;
+Sessions.prototype.load = function(sessionIndex, variantIndex) {
+    // remove old tiers if there
+    var conf = {index: 1};
+    var nTiers = b.tiers.length;
+    for (var i=1; i<nTiers; i++) {
+        b.removeTier(conf);
+    } 
+    this.current = sessionIndex;
+    if (this.sessions[this.current].variantArray.length > 0) {
+        this.sessions[this.current].reload() // already seen the session 
+    } else {
+        this.sessions[sessionIndex].variantFile.get(this.sessions[sessionIndex], b);
+    }
+    this.refreshSelect();
 }
 
 Sessions.prototype.getLength = function() {
-    return this.sessions.length;
+    var length = 0;
+    for (var i=0; i<this.sessions.length; i++) {
+        length += this.sessions[i].getLength();
+    }
+    return length;
 }   
 
 Sessions.prototype.addSession = function(session) {
@@ -188,33 +216,42 @@ Sessions.prototype.addSession = function(session) {
 }
 
 Sessions.prototype.setQC = function(decision) {
-    if(!this.sessions[this.current].setQC(decision)) {
-        if (this.current === this.sessions.length - 1) {
-            if (this.sessions.length > 1) {
-                console.log('I still live');
-                var progress = this.sessions[this.current].getProgress(); 
-                var total = this.sessions[this.current].variantArray.length;
-                var message = "You have reviewed <b>" + progress + "</b> of <b>" + total + "</b> variant locations. Do you want to continue to the next set of variants?";
-                $('#modalConfirmNextSet .modal-body').html(message);
-                $('#modalConfirmNextSet').modal('show');
-            }
-            else {
-                this.promptQCdownload();
-            }
+    this.refreshProgressBar();
+    if (!this.sessions[this.current].setQC(decision)) {
+        console.log('abracadrbra');
+        if (this.current < this.sessions.length - 1) {
+//            console.log('I still live');
+//            var progress = this.sessions[this.current].getProgress(); 
+//            var total = this.sessions[this.current].variantArray.length;
+//            var message = "You have reviewed <b>" + progress + "</b> of <b>" + total + "</b> variant locations. Do you want to continue to the next set of variants?";
+//            $('#modalConfirmNextSet .modal-body').html(message);
+//            $('#modalConfirmNextSet').modal('show');
+            this.load(this.current + 1);
+        } else {
+            this.promptQCdownload();
         }
     }
 }
 
 Sessions.prototype.prev = function() {
-    this.sessions[this.current].prev();
+    if (!this.sessions[this.current].prev()) {
+        if (this.current > 0) {
+           this.load(this.current - 1); 
+        }
+    }
 }
 
 Sessions.prototype.gotoCurrentVariant = function() {
     this.sessions[this.current].gotoCurrentVariant();
 }
 
-Sessions.prototype.updateByList = function() {
-    this.getCurrent().updateByList();
+Sessions.prototype.updateByVariantSelect= function() {
+    this.getCurrent().updateByVariantSelect();
+};
+
+Sessions.prototype.updateBySessionSelect= function() {
+    var s = $("#sessionSelect").val();
+    this.load(s);
 };
 
 Sessions.prototype.getCurrent = function() {
@@ -263,5 +300,49 @@ Sessions.prototype.promptQCdownload = function() {
     $("#modalDownloadQCreport .modal-body").html(message);
     $("#modalDownloadQCreport").modal('show');
 }
+
+Sessions.prototype.print = function() {
+    var str = ""; 
+    var backgroundColor;
+    for (var i=0; i<this.sessions.length; i++) {
+        if (i%2 == 0) {
+            backgroundColor = "#E8EFFF";  
+        } else {
+            backgroundColor = undefined; 
+        }
+        str += this.sessions[i].print(backgroundColor);
+    }
+    return str;
+};
+
+Sessions.prototype.refreshSelect = function() {
+    if (this.sessions.length > 1) {
+        var selectList = $("<select>").addClass("form-control").attr("id", "sessionSelect");
+        selectList.on("change", $.proxy(function() {
+            this.updateBySessionSelect();
+        }, this));
+        selectList.empty(); // get rid of any current variants
+        for (var i = 0; i < this.sessions.length; i++) {
+            selectList.append($("<option>").attr("value", i).html(this.sessions[i].variantFile.name));
+        }
+        selectList.val(this.current);
+        $("#sessionSelectHolder").html(selectList);
+    } else {
+        var button = '<button type="button" class="btn btn-default" disabled="disabled">' + this.sessions[0].variantFile.name  + '</button>';
+        $("#sessionSelectHolder").html(button);
+    }
+};
+
+Sessions.prototype.refreshProgressBar = function() {
+    var progress = this.getProgress();
+    var percent = "" + (100*progress/(this.getLength()) - 1)|0;
+    var progressBar = document.getElementById("variantProgress");
+    progressBar.setAttribute("aria-valuenow", percent);
+    progressBar.style.width = percent + "%";
+    console.log('PROGRESSSSSSS BAR');
+    console.log(progress);
+    console.log(percent);
+
+};
 
 
