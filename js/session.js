@@ -216,7 +216,6 @@ Sessions.prototype.addSession = function(session) {
 }
 
 Sessions.prototype.setQC = function(decision) {
-    this.refreshProgressBar();
     if (!this.sessions[this.current].setQC(decision)) {
         console.log('abracadrbra');
         if (this.current < this.sessions.length - 1) {
@@ -231,6 +230,7 @@ Sessions.prototype.setQC = function(decision) {
             this.promptQCdownload();
         }
     }
+    this.refreshProgressBar();
 }
 
 Sessions.prototype.prev = function() {
@@ -334,13 +334,17 @@ Sessions.prototype.refreshSelect = function() {
 };
 
 Sessions.prototype.refreshProgressBar = function() {
-    var progress = this.getProgress();
-    var percent = "" + (100*progress/(this.getLength()) - 1)|0;
-    var progressBar = document.getElementById("variantProgress");
-    progressBar.setAttribute("aria-valuenow", percent);
-    progressBar.style.width = percent + "%";
+    var progress = this.sessions[this.current].getProgress();
+    var total  = this.sessions[this.current].variantArray.length;
+    var percent =  String((100*progress/total)|0) + "%";
+    //var progressBar = document.getElementById("variantProgress");
+    $("#variantProgress").attr("aria-valuenow", percent);
+    $("#variantProgress").css("width", percent);
+    //progressBar.setAttribute("aria-valuenow", percent);
+    //progressBar.style.width = percent + "%";
     console.log('PROGRESSSSSSS BAR');
     console.log(progress);
+    console.log(total);
     console.log(percent);
 
 };

@@ -219,7 +219,7 @@ function printFilesTable() {
     var str = '<div class="panel panel-default step-two" id="loadedFilesPanel">';
     str += '<div class="panel-heading">Loaded Files</div>';
     str += '<table class="table" id="loadedFilesTable">';
-    if (sessions.getLength() === 0) {
+    if (sessions.sessions.length === 0) {
         str += printfArray(bamFiles);
         str += printfArray(baiFiles);
         str += printfArray(variantFiles);
@@ -352,11 +352,11 @@ function loadDalliance() {
     selectList.id = "variantSelect";
     selectList.className = "form-control";
     selectList.onchange = function() {
-        sessions.updateByList();
+        sessions.updateByVariantSelect();
     } 
     myDiv.appendChild(selectList);
 
-    if (sessions.getLength() === 0) {
+    if (sessions.sessions.length === 0) {
         // create a single session from whatever is present in the file loader
         var s = new Session(bamFiles, variantFiles[0]);
         sessions.addSession(s);
