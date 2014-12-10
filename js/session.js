@@ -20,7 +20,7 @@ Session.prototype.load = function(variantText) {
     for (var i = 0; i < textArray.length; i++) {
         var variant = textArray[i].trim();
         var parts = variant.split(pattern);
-        var chr = parseInt(parts[0]);
+        var chr = parts[0];
         var loc = parseInt(parts[1]); 
         if (parts.length === 2) {
             this.variantArray.push([chr, loc, -99]);
