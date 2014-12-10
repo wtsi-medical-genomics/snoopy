@@ -183,7 +183,7 @@ var b = new Browser({
     noZoomSlider : false,
     noTitle : false,
     noTrackEditor : false,
-    noExport : true,
+    noExport : false,
     noOptions : false,
     noHelp : true,
     disableDefaultFeaturePopup : true,
@@ -292,7 +292,7 @@ function resetFileLoaded() {
 }
 
 function loadRemoteFile() {
-    var f = $("#remoteFilename").val();
+    var f = "https://web-lustre-01.internal.sanger.ac.uk/" + $("#remoteFilename").val();
     switch (getExtension(f)) {
         case "bam":
             var newBam = new RemoteBAM(f);

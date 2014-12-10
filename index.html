@@ -112,7 +112,7 @@
                     </div>
                     <div class="panel panel-default choice" id="choiceJSON">
                         <div class="panel-body">
-                            <h4 class="first">JSON</h4>
+                            <h4 class="first">Batch</h4>
                             <p class="justify">In this mode you have a JSON file prepared that lists multiple “sessions”. Each session consists of a remote file listing variants along with a collection of remote BAM files.</p>
                         </div>
                     </div>
@@ -254,20 +254,32 @@
                             <div class="panel-body">
                                 <pre>
 {
-    "variant_locations": "PATH/TO/VARIANT_FILE.TXT",
-    "bams": [
-        "PATH/TO/BAM_1",
-        "PATH/TO/BAM_2",
-        ...
-        "/ABSOLUTE/PATH/TO/BAM_n"
-    ]
+    "sessions" : [
+    {
+        "variant_locations": "PATH/TO/VARIANT_FILE.TXT",
+        "bams": [
+            "PATH/TO/BAM_1",
+            "PATH/TO/BAM_2",
+            ...
+            "PATH/TO/BAM_n"
+        ]
+    },
+    {
+        "variant_locations": "PATH/TO/VARIANT_FILE.TXT",
+        "bams": [
+            "PATH/TO/BAM_1",
+            "PATH/TO/BAM_2",
+            ...
+            "PATH/TO/BAM_n"
+        ]
+    }
 }
                                 </pre>
                             </div>
                         </div>
-                        In the template you have the freedom to change whatever is capitalised but you must leave the keys (<code>variant_locations</code>, <code>bams</code>) alone. The paths can be relative to your home directory <code>~/...</code> or absolute <code>/lustre/scratch113/...</code>. Lastly, quotation marks must wrap everything.
+                        In the template you have the freedom to change whatever is capitalised but you must leave the keys (<code>variant_locations</code>, <code>bams</code>) alone. The paths can be relative to your home directory <code>~/...</code> or absolute <code>/lustre/scratch113/...</code>. There is no need to include the <code>https://web-lustre-01...</code> as this is automically prefixed. Lastly, quotation marks must wrap all keys and values.
 
-                        <br><br>Note that only remote files can be loaded in batches.
+                        <br><br>Note that in batch mode, the JSON  file can only point at remote files. This is unavoiadable as local files have to be explicitly loaded into web browser.
 
                         <h4 class="page-header">
                             Quality Control 

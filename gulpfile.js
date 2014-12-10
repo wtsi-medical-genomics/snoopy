@@ -32,10 +32,13 @@ gulp.task('default', function() {
                 replacement: ''
             },
             {
+                match: '<script language="javascript" src="js/session.js"></script>',
+                replacement: ''
+            },
+            {
                 match: '<script language="javascript" src="js/main.js"></script>',
-                replacement: '<script language="javascript" src="build.js"></script>',
-            }
- 
+                replacement: '<script language="javascript" src="build.js"></script>'
+            },
         ],
         usePrefix: false
     }))
