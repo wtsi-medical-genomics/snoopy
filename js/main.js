@@ -107,14 +107,14 @@ $("#modalSettings").on("hidden.bs.modal", function (e) {
     localStorage.setItem("snoopySettings", JSON.stringify(settings));
 
     for (var i=1; i<b.tiers.length; ++i) { 
-        var cs = $("#displaySelect" + i).val(); 
+        var cs = $("#displaySelect" + (i - 1)).val(); 
         console.log(cs);
         if(cs === "mismatch") {
             b.tiers[i].init();
-            displaySettings[i] = "mismatch";
+            displaySettings[i - 1] = "mismatch";
         } else {
             b.tiers[i].setStylesheet(baseCoverage);
-            displaySettings[i] = "coverage";
+            displaySettings[i - 1] = "coverage";
         }
     }
     b.refresh();
@@ -136,6 +136,8 @@ $("#modalSettings").on("show.bs.modal", function (e) {
         $("#zoomLevelText").val(cz);
     });
     var str = "<table style=\"width: 100%;\">";
+    
+    // Now add the current view settings
     for (var i=1; i<b.tiers.length; ++i) { 
         var bamName = b.tiers[i].featureSource.source.bamSource.name;
         str += "<tr>";
@@ -143,8 +145,8 @@ $("#modalSettings").on("show.bs.modal", function (e) {
         str += bamName;
         str += "</td>";
         str += "<td colspan=\"2\">";
-        str += "<select class=\"form-control\" id=\"displaySelect" + i + "\">";
-        if (displaySettings[i] && displaySettings[i] === "coverage") {
+        str += "<select class=\"form-control track-display-settings\" id=\"displaySelect" + (i -1) + "\">";
+        if (displaySettings[i - 1] && displaySettings[i - 1] === "coverage") {
             str += "<option value='mismatch'>Highlight mismatches</option>";
             str += "<option value='coverage' selected='selected'>Coverage histogram</option>";
         } else {
@@ -155,9 +157,21 @@ $("#modalSettings").on("show.bs.modal", function (e) {
         str += "</td>";
         str += "</tr>";
     }
-    str += "</table>"
-    $("#displaySettings").html(str);
+     // Create a toggle all button 
+    str += "<tr><td></td><td colspan=\"2\">";
+    str += "<button type=\"button\" class=\"btn btn-primary btn-sm\" id=\"trackDisplaySettingsToggle\">Toggle all</button>"
+    str += "</td>";
+    str += "</tr>";
 
+	str += "</table>";
+    $("#displaySettings").html(str);
+    $("#trackDisplaySettingsToggle").on("click", function() {
+        if ($("#displaySelect0").val() == "coverage") {
+		   $(".track-display-settings").val("mismatch");
+        } else {
+			$(".track-display-settings").val("coverage");
+		}
+    });
 })
 
 
