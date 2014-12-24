@@ -32,10 +32,12 @@ Session.prototype.load = function(variantText) {
         if (bamTier) { 
             console.log(bamTier);
             b.addTier(bamTier);
+			
         } 
     }
     this.gotoCurrentVariant();
-    this.refreshVariantList();
+	this.refreshStyles();
+	this.refreshVariantList();
 };
 
 Session.prototype.reload = function(variantIndex) {
@@ -51,6 +53,18 @@ Session.prototype.reload = function(variantIndex) {
     this.refreshVariantList();
 };
 
+Session.prototype.refreshStyles = function() {
+	// get styles and update each tier
+	if (displaySettings) {
+		for (var i=1; i<b.tiers.length; ++i) { 
+			if (displaySettings[0] === "mismatch" || settings.defaultDisplay === "mismatch") 
+				b.tiers[i].setStylesheet(mismatch);
+			else 
+				b.tiers[i].setStylesheet(baseCoverage);
+		}
+	}
+	b.refresh();
+}
 
 Session.prototype.updateByVariantSelect= function() {
     var selected = document.getElementById("variantSelect");

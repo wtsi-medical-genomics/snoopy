@@ -15,15 +15,17 @@ if (storedSettings) {
     settings = {
         defaultZoomLevelUnit : true,
         autoZoom : true,
-        highlightDiff : true,
-        currentZoom : false 
+        currentZoom : false,
+        defaultView : "mismatch",
+		plusColor : "#FFEBD7",
+		minusColor : "#BED8EA"
     }
 }
 
 $(document).ready(function() {
 
     // Listen for button to load files
-    document.getElementById("fileLoaded").addEventListener("change", loadLocalFiles, false); 
+    document.getElementById("fileLoaded").addEventListener("change", loadLocalFiles, false);
     
     // Listen for button to load the dalliance viwer
     $("#loadDalliance").on("click", loadDalliance);
@@ -87,13 +89,16 @@ $(document).ready(function() {
         loadJSONfile(); 
         $("#modalLoadJSON").modal('hide');
     });
-
+	
+	mismatch.styles[2].style._plusColor = settings.plusColor;
+	mismatch.styles[2].style._minusColor = settings.minusColor;
 });
 
 $("#modalSettings").on("hidden.bs.modal", function (e) {
     settings.defaultZoomLevelUnit = $("#defaultZoomLevelUnit").prop("checked");
     settings.autoZoom = $("#autoZoom").prop("checked"); 
-    settings.highlightDiff = $("#highlightDiff").prop("checked"); 
+    settings.plusColor = $("#plusStrandColor").val();
+    settings.minusColor = $("#minusStrandColor").val();
 
     if(!settings.defaultZoomLevelUnit) {
         var w = $("#zoomLevelText").val() | 0; // don't worry about type, it will be caught below
@@ -104,7 +109,6 @@ $("#modalSettings").on("hidden.bs.modal", function (e) {
         settings.currentZoom = w / b.zoomBase; 
         }
     }
-    localStorage.setItem("snoopySettings", JSON.stringify(settings));
 
     for (var i=1; i<b.tiers.length; ++i) { 
         var cs = $("#displaySelect" + (i - 1)).val(); 
@@ -116,15 +120,21 @@ $("#modalSettings").on("hidden.bs.modal", function (e) {
             b.tiers[i].setStylesheet(baseCoverage);
             displaySettings[i - 1] = "coverage";
         }
+		b.tiers[i].stylesheet.styles[2].style._plusColor = settings.plusColor;
+		b.tiers[i].stylesheet.styles[2].style._minusColor = settings.minusColor;
     }
-    b.refresh();
+	setTimeout(function(){
+		b.refresh();
+	}, 1000);
+
+	settings.defaultDisplay = displaySettings[0];
+    localStorage.setItem("snoopySettings", JSON.stringify(settings));
 })
 
 $("#modalSettings").on("show.bs.modal", function (e) {
     $("#defaultZoomLevelUnit").prop("checked", settings.defaultZoomLevelUnit);
     $("#defaultZoomLevelCurrent").prop("checked", !settings.defaultZoomLevelUnit);
     $("#autoZoom").prop("checked", settings.autoZoom); 
-    $("#highlightDiff").prop("checked", settings.highlightDiff); 
     $("#zoomLevelText").val(b.zoomBase * settings.currentZoom);
     $("#zoomLevelText").focus(function() {
         $("#defaultZoomLevelCurrent").prop("checked", true);
@@ -354,7 +364,7 @@ function loadJSON(jsonFile) {
             s.bamFiles.push(newBam);
         }
         sessions.addSession(s);
-    } 
+    }
     printFilesTable();
 }
 
