@@ -14,7 +14,7 @@ VariantLocations.prototype.updateByList = function() {
 };
 
 VariantLocations.prototype.setQC = function(decision) {
-    this.variantArray[this.current][2] = decision;
+    this.variantArray[this.current].score = decision;
     this.refreshSelectList();
     this.refreshProgressBar();
     return this.next();
@@ -23,7 +23,7 @@ VariantLocations.prototype.setQC = function(decision) {
 VariantLocations.prototype.getProgress = function() {
     var progress = 0;
     for (var i=0; i<this.variantArray.length; i++) {
-        if(this.variantArray[i][2] > -99) {
+        if(this.variantArray[i].score > -99) {
             progress++;
         }
     }
@@ -51,13 +51,27 @@ VariantLocations.prototype.processVariantFile = function(fileText, fileName) {
     for (var i = 0; i < textArray.length; i++) {
         var variant = textArray[i].trim();
         var parts = variant.split(pattern);
-        var chr = parseInt(parts[0]);
-        var loc = parseInt(parts[1]); 
-        if (parts.length === 2) {
-            this.variantArray.push([chr, loc, -99]);
-        }
-    }
-};
+		
+		switch (parts) {
+			case 2: // SNP
+	        var chr = parseInt(parts[0]);
+	        var loc = parseInt(parts[1]);
+			var v = new SNP(chr, loc);
+            this.variantArray.push(v);
+			break;
+		case 3: // CNV
+	        var chr = parseInt(parts[0]);
+	        var start = parseInt(parts[1]);
+	        var end = parseInt(parts[2]);
+			var v = new CNV(chr, start, end);
+            this.variantArray.push();	
+			break;
+		default:
+			console.log("Unrecognized variant");
+		}
+	}
+}
+
 
 VariantLocations.prototype.generateQCreport = function() {
     // parts of this will be moved to session.js
@@ -71,12 +85,11 @@ VariantLocations.prototype.generateQCreport = function() {
         }
     }
   
-    str += "\n" + this.fileName + "\n";
-    str += "\n";
+    str += "\n" + this.fileName + "\n\n";
 
     for (var i = 0; i < this.variantArray.length; i++) {
         var v = this.variantArray[i];
-        str += v[0] + ":" +  v[1] + " " + v[2] + "\n"; 
+        str += v.string() + "\n"; 
     }
 
     var blob = new Blob([str], {type: "text/plain;charset=utf-8"});
@@ -84,7 +97,7 @@ VariantLocations.prototype.generateQCreport = function() {
 }
 
 VariantLocations.prototype.refreshSelectList = function() {
-
+	console.log('things have changed');
     var stringArray = this.getStringArray();
     var selectList = document.getElementById("mySelect"); 
     selectList.innerHTML = "";
@@ -105,19 +118,7 @@ function formatLongInt(n) {
 VariantLocations.prototype.getStringArray = function() {
     var stringArray = Array(this.variantArray.length);
     for (var i = 0; i<this.variantArray.length; i++) {
-        var s = this.variantArray[i][0] + ":" + formatLongInt(this.variantArray[i][1]);
-        switch (this.variantArray[i][2]) {
-            case -1:
-                s += " &#x2717;";
-            break;
-            case 0:
-                s += " ?";
-            break;
-            case 1:
-                s += " &#x2713;";
-            break;
-        }
-        stringArray[i] = s;
+        stringArray[i] = this.variantArray[i].prettyString();
     }
     return stringArray;
 };
@@ -126,9 +127,7 @@ VariantLocations.prototype.gotoCurrentVariant = function() {
     console.log(this.current);
     var c = this.variantArray[this.current];
     console.log(c);
-    b.setCenterLocation('chr' + c[0], c[1]);
-    b.clearHighlights();
-    b.highlightRegion('chr' + c[0], c[1], c[1] + 1);
+	c.visit()
     if (settings.autoZoom) {
         if (settings.defaultZoomLevelUnit) { 
             b.zoomStep(-1000000);

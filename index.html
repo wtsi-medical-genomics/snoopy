@@ -19,6 +19,7 @@
         <script language="javascript" src="FileSaver.js/FileSaver.min.js"></script>
         <script language="javascript" src="js/loadedfiletypes.js"></script>
         <script language="javascript" src="js/session.js"></script>
+        <script language="javascript" src="js/variant.js"></script>
 
         <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
         <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -232,13 +233,16 @@
                         <h4 class="page-header">
                             Load Your Files
                         </h4>
-                        Load BAM files, BAI files and a text file (.txt) with variant locations, one per line. The format of each variant in the text file can be any of the following
+                        Load BAM files, BAI files and a text file (.txt) with variant locations, one per line. The variant text file can list both SNPs and CNVs. SNPs can be in any of the following formats:
                         <ul class="list-unstyled">
-                            <li>chr:loc</li>
-                            <li>chr-loc</li>
-                            <li>chr,loc</li>
-                            <li>chr loc</li>
+                            <li>chr:location</li>
+                            <li>chr-location</li>
+                            <li>chr,location</li>
+                            <li>chr location</li>
                         </ul>
+						For example, a SNP location may be 16:48000281.
+						And the format for CNVs is as SNPs except the location consists of two numbers. For example, a CNV location may be 16:48000281-48000289.
+						
                         You can repeatedly press Load More Files, that is, you don't have to select all of your files from a single open file dialog.  Once you have loaded all of your files, click 
                         <button type="button" class="btn btn-success btn-sm">
                             <span class="glyphicon glyphicon-search"></span> Start Quality Control 
@@ -320,8 +324,8 @@
                                 .<br><br>
 
 
-                                chr:variant location 1 : QC decision<br>
-                                chr:variant location 2 : QC decision<br>
+                                chr:variant location 1 QC decision<br>
+                                chr:variant location 2 QC decision<br>
                                 .<br>
                                 .<br>
                                 .

@@ -20,11 +20,24 @@ Session.prototype.load = function(variantText) {
     for (var i = 0; i < textArray.length; i++) {
         var variant = textArray[i].trim();
         var parts = variant.split(pattern);
-        var chr = parts[0];
-        var loc = parseInt(parts[1]); 
-        if (parts.length === 2) {
-            this.variantArray.push([chr, loc, -99]);
-        }
+		console.log(i);
+		console.log(parts);
+		switch (parts.length) {
+			case 2: // SNP
+	        var chr = parseInt(parts[0]);
+	        var loc = parseInt(parts[1]);
+			var v = new SNP(chr, loc);
+			break;
+		case 3: // CNV
+	        var chr = parseInt(parts[0]);
+	        var start = parseInt(parts[1]);
+	        var end = parseInt(parts[2]);
+			var v = new CNV(chr, start, end);
+			break;
+		default:
+			console.log("Unrecognized variant");
+		}
+		this.variantArray.push(v);
     }
     // setup the bam files 
     for (var i=0; i < this.bamFiles.length; ++i) {
@@ -74,7 +87,7 @@ Session.prototype.updateByVariantSelect= function() {
 };
 
 Session.prototype.setQC = function(decision) {
-    this.variantArray[this.current][2] = decision;
+    this.variantArray[this.current].score = decision;
     this.refreshVariantList();
     return this.next();
 };
@@ -90,7 +103,7 @@ Session.prototype.print = function(backgroundColor) {
 Session.prototype.getProgress = function() {
     var progress = 0;
     for (var i=0; i<this.variantArray.length; i++) {
-        if(this.variantArray[i][2] > -99) {
+        if(this.variantArray[i].score > -99) {
             progress++;
         }
     }
@@ -104,14 +117,10 @@ Session.prototype.generateQCreport = function() {
     for (var i = 0; i < this.bamFiles.length; i++) {
             str += this.bamFiles[i].name + "\n";
     }
-  
     str += "\n";
-
     for (var i = 0; i < this.variantArray.length; i++) {
-        var v = this.variantArray[i];
-        str += v[0] + ":" +  v[1] + " " + v[2] + "\n"; 
+        str += this.variantArray[i].string() + "\n"; 
     }
-
     return str;
 };
 
@@ -137,19 +146,7 @@ function formatLongInt(n) {
 Session.prototype.getStringArray = function() {
     var stringArray = Array(this.variantArray.length);
     for (var i = 0; i<this.variantArray.length; i++) {
-        var s = this.variantArray[i][0] + ":" + formatLongInt(this.variantArray[i][1]);
-        switch (this.variantArray[i][2]) {
-            case -1:
-                s += " &#x2717;";
-            break;
-            case 0:
-                s += " ?";
-            break;
-            case 1:
-                s += " &#x2713;";
-            break;
-        }
-        stringArray[i] = s;
+        stringArray[i] = this.variantArray[i].prettyString();
     }
     return stringArray;
 };
@@ -158,9 +155,7 @@ Session.prototype.gotoCurrentVariant = function() {
     console.log(this.current);
     var c = this.variantArray[this.current];
     console.log(c);
-    b.setCenterLocation('chr' + c[0], c[1]);
-    b.clearHighlights();
-    b.highlightRegion('chr' + c[0], c[1], c[1] + 1);
+	c.goto();
     if (settings.autoZoom) {
         if (settings.defaultZoomLevelUnit) { 
             b.zoomStep(-1000000);
@@ -277,12 +272,12 @@ Sessions.prototype.downloadQCreport = function() {
     var str = Date();
     
     for (var i=0; i<this.sessions.length; i++) {
-        str += this.sessions[i].generateQCreport(); 
+        str += this.sessions[i].generateQCreport();
     }
     
     var out = $("#QCreportFilename").val();
     var blob = new Blob([str], {type: "text/plain;charset=utf-8"});
-    saveAs(blob, out); 
+    saveAs(blob, out);
 };
 
 Sessions.prototype.getNumberVariants = function() {
