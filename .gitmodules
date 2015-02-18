@@ -4,3 +4,6 @@
 [submodule "FileSaver.js"]
 	path = FileSaver.js
 	url = https://github.com/eligrey/FileSaver.js.git
+[submodule "bootstrap"]
+	path = bootstrap
+	url = https://github.com/twbs/bootstrap

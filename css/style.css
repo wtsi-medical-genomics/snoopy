@@ -7,7 +7,7 @@
     visibility: hidden;
 }i*/
 
-#my-dalliance-holder {
+/*#my-dalliance-holder {
     opacity: 0;
     margin-top: 35px;
     width: 97%;
@@ -17,6 +17,15 @@
     border: 1px solid silver;
     padding-left: 10px;
     padding-right: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+}*/
+
+#my-dalliance-holder {
+    margin-top: 35px;
+    opacity: 0;
+    background-color: white;
+    border: 1px solid silver;
 }
 
 p.justify {
@@ -186,6 +195,7 @@ table.color-code tr.a td {
 
 #controlCenter {
     display: none;
+    padding: 7.5px;
 }
 
 .btn-file {
@@ -326,11 +336,6 @@ body {
     border-top: 1px solid #e5e5e5;
 }
 
-@media (min-width: 768px) {
-.container {
-max-width: 1200px;
-}
-}
 .container-narrow > hr {
     margin: 30px 0;
 }
@@ -353,22 +358,20 @@ max-width: 1200px;
     margin-top: 28px;
 }
 
-/* Responsive: Portrait tablets and up */
-@media screen and (min-width: 768px) {
-    /* Remove the padding we set earlier */
-    .header,
-    .marketing,
-    .footer {
-        padding-right: 0;
-        padding-left: 0;
-    }
-    /* Space out the masthead */
-    .header {
-        margin-bottom: 30px;
-    }
-    /* Remove the bottom border on the jumbotron for visual effect */
-    .jumbotron {
-        border-bottom: 0;
-    }
+#menubar {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    width: 100%;
+    z-index: 1002;
+}
+
+.navbar {
+  border-radius: 0px;
+  margin-bottom: 0px;
+}
+
+.progress{
+  border-radius: 0px;
 }
 

@@ -1,44 +1,5 @@
 "use strict";
 
-var tierMaster = {
-   noPersist : true,
-    subtierMax : 1000,
-    style: [
-        {
-        "type": "density",
-        "zoom": "low",
-        "style": {
-            "glyph": "HISTOGRAM",
-            "COLOR1": "black",
-            "COLOR2": "red",
-            "HEIGHT": 30
-        }
-    },
-    {
-        "type": "density",
-        "zoom": "medium",
-        "style": {
-            "glyph": "HISTOGRAM",
-            "COLOR1": "black",
-            "COLOR2": "red",
-            "HEIGHT": 30
-        }
-    },
-    {
-        "type": "bam",
-        "zoom": "high",
-        "style": {
-            "glyph": "__SEQUENCE",
-            "HEIGHT": 8,
-            "BUMP": true,
-            "LABEL": false,
-            "ZINDEX": 20,
-            "__SEQCOLOR": "mismatch"
-        }
-    }
-    ]
-};
-
 
 function LoadedFile(file, name) {
     this.file = file || null;
@@ -49,6 +10,10 @@ function BAM(file, name, index) {
     this.base = LoadedFile;
     this.base(file, name);
     this.index = index || null;
+    this.tier = {
+       noPersist: true,
+       subtierMax: 1000
+    };
  }
 
 function LocalBAM(file) {
@@ -85,29 +50,28 @@ BAM.prototype.print = function(index, showDelete, backgroundColor) {
     return str;
 }
 
-LocalBAM.prototype.getTier = function() {
-    var tier = tierMaster; 
-    tier["bamBlob"] = this.file;
-    tier["baiBlob"] = this.index.file;
-    tier["name"] = this.name;
-    return tier;
+LocalBAM.prototype.getTier = function(style) {
+    this.tier["bamBlob"] = this.file;
+    this.tier["baiBlob"] = this.index.file;
+    this.tier["name"] = this.name;
+    this.tier["style"] = style; 
+    return this.tier;
 }
 
 function RemoteBAM(file) {
     this.base = LoadedFile;
     this.base(file, getName(file) + " [Remote]");
     this.index = true;
-
 }
 
 RemoteBAM.prototype = new BAM;
 
-RemoteBAM.prototype.getTier = function() {
-    var tier = tierMaster; 
-    tier["bamURI"] = this.file;
-    tier["name"] = this.name;
-    tier["credentials"] = true;
-    return tier;
+RemoteBAM.prototype.getTier = function(style) {
+    this.tier["bamURI"] = this.file;
+    this.tier["name"] = this.name;
+    this.tier["credentials"] = true;
+    this.tier["style"] = style; 
+    return this.tier;
 }
 
 function LocalBAI(file) {

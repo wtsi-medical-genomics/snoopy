@@ -27,7 +27,7 @@ function SNP(chr, loc) {
 	this.loc = loc;
 }
 
-SNP.prototype.goto = function() {
+SNP.prototype.visit = function() {
     b.clearHighlights();
     b.setCenterLocation('chr' + this.chr, this.loc);
     b.highlightRegion('chr' + this.chr, this.loc, this.loc + 1);	
@@ -50,7 +50,7 @@ function CNV(chr, start, end) {
 	this.end = end;
 }
 
-CNV.prototype.goto = function() {
+CNV.prototype.visit = function() {
     b.clearHighlights();
 	var loc = (this.start + this.end) / 2;
     b.setCenterLocation('chr' + this.chr, loc);

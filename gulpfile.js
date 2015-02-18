@@ -28,7 +28,7 @@ gulp.task('default', function() {
                 replacement: ''
             },
             {
-                match: '<script language="javascript" src="js/variants.js"></script>',
+                match: '<script language="javascript" src="js/variant.js"></script>',
                 replacement: ''
             },
             {

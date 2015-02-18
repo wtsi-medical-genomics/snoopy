@@ -20,64 +20,70 @@ Session.prototype.load = function(variantText) {
     for (var i = 0; i < textArray.length; i++) {
         var variant = textArray[i].trim();
         var parts = variant.split(pattern);
-		console.log(i);
-		console.log(parts);
-		switch (parts.length) {
-			case 2: // SNP
-	        var chr = parseInt(parts[0]);
-	        var loc = parseInt(parts[1]);
-			var v = new SNP(chr, loc);
-			break;
-		case 3: // CNV
-	        var chr = parseInt(parts[0]);
-	        var start = parseInt(parts[1]);
-	        var end = parseInt(parts[2]);
-			var v = new CNV(chr, start, end);
-			break;
-		default:
-			console.log("Unrecognized variant");
-		}
-		this.variantArray.push(v);
+        var chr = parts[0];
+            switch (parts.length) {
+                case 2: // SNP
+                    var loc = parseInt(parts[1]);
+                    var v = new SNP(chr, loc);
+                    break;
+                case 3: // CNV
+                    var start = parseInt(parts[1]);
+                    var end = parseInt(parts[2]);
+                    var v = new CNV(chr, start, end);
+                    break;
+                default:
+                    console.log("Unrecognized variant");
+            }
+            this.variantArray.push(v);
     }
     // setup the bam files 
-    for (var i=0; i < this.bamFiles.length; ++i) {
-        var bamTier = this.bamFiles[i].getTier();
-        if (bamTier) { 
-            console.log(bamTier);
-            b.addTier(bamTier);
-			
-        } 
-    }
-    this.gotoCurrentVariant();
-	this.refreshStyles();
-	this.refreshVariantList();
-};
 
-Session.prototype.reload = function(variantIndex) {
-    // setup the bam files 
-    for (var i=0; i < this.bamFiles.length; ++i) {
-        var bamTier = this.bamFiles[i].getTier();
-        if (bamTier) { 
-            console.log(bamTier);
-            b.addTier(bamTier);
-        } 
-    }
+    this.refreshStyles();
     this.gotoCurrentVariant();
     this.refreshVariantList();
 };
 
+Session.prototype.reload = function(variantIndex) {
+    // // setup the bam files 
+    // for (var i=0; i < this.bamFiles.length; ++i) {
+    //     var bamTier = this.bamFiles[i].getTier();
+    //     if (bamTier) { 
+    //         console.log(bamTier);
+    //         b.addTier(bamTier);
+    //     }
+    // }
+    this.refreshStyles();
+    this.gotoCurrentVariant();
+    this.refreshVariantList();
+};
+
+
 Session.prototype.refreshStyles = function() {
-	// get styles and update each tier
-	if (displaySettings) {
-		for (var i=1; i<b.tiers.length; ++i) { 
-			if (displaySettings[0] === "mismatch" || settings.defaultDisplay === "mismatch") 
-				b.tiers[i].setStylesheet(mismatch);
-			else 
-				b.tiers[i].setStylesheet(baseCoverage);
-		}
-	}
-	b.refresh();
+    for (var i=0; i < this.bamFiles.length; ++i) {
+        if (settings.defaultView === "coverage") 
+            var style = baseCoverage['styles'];
+        else
+            var style = mismatch['styles'];
+        var bamTier = this.bamFiles[i].getTier(style);
+        if (bamTier) { 
+            console.log(bamTier);
+            b.addTier(bamTier);
+        } 
+    }
 }
+
+// Session.prototype.refreshStyles = function() {
+//     // get styles and update each tier
+//     if (displaySettings) {
+//         for (var i=1; i<b.tiers.length; ++i) { 
+//             if (displaySettings[0] === "mismatch" || settings.defaultDisplay === "mismatch") 
+//                 b.tiers[i].setStylesheet(mismatch);
+//             else 
+//                 b.tiers[i].setStylesheet(baseCoverage);
+//         }
+//     }
+//     b.refresh();
+// }
 
 Session.prototype.updateByVariantSelect= function() {
     var selected = document.getElementById("variantSelect");
@@ -155,7 +161,7 @@ Session.prototype.gotoCurrentVariant = function() {
     console.log(this.current);
     var c = this.variantArray[this.current];
     console.log(c);
-	c.goto();
+	c.visit();
     if (settings.autoZoom) {
         if (settings.defaultZoomLevelUnit) { 
             b.zoomStep(-1000000);
@@ -245,7 +251,7 @@ Sessions.prototype.setQC = function(decision) {
 Sessions.prototype.prev = function() {
     if (!this.sessions[this.current].prev()) {
         if (this.current > 0) {
-           this.load(this.current - 1); 
+           this.load(this.current - 1);
         }
     }
 }
@@ -355,7 +361,6 @@ Sessions.prototype.refreshProgressBar = function() {
     console.log(progress);
     console.log(total);
     console.log(percent);
-
 };
 
 
