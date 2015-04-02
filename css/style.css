@@ -80,7 +80,6 @@ p.justify {
     border-right: 1px solid lightgrey;
 }
 
-
 #modalSettings tr.border-top {
     border-top: 1px solid lightgrey;
 }
@@ -95,9 +94,6 @@ p.justify {
 #modalSettings td:first-child {
 }
 
-#captureZoom {
-    margin-top: 5px;
-} 
 
 label {
     font-weight: normal;
@@ -164,11 +160,11 @@ table.color-code tr.a td {
    /* height: 10px;*/
 }
 
-.progress-bar-fixed {
+/*.progress-bar-fixed {
     position: fixed;
     width: 100%;
     z-index: 1030; 
-}
+}*/
 
 .toolbar .navbar-nav > li > a:hover, .nav > li > a:focus {
     text-decoration: none;
@@ -358,13 +354,13 @@ body {
     margin-top: 28px;
 }
 
-#menubar {
+/*#menubar {
     position: fixed;
     top: 0px;
     right: 0px;
     width: 100%;
     z-index: 1002;
-}
+}*/
 
 .navbar {
   border-radius: 0px;
@@ -375,3 +371,26 @@ body {
   border-radius: 0px;
 }
 
+dd {
+    margin: 10px 22px;
+}
+
+dd.bufferHeight {
+    min-height: 75px;
+}
+
+/*dt:not(:first-of-type){
+    margin-top: 25px;
+}*/
+
+dt {
+    margin-top: 25px;
+}
+
+dt.smallTopMargin {
+    margin-top: 5px;
+}
+
+.textboxFullWidth {
+    width: 100%;
+}

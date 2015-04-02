@@ -60,7 +60,7 @@ Session.prototype.reload = function(variantIndex) {
 
 Session.prototype.refreshStyles = function() {
     for (var i=0; i < this.bamFiles.length; ++i) {
-        if (settings.defaultView === "coverage") 
+        if (App.settings.defaultView === "coverage") 
             var style = baseCoverage['styles'];
         else
             var style = mismatch['styles'];
@@ -162,11 +162,11 @@ Session.prototype.gotoCurrentVariant = function() {
     var c = this.variantArray[this.current];
     console.log(c);
 	c.visit();
-    if (settings.autoZoom) {
-        if (settings.defaultZoomLevelUnit) { 
+    if (App.settings.autoZoom) {
+        if (App.settings.defaultZoomLevelUnit) { 
             b.zoomStep(-1000000);
         } else {
-            b.zoom(settings.currentZoom);
+            b.zoom(App.settings.currentZoom);
         }
     }
     document.getElementById("variantSelect").value = this.current;
@@ -352,15 +352,8 @@ Sessions.prototype.refreshProgressBar = function() {
     var progress = this.sessions[this.current].getProgress();
     var total  = this.sessions[this.current].variantArray.length;
     var percent =  String((100*progress/total)|0) + "%";
-    //var progressBar = document.getElementById("variantProgress");
     $("#variantProgress").attr("aria-valuenow", percent);
     $("#variantProgress").css("width", percent);
-    //progressBar.setAttribute("aria-valuenow", percent);
-    //progressBar.style.width = percent + "%";
-    console.log('PROGRESSSSSSS BAR');
-    console.log(progress);
-    console.log(total);
-    console.log(percent);
 };
 
 

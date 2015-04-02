@@ -30,7 +30,7 @@ function SNP(chr, loc) {
 SNP.prototype.visit = function() {
     b.clearHighlights();
     b.setCenterLocation('chr' + this.chr, this.loc);
-    b.highlightRegion('chr' + this.chr, this.loc, this.loc + 1);	
+    b.highlightRegion('chr' + this.chr, this.loc, this.loc + 1);
 }
 
 SNP.prototype.prettyString = function() {

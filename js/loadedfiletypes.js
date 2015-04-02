@@ -1,6 +1,5 @@
 "use strict";
 
-
 function LoadedFile(file, name) {
     this.file = file || null;
     this.name = name || null;
@@ -164,6 +163,3 @@ function doesItExist(url, callback) {
         return callback(false);
     });
 }
-
-
-
