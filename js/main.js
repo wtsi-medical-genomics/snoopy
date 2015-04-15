@@ -3,12 +3,25 @@
 // var displaySettings = [];
 // mismatch.styles[2].style._plusColor = settings.plusColor;
 // mismatch.styles[2].style._minusColor = settings.minusColor;
-var App
+var App, utils;
+
+
+
 $(function() {
+    utils = {
+        getExtension: function(f) {
+            if (typeof(f) !== "string") {
+                f = f.name;
+            }
+            var parts = f.split(".");
+            return parts[parts.length - 1].toLowerCase();
+        }  
+    }
+
     App = {
         init: function() {
             console.log('here');
-            this.view = 'loadFiles'
+            this.view = 'loadFiles';
             this.sessions = new Sessions();
             this.cacheElements();
             this.bindEvents();
@@ -30,6 +43,8 @@ $(function() {
 
         cacheElements: function() {
             this.$app = $('#app');
+
+            this.$localFile = this.$app.find('#fileLoaded');
             this.$buttonLoadDalliance = this.$app.find('#buttonLoadDalliance');
             this.$buttonRestart = this.$app.find('#buttonRestart');
             this.$buttonPrepareDownloadQCreport = this.$app.find('#buttonPrepareDownloadQCreport');
@@ -38,23 +53,48 @@ $(function() {
             this.$buttonQCNotVariant = this.$app.find('#buttonQCNotVariant');
             this.$buttonQCPotentialVariant = this.$app.find('#buttonQCPotentialVariant');
             this.$buttonQCCertainVariant = this.$app.find('#buttonQCCertainVariant');
-            this.$buttonShowRemoteFileModal = this.$app.find('#buttonLoadRemoteFile');
+            this.$buttonShowRemoteFileModal = this.$app.find('#buttonShowRemoteFileModal');
             this.$buttonLoadRemoteFile = this.$app.find('#buttonLoadRemoteFile');
-            this.$buttonShowLoadJSONModal = this.$app.find('#buttonShowLoadJSONModal');
+            this.$buttonShowLoadRemoteFileModal = this.$app.find('#buttonShowLoadRemoteFileModal');
             this.$buttonLoadJSONFile = this.$app.find('#buttonLoadJSONFile');
             this.$modalDownloadQCreport = this.$app.find('#modalDownloadQCreport');
             this.$modalLoadRemote = this.$app.find('#modalLoadRemote');
-            this.$modalLoadJSON = this.$app.find('#modalLoadJSON');
             this.$modalSettings = this.$app.find('#modalSettings');
             this.settingsTemplate = _.template($("#settingsTemplate").html());
+            this.$fileLoadingFileListTarget = this.$app.find('#fileLoadingFileListTarget');
+            this.fileLoadingFileListTemplate = _.template($("#fileLoadingFileListTemplate").html());
+            this.$fileLoadingErrorListTarget = $("#fileLoadingErrorListTarget");
+            this.fileLoadingErrorListTemplate = _.template($("#fileLoadingErrorListTemplate").html());
+
             this.$targetSettings = this.$app.find('#targetSettings');
+            this.$serverLocation = this.$app.find('.serverLocation');
+            this.$buttonGoManual = this.$app.find('#buttonGoManual');
+            this.$buttonGoBatch = this.$app.find('#buttonGoBatch');
+            
+            this.$formLoadURL = this.$app.find('#modalLoadRemote');
+
+            this.$remoteFilename = this.$app.find('#remoteFilename');
+            
+            this.$paragraphManual = this.$app.find('#paragraphManual');
+            this.$paragraphBatch = this.$app.find('#paragraphBatch');
+            this.$paragraphWelcome = this.$app.find('#paragraphWelcome');
+            
+            this.$panelWelcome = this.$app.find('#panelWelcome');
+            this.$panelManual = this.$app.find('#panelManual');
+            this.$panelBatch = this.$app.find('#panelBatch');
+
+            this.$sectionLoadFiles = this.$app.find('#sectionLoadFiles');
+            this.$sectionPickMode = this.$app.find('#sectionPickMode');
+            
+            this.$fileLoadingAlert = this.$app.find('#fileLoadingAlert');
 
 
         },
 
         bindEvents: function() {
             // Listen for button to load files
-            document.getElementById('fileLoaded').addEventListener('change', loadLocalFiles, false);
+            //document.getElementById('fileLoaded').addEventListener('change', loadLocalFiles, false);
+            this.$localFile.on('change', this.loadLocalFile.bind(this));
             this.$buttonLoadDalliance.on('click', this.loadDalliance.bind(this));
             this.$buttonRestart.on('click', this.reload.bind(this));
             this.$buttonPrepareDownloadQCreport.on('click', this.sessions.promptQCdownload.bind(this));
@@ -64,16 +104,50 @@ $(function() {
             this.$buttonQCPotentialVariant.on('click', this.qcPotentialVariant.bind(this));
             this.$buttonQCCertainVariant.on('click', this.qcCertainVariant.bind(this));
             this.$buttonShowRemoteFileModal.on('click', this.showRemoteFileModal.bind(this));
-            this.$buttonLoadRemoteFile.on('click', this.loadRemoteFile.bind(this));
-            this.$buttonShowLoadJSONModal.on('click', this.showLoadJSONModal.bind(this));
-            this.$buttonLoadJSONFile.on('click', this.loadJSONFile.bind(this));
+            
+            //this.$buttonShowLoadJSONModal.on('click', this.showLoadJSONModal.bind(this));
+            this.$buttonShowLoadRemoteFileModal.on('click', this.showLoadRemoteFileModal.bind(this));
+
+            this.$buttonGoBatch.on('click', this.goBatch.bind(this));
             this.$modalSettings.on('hidden.bs.modal', this.hideSettingsModal.bind(this));
             this.$modalSettings.on('show.bs.modal', this.showSettingsModal.bind(this));
             this.$targetSettings.on('change', "#selectTierStyle", this.selectTierStyle.bind(this));
             this.$targetSettings.on('click', "#captureZoom", this.captureZoom.bind(this));
             this.$targetSettings.on('click', '#captureZoom', this.selectCustomZoom.bind(this));
             this.$targetSettings.on('focus', '#zoomLevelText', this.selectCustomZoom.bind(this));
+            
+            this.$buttonLoadRemoteFile.on('click', this.loadRemoteFile.bind(this));
+            this.$formLoadURL.submit(function(event) {
+                event.preventDefault();
+                this.loadRemoteFile();
+            }.bind(this));
 
+            this.$fileLoadingFileListTarget.on('click', '.destroy', this.destroy.bind(this));
+
+        },
+        loadLocalFile: function() {
+            console.log('here!!!!');
+            console.log(this.$localFile);
+            var files = this.$localFile[0].files;
+            console.log(files);
+            for (var i=0; i<files.length; i++) {
+                var f = files[i],
+                ext = utils.getExtension(f);
+
+                if (this.mode === 'batch' && ext === 'json') {
+                        var reader = new FileReader();
+                        reader.readAsText(f);
+                        reader.onload = function() {
+                            this.parseJSON(JSON.parse(reader.result), f.name);
+                        }.bind(this)
+                }
+            }
+        },
+        goBatch: function() {
+            this.mode = 'batch';
+            this.$sectionPickMode.hide()
+            this.$sectionLoadFiles.show()
+            this.$sectionLoadFiles.find('.title').html('Batch Mode');
         },
         reload: function() {
             document.location.reload();
@@ -122,28 +196,141 @@ $(function() {
             $zoomLevelText.val(cz);  
             //$("#defaultZoomLevel").prop("checked", true);
             $zoomRadio.filter('[value="custom"]').prop('checked', true);
-              
-              
         },
         selectCustomZoom: function() {
             var $zoomRadio = $('input:radio[name="defaultZoomLevel"]');
             $zoomRadio.filter('[value="custom"]').prop('checked', true);
         },
         showRemoteFileModal: function() {
-            this.$modalLoadRemote.modal("show");
+            console.log('inside showRemoteFileModal');
+            this.$serverLocation.html(this.settings.serverLocation);
+            this.$modalLoadRemote.modal('show');
         },
         loadRemoteFile: function() {
-            this.loadRemoteFile2();
             this.$modalLoadRemote.modal('hide');
+            this.$fileLoadingErrorListTarget.html('');
+            this.errors = [];
+
+            var f = this.$remoteFilename.val(),
+            ext = utils.getExtension(f);
+
+            if (this.mode === 'batch' && ext !== 'json') {
+                this.renderFileLoadingErrorList('Cannot load file of type <strong>' + ext + '</strong> in batch mode');
+                return;
+            }
+
+            $.ajax({
+                url: this.settings.serverLocation + f,
+                xhrFields: { withCredentials: true }
+            }).done(function(data) {
+                console.log(data);  
+                if (this.mode === 'batch') {
+                    this.parseBatchFile(data);
+                } else {
+                    console.log('must be manual mode');
+                }
+            }.bind(this)).fail(function(jqXHR, textStatus) {
+                this.renderFileLoadingErrorList('<strong>Error</strong>: Could not access file ' + f);
+            }.bind(this));
+        },
+        renderFileLoadingErrorList: function(e) {
+            if (typeof(this.errors) === 'undefined')
+                this.errors = [];
+            if (typeof(e) !== 'undefined')
+                this.errors.push(e);
+            this.$fileLoadingErrorListTarget.html(this.fileLoadingErrorListTemplate({errors:this.errors}));
+        },
+        parseBatchFile: function(text) {
+        // First of all need to figure out what type of file it is.
+        // Don't want to rely on file extensions. Attempt to treat as
+        // JSON then if this fails assume to be tabular format.
+            try {
+                var contents = JSON.parse(text);
+                this.parseJSON(contents);
+            } catch (e) {
+                console.log('argh not json');
+                console.log(e);
+                try {
+                    this.parseTab(text);
+                } catch (e) {
+                    console.log('argh not tab file either');
+                    console.log(e)
+                }
+            }
+        },
+        parseJSON: function(jso, filename) {
+            // There are two different types of JSON formats (app see docs) so
+            // need to figure out which one is being used.
+            var sessions = jso["sessions"];
+            console.log(filename);
+            console.log(jso);
+            
+            var re_dna_location = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
+
+            // remove anything that may be loaded 
+            variantFiles = [];
+            bamFiles = [];
+            baiFiles = [];
+            for (var i=0; i<sessions.length; i++) {
+                if (!sessions[i]['variants'] || !sessions[i]['bams']) {
+                    this.renderFileLoadingErrorList('<strong>Error</strong>: ill-formed JSON in ' + filename + '. Check file syntax at <a href="http://jsonlint.com/">http://jsonlint.com/</a>');
+                } else {
+                    var s = new Session(),
+                    v = sessions[i]["variants"];
+                    var variantArray;
+                    if (typeof(v) == 'string') {
+                        if (v.match(re_dna_location)) {
+                            // A single dna location
+                            s.parseVariants(v);
+                        } else {
+                            // A file path
+                            $.ajax({
+                                url: this.settings.serverLocation + v,
+                                xhrFields: { withCredentials: true }
+                            }).done(function(fileText) {
+                                //console.log(fileText);
+                                s.parseVariants(fileText);
+                            }).fail(function(jqXHR, textStatus) {
+                                this.renderFileLoadingErrorList('<strong>Error</strong>: Could not access variant file ' + v);
+                            }.bind(this));
+                        }
+                    } else if (typeof(v) == 'object') {
+                        // An array of single dna locations
+                        s.parseVariants(v);
+                    } else {
+                        console.log('Unrecognized variant list/file');
+                        console.log(typeof(v));
+                    }
+
+                    //s.variantFile = new RemoteVariantFile(this.settings.serverLocation + );
+                    for (var bi=0; bi<sessions[i]["bams"].length; bi++) {
+                        var newBam = new RemoteBAM(this.settings.serverLocation + sessions[i]["bams"][bi]);
+                        s.bamFiles.push(newBam);
+                    }
+                    this.sessions.addSession(s);
+                }
+            }
+        },
+        parseTab: function(text) {
+            throw new UserException('InvalidTabFile');
         },
         showLoadJSONModal: function() {
-            console.log('inside showLoadJSONModal');
-
-            this.$modalLoadJSON.modal('show');
+            this.$serverLocation.html(this.settings.serverLocation);
+            this.$modalLoadRemote.modal('show');
         },
-        loadJSONFile: function() {
-            this.loadJSONFile2(); 
-            this.$modalLoadJSON.modal('hide');
+        showLoadRemoteFileModal: function() {
+            this.$serverLocation.html(this.settings.serverLocation);
+            this.$modalLoadRemote.modal('show');
+            //this.loadJSONFile2();
+            //this.$modalLoadJSON.modal('hide');
+        },
+        renderFileList: function() {
+            console.log(this.sessions);
+            if (this.sessions.sessions.length > 0)
+                this.$buttonLoadDalliance.show();
+            else
+                this.$buttonLoadDalliance.hide();
+            this.$fileLoadingFileListTarget.html(this.fileLoadingFileListTemplate(this.sessions));
         },
         hideSettingsModal: function() {
 
@@ -162,7 +349,6 @@ $(function() {
                 defaultView:      this.$targetSettings.find('#selectTierStyle').val(),
                 plusColor:        this.$targetSettings.find('#plusStrandColor').val(),
                 minusColor:       this.$targetSettings.find('#minusStrandColor').val()
-
             };
             console.log(this.settings);
             //     //     defaultView: 'mismatch',
@@ -224,18 +410,28 @@ $(function() {
               //  $("#zoomLevelText").val(cz);
             //});
         },
+
         loadJSONFile2: function () {
-            var f = $("#JSONfilename").val();
-            if (getExtension(f) === "json") {
-                $.ajax({
-                    url: "https://web-lustre-01.internal.sanger.ac.uk/" + f,
-                    xhrFields: { withCredentials: true }
-                }).done(function(data) {
-                    this.loadJSON(data);
-                }.bind(this));
+
+        },
+        indexFromEl: function (el) {
+            var ID = $(el).closest('.panel-session').data('id');
+            console.log(ID);
+            var sessions = this.sessions.sessions;
+            var i = sessions.length;
+            while (i--) {
+                if (sessions[i].ID === ID) {
+                    return i;
+                }
             }
         },
-
+        destroy: function(e) {
+            console.log('Found the following id: ');
+            var id = this.indexFromEl(e.target);
+            console.log(id);
+            this.sessions.sessions.splice(this.indexFromEl(e.target), 1);
+            this.renderFileList();
+        },
         loadJSON: function(jsonFile) {
             console.log('it is here');
             var j = JSON.parse(jsonFile);
@@ -291,6 +487,13 @@ $(function() {
                 $(str).insertAfter("#choiceJSON");
             }
         },
+        getNextID: function() {
+            if (typeof(this.ID) == 'undefined')
+                this.ID = 0
+            else
+                this.ID++;
+            return this.ID;
+        },
         loadDalliance: function() {
             // Create and append select list
             var myDiv = document.getElementById("variantSelectHolder");
@@ -299,7 +502,7 @@ $(function() {
             selectList.className = "form-control";
             selectList.onchange = function() {
                 this.sessions.updateByVariantSelect();
-            } 
+            }
             myDiv.appendChild(selectList);
 
             if (this.sessions.sessions.length === 0) {
@@ -481,13 +684,7 @@ var printfArray = function(fArray) {
     return str;
 }
 
-function getExtension(f) {
-    if (typeof(f) !== "string") {
-        f = f.name;
-    }
-    var parts = f.split(".");
-    return parts[parts.length - 1].toLowerCase();
-}
+
 
 function getName(f) {
     if (typeof(f) !== "string") {

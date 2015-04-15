@@ -12,7 +12,7 @@
         <title>Snoopy</title>
 
         <!-- Bootstrap core CSS -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
         <link href="css/style.css" rel="stylesheet">
         <!-- Custom styles for this template -->
         <script language="javascript" src="dalliance/dalliance-all.js"></script>
@@ -73,45 +73,58 @@
 
         <div class="container">
             <div class="row" id="fileLoader">
-                <div class="col-md-3"></div>
-                <div class="col-md-6">
-
-                    <div class="panel panel-default" id="welcome">
-                        <div class="panel-body">
-                            <h4 class="first">Welcome to Snoopy</h4>
-                            <p class="justify">Snoopy is a quality control tool to review predicted variants in BAM files. There are a few ways to use this tool:</p>
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <div id="sectionPickMode">
+                        <div class="panel panel-default" id="panelWelcome">
+                            <div class="panel-body">
+                                <h4>Welcome to Snoopy</h4>
+                                <p class="justify" id="paragraphWelcome">Snoopy is a quality control tool to review predicted variants in BAM files using the Dalliance genome browser. There are a few ways to use this tool:</p>
+                            </div>
+                        </div>
+                        <div class="panel panel-default choice" id="panelManual">
+                            <div class="panel-body">
+                                <h4>Manual</h4>
+                                <p class="justify" id="paragraphManual">This mode is used when you want to manually add files from your local machine or from a server. Using Snoopy in this way will limit you to only one variant file.</p>
+                                <div class="file-input btn btn-primary btn-file" id="buttonGoManual">
+                                    Go manual <span class="glyphicon glyphicon-chevron-right"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel panel-default choice" id="panelBatch">
+                            <div class="panel-body">
+                                <h4>Batch</h4>
+                                <p class="justify" id="paragraphBatch">In this mode you have a file prepared that lists multiple “sessions”. Each session consists of a remote file listing variants along with a collection of remote BAM files.</p>
+                                <div class="file-input btn btn-success btn-file" id="buttonGoBatch">
+                                    Go batch <span class="glyphicon glyphicon-chevron-right"></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="panel panel-default choice" id="choiceManual">
-                        <div class="panel-body">
-                            <h4 class="first">Manual</h4>
-                            <p class="justify">This mode is used when you want to manually add files from your local machine or from a server. Using Snoopy in this way will limit you to only one variant file.</p>
+                    <div id="sectionLoadFiles">
+                        <div class="panel panel-default choice" id="panelFileLoading">
+                            <div class="panel-body">
+                                <h4 class="title"></h4>
+                            </div>
                         </div>
-                    </div>
-                    <div class="btn-group" id="loadLocalFileButton">
-                        <div class="file-input btn btn-primary btn-file">
-                            <span class="glyphicon glyphicon-floppy-disk"></span><span id="loadFilesText"> Load Local Files</span><input type="file" multiple id="fileLoaded">
+                       <div class="file-input btn btn-default btn-file" id="buttonShowLoadRemoteFileModal">
+                            <span class="glyphicon glyphicon-th-list"></span> Load Remote File 
                         </div>
-                    </div>
-                    <div class="file-input btn btn-primary btn-file" id="buttonShowRemoteFileModal">
-                        <span class="glyphicon glyphicon-open"></span> Load Remote File 
-                    </div>
-                    <div class="panel panel-default choice" id="choiceJSON">
-                        <div class="panel-body">
-                            <h4 class="first">Batch</h4>
-                            <p class="justify">In this mode you have a JSON file prepared that lists multiple “sessions”. Each session consists of a remote file listing variants along with a collection of remote BAM files.</p>
+                        <div class="btn-group" id="buttonLoadLocalFileButton">
+                            <div class="file-input btn btn-default btn-file">
+                                <span class="glyphicon glyphicon-floppy-disk"></span><span id="loadFilesText"> Load Local File(s)</span><input type="file" multiple id="fileLoaded">
+                            </div>
                         </div>
-                    </div>
-                    <div class="file-input btn btn-success btn-file" id="buttonShowLoadJSONModal">
-                        <span class="glyphicon glyphicon-th-list"></span> Load JSON File 
-                    </div>
-                   <div class="btn-group">
-                        <div class="btn btn-warning" id="buttonLoadDalliance">
-                            <span class="glyphicon glyphicon-search"></span> Start Quality Control 
+                        <div class="btn-group">
+                            <div class="btn btn-default" id="buttonLoadDalliance">
+                                <span class="glyphicon glyphicon-search"></span> Start Quality Control 
+                            </div>
                         </div>
+                        <div id="fileLoadingErrorListTarget"></div>
+                        <div id="fileLoadingFileListTarget"></div>
                     </div>
                 </div>
-                <div class="col-md-3"></div>
+                <div class="col-md-2"></div>
             </div>
         </div><!-- /.container -->
 
@@ -120,7 +133,7 @@
         </div>
 
         <!-- Load Remote File Modal -->
-        <div class="modal fade" id="modalLoadRemote" tabindex="-1" role="dialog" aria-labelledby="myModalLoadRemote" aria-hidden="true">
+        <div class="modal fade" id="modalLoadRemote234" tabindex="-1" role="dialog" aria-labelledby="myModalLoadRemote" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -130,19 +143,19 @@
                     <div class="modal-body">
                         <form role="form">
                             <div class="input-group form-stretch">
-                                <input type="text" class="form-control" placeholder="Absolute path/filename" id="remoteFilename">
+                                <input type="text" class="form-control" placeholder="Absolute path/filename" id="remoteFilename32">
                             </div> 
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="buttonLoadRemoteFile">Load</button>
+                        <button type="button" class="btn btn-primary" id="buttonLoadRemoteFile34">Load</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Load JSON File Modal -->
-        <div class="modal fade" id="modalLoadJSON" tabindex="-1" role="dialog" aria-labelledby="myModalLoadJSON" aria-hidden="true">
+        <!-- Load Remote File Modal -->
+        <div class="modal fade" id="modalLoadRemote" tabindex="-1" role="dialog" aria-labelledby="myModalLoadJSON" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -152,13 +165,13 @@
                     <div class="modal-body">
                         <form role="form">
                             <div class="input-group form-stretch">
-                                <div class="input-group-addon">https://web-lustre-01.internal.sanger.ac.uk/</div>
-                                <input type="text" class="form-control" placeholder="...path to file on server" id="JSONfilename">
-                            </div> 
+                                <div class="input-group-addon serverLocation"></div>
+                                <input type="text" class="form-control" placeholder="...path to file on server" id="remoteFilename">
+                            </div>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="buttonLoadJSONFile">Load</button>
+                        <button type="button" class="btn btn-primary" id="buttonLoadRemoteFile">Load</button>
                     </div>
                 </div>
             </div>
@@ -421,6 +434,73 @@
                     </dd>
             </div> 
         </dl>
+    </script>
+
+   
+    <div class="modal fade" id="modalLoadURL" tabindex="-1" role="dialog" aria-labelledby="myModalLoadURL" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="myModalLoadJSON">Load remote JSON file</h4>
+                </div>
+                <div class="modal-body">
+                    <form role="form" id="formLoadURL">
+                        <div class="input-group form-stretch">
+                            <div class="input-group-addon serverLocation"></div>
+                            <input type="text" class="form-control" placeholder="...path to file on server" id="JSONfilename">
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="buttonLoadJSONFile">Load</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script id="fileLoadingFileListTemplate" type="text/template">
+        <% _.each(sessions.slice().reverse(), function(session,index,list) { %>
+            <div class="panel panel-session panel-info choice" data-id="<%= session.ID %>">
+                <div class="panel-heading">
+                    <button class="btn btn-default pull-right btn-xs destroy">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    </button>
+                    Session #<%= session.ID + 1%>
+                </div>
+                <div class="panel-body">
+                    <div class="panel panel-loading-list">
+                        <div class="panel-heading">Files</div>
+                        <div class="panel-body">
+                            <ul>
+                                <% _.each(session.bamFiles,function(bamFile,index,list) { %>
+                                    <li>...<%= bamFile.file.slice(-80) %></li>
+                                <% }) %>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="panel panel-loading-list">
+                        <div class="panel-heading">Variants</div>
+                        <div class="panel-body">
+                            <% _.each(session.variantArray,function(snp,index,list) { %>
+                                <div class="col-md-3"><%= snp.chr + ":" + snp.loc %></div>
+                            <% }) %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </script>
+
+    <script id="fileLoadingErrorListTemplate" type="text/template">
+        <div class="alert alert-danger alert-dismissible alert-file-loading" role="alert" id="fileLoadingAlert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <% _.each(errors,function(error,index,list) { %>
+                <%= error %><br>
+            <% }) %>
+        </div>
     </script>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script> 

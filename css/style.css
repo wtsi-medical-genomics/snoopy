@@ -22,7 +22,7 @@
 }*/
 
 #my-dalliance-holder {
-    margin-top: 35px;
+    margin-top: 0px;
     opacity: 0;
     background-color: white;
     border: 1px solid silver;
@@ -120,7 +120,7 @@ table.color-code tr.a td {
     padding-top: 30px;
 }
 .row {
-    padding-top: 5px;
+    padding-top: 25px;
     padding-bottom: 5px;
 }
 
@@ -268,13 +268,18 @@ menu-panel table tr th:last-child {
 
 .choice {
     margin-bottom: 10px;
-    margin-top: 25px;
+    margin-top: 15px;
 }
-#choiceManual {
+
+#sectionLoadFiles {
+    display: none;
+}
+
+#panelManual {
     background-color: #D5EBF6;
 }
 
-#choiceJSON {
+#panelBatch {
     background-color: #EEFFEB;
 }
 
@@ -300,7 +305,6 @@ pre {
 /* Space out content a bit */
 body {
     background-color: Gainsboro;
-    padding-top: 100px;
     padding-bottom: 20px;
 }
 
@@ -393,4 +397,51 @@ dt.smallTopMargin {
 
 .textboxFullWidth {
     width: 100%;
+}
+
+#buttonLoadDalliance {
+    display: none;
+}
+
+.table-files {
+    border: 1px solid silver;
+}
+
+.table-files th {
+    background-color: #FFE6B2 !important;
+    border: 1px solid silver;
+}
+
+.table-files td {
+    background-color: #FFFFF0;
+    border: none !important;
+}
+
+.tight {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}
+
+.panel-loading-list .panel-heading {
+    padding: 0px 6px;
+    font-weight: bold;
+}
+
+.panel-loading-list .panel-body {
+    padding: 2px;
+}
+
+.panel-loading-list {
+    background-color: #FCF8E3;
+    margin-bottom: 10px;
+    border: 1px solid #D7D3C1;
+}
+
+.panel-loading-list ul {
+    list-style: none;
+    padding-left: 15px;
+}
+
+.alert-file-loading {
+    margin-top: 15px; 
 }
