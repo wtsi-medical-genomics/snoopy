@@ -7,3 +7,6 @@
 [submodule "bootstrap"]
 	path = bootstrap
 	url = https://github.com/twbs/bootstrap
+[submodule "jszip"]
+	path = jszip
+	url = https://github.com/Stuk/jszip.git
