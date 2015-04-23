@@ -1,6 +1,11 @@
 function Variant(chr) {
 	this.chr = chr;
-	this.score = -99;
+	this.score = 'not reviewed';
+    this.colorCode = {
+        'variant': 'limegreen',
+        'not variant': 'darkred',
+        'uncertain': 'orange'
+    }
 }
 
 Variant.prototype.scoreString = function() {
@@ -28,13 +33,20 @@ function SNP(chr, loc) {
 }
 
 SNP.prototype.visit = function() {
-    b.clearHighlights();
-    b.setCenterLocation('chr' + this.chr, this.loc);
-    b.highlightRegion('chr' + this.chr, this.loc, this.loc + 1);
+    app.browser.clearHighlights();
+    app.browser.setCenterLocation('chr' + this.chr, this.loc);
+    app.browser.highlightRegion('chr' + this.chr, this.loc, this.loc + 1);
 }
 
 SNP.prototype.prettyString = function() {
 	return this.chr + ":" + this.loc + " " + this.scoreString();
+}
+ 
+SNP.prototype.html = function() {
+    var html = this.chr + ':' + this.loc + ' ';
+    if (this.score !== 'not reviewed')
+         html += '<span class="badge" style="background-color:' + this.colorCode[this.score] + '">' + this.score + '</span>';
+    return html;
 }
 
 SNP.prototype.string = function() {
@@ -51,10 +63,10 @@ function CNV(chr, start, end) {
 }
 
 CNV.prototype.visit = function() {
-    b.clearHighlights();
+    app.browser.clearHighlights();
 	var loc = (this.start + this.end) / 2;
-    b.setCenterLocation('chr' + this.chr, loc);
-    b.highlightRegion('chr' + this.chr, this.start, this.end);
+    app.browser.setCenterLocation('chr' + this.chr, loc);
+    app.browser.highlightRegion('chr' + this.chr, this.start, this.end);
 }
 
 CNV.prototype.prettyString = function() {

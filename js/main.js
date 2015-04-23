@@ -3,7 +3,7 @@
 // var displaySettings = [];
 // mismatch.styles[2].style._plusColor = settings.plusColor;
 // mismatch.styles[2].style._minusColor = settings.minusColor;
-var App, utils;
+var app, utils;
 
 
 
@@ -15,14 +15,25 @@ $(function() {
             }
             var parts = f.split(".");
             return parts[parts.length - 1].toLowerCase();
-        }  
+        },
+        getNextUID: function() {
+            if (typeof(this.ID) == 'undefined')
+                this.ID = 0
+            else
+                this.ID++;
+            return this.ID;
+        }
     }
 
-    App = {
+    app = {
         init: function() {
             console.log('here');
             this.view = 'loadFiles';
+            this.sessionIndex = 0;
+            this.variantIndex = 0;
             this.sessions = new Sessions();
+            this.zip = new JSZip();
+            this.imageFolder = this.zip.folder('images');
             this.cacheElements();
             this.bindEvents();
             // var storedSettings = localStorage.getItem("snoopySettings");
@@ -37,8 +48,21 @@ $(function() {
                     defaultView: 'mismatch',
                     plusColor: '#FFEBD7',
                     minusColor: '#BED8EA',
+                    qcEncoding: {
+                        'not variant': 'not variant',
+                        'uncertain': 'uncertain',
+                        'variant': 'variant'
+                    }
                 }
             //}
+
+            this.referenceGenome = {
+                name: 'Genome',
+                twoBitURI: 'http://www.biodalliance.org/datasets/hg19.2bit',
+                tier_type: 'sequence',
+                provides_entrypoints: true,
+                pinned: true
+            };
         },
 
         cacheElements: function() {
@@ -50,9 +74,10 @@ $(function() {
             this.$buttonPrepareDownloadQCreport = this.$app.find('#buttonPrepareDownloadQCreport');
             this.$buttonDownloadQCreport = this.$app.find('#buttonDownloadQCreport');
             this.$buttonGoBack = this.$app.find('#buttonGoBack');
-            this.$buttonQCNotVariant = this.$app.find('#buttonQCNotVariant');
-            this.$buttonQCPotentialVariant = this.$app.find('#buttonQCPotentialVariant');
-            this.$buttonQCCertainVariant = this.$app.find('#buttonQCCertainVariant');
+            this.$buttonHome = this.$app.find('#buttonHome');
+            // this.$buttonQCNotVariant = this.$app.find('#buttonQCNotVariant');
+            // this.$buttonQCPotentialVariant = this.$app.find('#buttonQCPotentialVariant');
+            // this.$buttonQCCertainVariant = this.$app.find('#buttonQCCertainVariant');
             this.$buttonShowRemoteFileModal = this.$app.find('#buttonShowRemoteFileModal');
             this.$buttonLoadRemoteFile = this.$app.find('#buttonLoadRemoteFile');
             this.$buttonShowLoadRemoteFileModal = this.$app.find('#buttonShowLoadRemoteFileModal');
@@ -88,7 +113,14 @@ $(function() {
             
             this.$fileLoadingAlert = this.$app.find('#fileLoadingAlert');
 
+            this.$modalVariantSelect = this.$app.find('#modalVariantSelect');
+            this.variantSelectTemplate = _.template($("#variantSelectTemplate").html());
+            this.$variantListTarget = this.$app.find('#variantListTarget');
+            this.$qcDecision = this.$app.find('#qcDecision');
 
+            //this.currentVariantTemplate = _.template($("#currentVariantTemplate").html());
+            this.$currentVariantTarget = this.$app.find('#currentVariantTarget');
+            this.$viewChoice = this.$app.find('.view-choice');
         },
 
         bindEvents: function() {
@@ -100,12 +132,12 @@ $(function() {
             this.$buttonPrepareDownloadQCreport.on('click', this.sessions.promptQCdownload.bind(this));
             this.$buttonDownloadQCreport.on('click', this.downloadQCreport.bind(this));
             this.$buttonGoBack.on('click', this.goBack.bind(this));
-            this.$buttonQCNotVariant.on('click', this.qcNotVariant.bind(this));
-            this.$buttonQCPotentialVariant.on('click', this.qcPotentialVariant.bind(this));
-            this.$buttonQCCertainVariant.on('click', this.qcCertainVariant.bind(this));
-            this.$buttonShowRemoteFileModal.on('click', this.showRemoteFileModal.bind(this));
+            this.$buttonHome.on('click', this.goHome.bind(this));
             
-            //this.$buttonShowLoadJSONModal.on('click', this.showLoadJSONModal.bind(this));
+            // this.$buttonQCNotVariant.on('click', this.qcNotVariant.bind(this));
+            // this.$buttonQCPotentialVariant.on('click', this.qcPotentialVariant.bind(this));
+            // this.$buttonQCCertainVariant.on('click', this.qcCertainVariant.bind(this));
+            this.$buttonShowRemoteFileModal.on('click', this.showRemoteFileModal.bind(this));
             this.$buttonShowLoadRemoteFileModal.on('click', this.showLoadRemoteFileModal.bind(this));
 
             this.$buttonGoBatch.on('click', this.goBatch.bind(this));
@@ -121,9 +153,13 @@ $(function() {
                 event.preventDefault();
                 this.loadRemoteFile();
             }.bind(this));
-
+            
+            //this.$modalVariantSelect.on('show.bs.modal', this.showModalVariantSelect.bind(this));
             this.$fileLoadingFileListTarget.on('click', '.destroy', this.destroy.bind(this));
+            this.$variantListTarget.on('click', this.variantSelected.bind(this));
+            this.$qcDecision.on('click', this.setQC.bind(this));
 
+            this.$viewChoice.on('click', this.changeView.bind(this));
         },
         loadLocalFile: function() {
             console.log('here!!!!');
@@ -160,16 +196,50 @@ $(function() {
             this.$modalDownloadQCreport.modal('hide');
         },
         goBack: function() {
+            // if (this.variantIndex > 0) {
+            //    this.variantIndex--;
+            //    this.renderVariantList();
+            // } else if (this.sessionIndex > 0) {
+            //     this.sessionIndex--;
+            //     this.renderVariantList();
+            // }
             this.sessions.prev();
         },
-        qcNotVariant: function() {
-            this.sessions.setQC(-1);
+        goHome: function() {
+            this.sessions.gotoCurrentVariant();
         },
-        qcPotentialVariant: function() {
-            this.sessions.setQC(0);
+        // qcNotVariant: function() {
+        //     this.sessions.sessions[this.sessionIndex].variants[this.variantIndex] = 'not variant';
+        //     this.nextVariant();
+        // },
+        // qcPotentialVariant: function() {
+        //     this.sessions.setQC(0);
+        // },
+        // qcCertainVariant: function() {
+        //     this.sessions.setQC(1);
+        // },
+        setQC: function(e) {
+            var d = $(e.target).closest('.qc-decision').data('value');
+            console.log(d)
+            this.sessions.setQC(d)
+            // this.sessions.sessions[this.sessionIndex].variants[this.variantIndex].score = d;
+
+            // var s = this.sessions.sessions[this.sessionIndex];
+            // if (this.variantIndex < s.variants.length - 1) {
+            //     this.variantIndex++;
+            //     //this.gotoCurrentVariant();
+            // } else if (this.sessionIndex < this.sessions.sessions.length - 1) {
+            //     this.sessionIndex++;
+            //     this.variantIndex = 0;
+            // }  else {
+            //     console.log('finished');
+            // }
+            // this.renderVariantList();
         },
-        qcCertainVariant: function() {
-            this.sessions.setQC(1);
+        nextVariant: function() {
+            // var s = this.sessions.sessions[this.sessionIndex],
+            // v = s.variants;
+            // if s[this.sessionIndex + 1]
         },
         selectTierStyle: function() {
             var $mismatchOptions = this.$targetSettings.find('#mismatchOptions'),
@@ -277,7 +347,6 @@ $(function() {
                 } else {
                     var s = new Session(),
                     v = sessions[i]["variants"];
-                    var variantArray;
                     if (typeof(v) == 'string') {
                         if (v.match(re_dna_location)) {
                             // A single dna location
@@ -307,9 +376,10 @@ $(function() {
                         var newBam = new RemoteBAM(this.settings.serverLocation + sessions[i]["bams"][bi]);
                         s.bamFiles.push(newBam);
                     }
-                    this.sessions.addSession(s);
+                    this.sessions.sessions.push(s);
                 }
             }
+            this.renderFileList();
         },
         parseTab: function(text) {
             throw new UserException('InvalidTabFile');
@@ -332,10 +402,15 @@ $(function() {
                 this.$buttonLoadDalliance.hide();
             this.$fileLoadingFileListTarget.html(this.fileLoadingFileListTemplate(this.sessions));
         },
+        renderVariantList: function(html) {
+            console.log('inside renderVariantList and here is the html ' + html)
+            this.$currentVariantTarget.html(html);
+            this.$variantListTarget.html(this.variantSelectTemplate(this.sessions));
+        },
         hideSettingsModal: function() {
 
             var customZoom = this.$targetSettings.find('#zoomLevelText').val().trim() | 0;
-            customZoom /= b.zoomBase;
+            customZoom /= this.browser.zoomBase  || 0; // browser may not exist at this point
             
             // User has not entered something sensible so assign something worthwhile
             if (customZoom < 0)
@@ -397,7 +472,7 @@ $(function() {
             console.log(this.settings);
             this.$targetSettings.html(this.settingsTemplate({
                     settings: this.settings,
-                    zoomLevel: this.settings.customZoom * b.zoomBase,
+                    zoomLevel: this.settings.customZoom * this.browser.zoomBase || 0,
                     view: this.view
                 }));
 
@@ -414,8 +489,8 @@ $(function() {
         loadJSONFile2: function () {
 
         },
-        indexFromEl: function (el) {
-            var ID = $(el).closest('.panel-session').data('id');
+        indexFromEl: function (el, parent) {
+            var ID = $(el).closest(parent).data('id');
             console.log(ID);
             var sessions = this.sessions.sessions;
             var i = sessions.length;
@@ -426,10 +501,7 @@ $(function() {
             }
         },
         destroy: function(e) {
-            console.log('Found the following id: ');
-            var id = this.indexFromEl(e.target);
-            console.log(id);
-            this.sessions.sessions.splice(this.indexFromEl(e.target), 1);
+            this.sessions.sessions.splice(this.indexFromEl(e.target, '.panel-session'), 1);
             this.renderFileList();
         },
         loadJSON: function(jsonFile) {
@@ -452,7 +524,7 @@ $(function() {
                     var newBam = new RemoteBAM(url + inSessions[si]["bams"][bi]);
                     s.bamFiles.push(newBam);
                 }
-                this.sessions.addSession(s);
+                this.sessions.sessions.push(s);
             }
             this.printFilesTable();
         },
@@ -487,32 +559,30 @@ $(function() {
                 $(str).insertAfter("#choiceJSON");
             }
         },
-        getNextID: function() {
-            if (typeof(this.ID) == 'undefined')
-                this.ID = 0
-            else
-                this.ID++;
-            return this.ID;
+        changeView: function(e) {
+            var v = $(e.target).data('value');
+            app.settings.defaultView = v;
+            this.sessions.refreshStyles();
         },
         loadDalliance: function() {
             // Create and append select list
-            var myDiv = document.getElementById("variantSelectHolder");
-            var selectList = document.createElement("select");
-            selectList.id = "variantSelect";
-            selectList.className = "form-control";
-            selectList.onchange = function() {
-                this.sessions.updateByVariantSelect();
-            }
-            myDiv.appendChild(selectList);
+            // var myDiv = document.getElementById("variantSelectHolder");
+            // var selectList = document.createElement("select");
+            // selectList.id = "variantSelect";
+            // selectList.className = "form-control";
+            // selectList.onchange = function() {
+            //     this.sessions.updateByVariantSelect();
+            // }
+            // myDiv.appendChild(selectList);
 
-            if (this.sessions.sessions.length === 0) {
-                // create a single session from whatever is present in the file loader
-                var s = new Session(bamFiles, variantFiles[0]);
-                this.sessions.addSession(s);
-            } else {
-                // a multi-session is already loaded
-            }
-            this.sessions.load(0);
+            // if (this.sessions.sessions.length === 0) {
+            //     // create a single session from whatever is present in the file loader
+            //     var s = new Session(bamFiles, variantFiles[0]);
+            //     this.sessions.addSession(s);
+            // } else {
+            //     // a multi-session is already loaded
+            // }
+            //this.sessions.load(0);
             // setTimeout(function() {
             //     if (this.settings.defaultZoomLevelUnit) { 
             //         b.zoomStep(-1000000);
@@ -520,65 +590,73 @@ $(function() {
             //         b.zoom(this.settings.currentZoom);
             //     }
             // }, 1000);
-
+            $('.dalliance-view').css('display', 'block');
             $("#fileLoader").css("display", "none");
             $("#controlCenter, #progressBar").css("display", "block");
             $("#my-dalliance-holder").css("opacity", "1");
-        }
-    }
+            this.sessions.index = 0;
+            //this.renderVariantList();
 
-    App.init();
+            this.browser = new Browser({
+                chr:          '22',
+                viewStart:    30000000,
+                viewEnd:      30000100,
+                cookieKey:    'human-grc_h37',
+                coordSystem: {
+                speciesName: 'Human',
+                taxon: 9606,
+                auth: 'GRCh',
+                version: '37',
+                ucscName: 'hg19'
+                },
+                singleBaseHighlight : false,
+                defaultHighlightFill : 'black',
+                defaultHighlightAlpha : 0.10,
+                maxHeight : 1000,
+                noTrackAdder : false,
+                noLeapButtons : true,
+                noLocationField : true,
+                noZoomSlider : false,
+                noTitle : false,
+                noTrackEditor : false,
+                noExport : false,
+                noOptions : false,
+                noHelp : true,
+                disableDefaultFeaturePopup : true,
+                noPersist : true,
+                noPersistView : true,
+                // sources: [
+                //     this.referenceGenome
+                // ],
+                    //    setDocumentTitle: true,
+                    //uiPrefix: 'file:///Users/dr9/Developer/snoopy/dalliance/',
+                fullScreen: true,
+            });
+            this.sessions.init();
+        },
+        variantSelected: function(e) {
+            this.$modalVariantSelect.modal('hide');
+            console.log($(e.target));
+            var variantIndex = $(e.target).closest('.list-group-item-variant')
+            if (typeof(variantIndex) === 'undefined')
+                variantIndex = 0;
+            else
+                variantIndex = variantIndex.data('id');
+            var sessionIndex = $(e.target).closest('.list-group-session').data('id');
+            console.log('sessionIndex ' + sessionIndex);
+            console.log('variantIndex ' + variantIndex);
+
+            this.sessions.goto(sessionIndex, variantIndex);
+        },
+    }
+    app.init();
 });
 
 
 
-var b = new Browser({
-chr:          '22',
-viewStart:    30000000,
-viewEnd:      30000100,
-cookieKey:    'human-grc_h37',
-coordSystem: {
-speciesName: 'Human',
-taxon: 9606,
-auth: 'GRCh',
-version: '37',
-ucscName: 'hg19'
-},
-singleBaseHighlight : false,
-defaultHighlightFill : 'black',
-defaultHighlightAlpha : 0.10,
-maxHeight : 1000,
-noTrackAdder : false,
-noLeapButtons : true,
-noLocationField : true,
-noZoomSlider : false,
-noTitle : false,
-        noTrackEditor : false,
-        noExport : false,
-        noOptions : false,
-        noHelp : true,
-        disableDefaultFeaturePopup : true,
-        noPersist : true,
-        noPersistView : true,
-        sources: [
-{name: 'Genome',
-twoBitURI: 'http://www.biodalliance.org/datasets/hg19.2bit',
-           tier_type: 'sequence',
-           provides_entrypoints: true,
-           pinned: true
-}],
-    //    setDocumentTitle: true,
-    //uiPrefix: 'file:///Users/dr9/Developer/snoopy/dalliance/',
-fullScreen: false,
 
-    browserLinks: {
-Ensembl: 'http://ncbi36.ensembl.org/Homo_sapiens/Location/View?r=${chr}:${start}-${end}',
-         UCSC: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr${chr}:${start}-${end}',
-         Sequence: 'http://www.derkholm.net:8080/das/hg19comp/sequence?segment=${chr}:${start},${end}'
-    }
-});
 
-b.zoomMin = 20;
+//b.zoomMin = 20;
 
 var bamFiles = [];
 var baiFiles = [];
@@ -633,13 +711,6 @@ function resetFileLoaded() {
 }
 
 
-
-
-
-
-
-
-
 // Need to keep the remove*** functions seperate because they are called
 // by clicking the remove button in the HTML
 function removeBAM(index) {
@@ -683,8 +754,6 @@ var printfArray = function(fArray) {
         }
     return str;
 }
-
-
 
 function getName(f) {
     if (typeof(f) !== "string") {

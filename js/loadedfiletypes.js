@@ -54,6 +54,7 @@ LocalBAM.prototype.getTier = function(style) {
     this.tier["baiBlob"] = this.index.file;
     this.tier["name"] = this.name;
     this.tier["style"] = style; 
+    this.tier["padding"] = 0;
     return this.tier;
 }
 
@@ -69,7 +70,8 @@ RemoteBAM.prototype.getTier = function(style) {
     this.tier["bamURI"] = this.file;
     this.tier["name"] = this.name;
     this.tier["credentials"] = true;
-    this.tier["style"] = style; 
+    this.tier["style"] = style;
+    this.tier["padding"] = 0;
     return this.tier;
 }
 

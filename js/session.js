@@ -3,22 +3,27 @@
 function Session(bamFiles, variantFile) {
    this.bamFiles = bamFiles || [];
    this.variantFile = variantFile || [];
-   this.variantArray = [];
-   this.current = 0;
+   this.variants = [];
+   this.index = 0;
+   this.ID = utils.getNextUID();
 }
 
 Session.prototype.init = function(fileText, fileName) {
     this.processVariantFile(fileText, fileName);
     this.gotoCurrentVariant();
-    this.refreshVariantList();
+    //this.refreshVariantList();
 };
 
-Session.prototype.load = function(variantText) {
+Session.prototype.parseVariants = function(variants) {
     // the variants have not been loaded so process the contents of the variant file text
-    var textArray = variantText.split("\n");
+    
+    if (typeof(variants) == 'string') {
+        variants = variants.trim();
+        variants = variants.split("\n");
+    }
     var pattern = /\s*[-:,\s]+\s*/;
-    for (var i = 0; i < textArray.length; i++) {
-        var variant = textArray[i].trim();
+    for (var i = 0; i < variants.length; i++) {
+        var variant = variants[i].trim();
         var parts = variant.split(pattern);
         var chr = parts[0];
             switch (parts.length) {
@@ -33,14 +38,16 @@ Session.prototype.load = function(variantText) {
                     break;
                 default:
                     console.log("Unrecognized variant");
+                    console.log(variant);
             }
-            this.variantArray.push(v);
+            this.variants.push(v);
     }
     // setup the bam files 
 
-    this.refreshStyles();
-    this.gotoCurrentVariant();
-    this.refreshVariantList();
+    //this.loadTiers();
+    //this.gotoCurrentVariant();
+    //this.refreshVariantList();
+    app.renderFileList();
 };
 
 Session.prototype.reload = function(variantIndex) {
@@ -49,54 +56,69 @@ Session.prototype.reload = function(variantIndex) {
     //     var bamTier = this.bamFiles[i].getTier();
     //     if (bamTier) { 
     //         console.log(bamTier);
-    //         b.addTier(bamTier);
+    //         app.browser.addTier(bamTier);
     //     }
     // }
-    this.refreshStyles();
+    this.loadTiers();
     this.gotoCurrentVariant();
-    this.refreshVariantList();
+    //this.refreshVariantList();
 };
 
-
-Session.prototype.refreshStyles = function() {
+Session.prototype.loadTiers = function() {
+    app.browser.removeAllTiers();
+    app.browser.addTier(app.referenceGenome);
     for (var i=0; i < this.bamFiles.length; ++i) {
-        if (App.settings.defaultView === "coverage") 
-            var style = baseCoverage['styles'];
-        else
-            var style = mismatch['styles'];
+        var style = styleSheets[app.settings.defaultView]['styles'];
         var bamTier = this.bamFiles[i].getTier(style);
+        if (app.settings.defaultView === 'condensed')
+            bamTier.padding = 0;
         if (bamTier) { 
-            console.log(bamTier);
-            b.addTier(bamTier);
+            app.browser.addTier(bamTier);
         } 
     }
+    //app.browser.refresh();
 }
 
-// Session.prototype.refreshStyles = function() {
-//     // get styles and update each tier
-//     if (displaySettings) {
-//         for (var i=1; i<b.tiers.length; ++i) { 
-//             if (displaySettings[0] === "mismatch" || settings.defaultDisplay === "mismatch") 
-//                 b.tiers[i].setStylesheet(mismatch);
-//             else 
-//                 b.tiers[i].setStylesheet(baseCoverage);
-//         }
-//     }
-//     b.refresh();
-// }
+Session.prototype.refreshStyles = function() {
+    // get styles and update each tier
+    for (var i=1; i<app.browser.tiers.length; ++i) {
+        var style = styleSheets[app.settings.defaultView];
+        console.log(app.browser.tiers[i]);
+        console.log(style);
+        app.browser.tiers[i].setStylesheet(style);
+        if (app.settings.defaultView === 'condensed')
+            app.browser.tiers[i].padding = 0;
+        console.log('app.browser.tiers[i].padding: ' + app.browser.tiers[i].padding);
+    }
+    app.browser.refresh();
+}
 
 Session.prototype.updateByVariantSelect= function() {
     var selected = document.getElementById("variantSelect");
-    console.log(selected);
-    this.current = parseInt(selected.value);
+    this.index = parseInt(selected.value);
     this.gotoCurrentVariant();
 };
 
 Session.prototype.setQC = function(decision) {
-    this.variantArray[this.current].score = decision;
-    this.refreshVariantList();
-    return this.next();
+    this.variants[this.index].score = decision;
 };
+
+Session.prototype.screenshot = function() {
+    // Take a screenshot
+    var imgdata = app.browser.exportImage();
+    imgdata = imgdata.split(',');
+    if (imgdata.length === 2) {
+        var screenshot = imgdata[1];
+        var imgName = '';
+        this.bamFiles.forEach(function(f) {
+            imgName += f.name
+        });
+        imgName += this.variants[this.index].string()
+        app.imageFolder.file(imgName + '.png', screenshot, {base64: true});
+    } else {
+        console.log('more than two parts to the image');
+    }
+}
 
 Session.prototype.print = function(backgroundColor) {
     var str = this.variantFile.print(null, false, backgroundColor);
@@ -108,8 +130,8 @@ Session.prototype.print = function(backgroundColor) {
 
 Session.prototype.getProgress = function() {
     var progress = 0;
-    for (var i=0; i<this.variantArray.length; i++) {
-        if(this.variantArray[i].score > -99) {
+    for (var i=0; i<this.variants.length; i++) {
+        if(this.variants[i].score > -99) {
             progress++;
         }
     }
@@ -124,8 +146,8 @@ Session.prototype.generateQCreport = function() {
             str += this.bamFiles[i].name + "\n";
     }
     str += "\n";
-    for (var i = 0; i < this.variantArray.length; i++) {
-        str += this.variantArray[i].string() + "\n"; 
+    for (var i = 0; i < this.variants.length; i++) {
+        str += this.variants[i].string() + "\n"; 
     }
     return str;
 };
@@ -136,13 +158,11 @@ Session.prototype.refreshVariantList = function() {
     var selectList = $("#variantSelect"); 
 
     selectList.empty() // get rid of any current variants
-    console.log(selectList);
     //Create and append the options
     for (var i = 0; i < stringArray.length; i++) {
         selectList.append($("<option>").attr('value', i).html(stringArray[i]));
     }
-    selectList.val(this.current);
-    console.log(selectList);
+    selectList.val(this.index);
 };
 
 function formatLongInt(n) {
@@ -150,46 +170,46 @@ function formatLongInt(n) {
 };
 
 Session.prototype.getStringArray = function() {
-    var stringArray = Array(this.variantArray.length);
-    for (var i = 0; i<this.variantArray.length; i++) {
-        stringArray[i] = this.variantArray[i].prettyString();
+    var stringArray = Array(this.variants.length);
+    for (var i = 0; i<this.variants.length; i++) {
+        stringArray[i] = this.variants[i].prettyString();
     }
     return stringArray;
 };
 
+Session.prototype.variantHTML = function() {
+    return this.variants[index].html();
+}
+
 Session.prototype.gotoCurrentVariant = function() {
-    console.log(this.current);
-    var c = this.variantArray[this.current];
-    console.log(c);
-	c.visit();
-    if (App.settings.autoZoom) {
-        if (App.settings.defaultZoomLevelUnit) { 
-            b.zoomStep(-1000000);
+    this.variants[this.index].visit();
+    if (app.settings.autoZoom) {
+        if (app.settings.defaultZoomLevel) { 
+            app.browser.zoomStep(-1000000);
         } else {
-            b.zoom(App.settings.currentZoom);
+            app.browser.zoom(app.settings.currentZoom);
         }
     }
-    document.getElementById("variantSelect").value = this.current;
+    console.log('sending variants to the variant list template');
+    app.renderVariantList(this.variants[this.index].html());
+    //document.getElementById("variantSelect").value = this.current;
 };
 
 Session.prototype.next = function() {
-    console.log("this.current =  " + this.current);
-    console.log("this.variantArray.length =  " + this.variantArray.length);
-    if ((this.current + 1) < this.variantArray.length) {
-        console.log("I'm moving on");
-        this.current++;
+    if ((this.index + 1) < this.variants.length) {
+        this.index++;
         this.gotoCurrentVariant();
         return true;
     } else { // at the end now
-        console.log("I'm not moving");
-        document.getElementById("variantSelect").value = this.current;
+        //document.getElementById("variantSelect").value = this.index;
+        app.renderVariantList(this.variants[this.index].html());
         return false;
     }
 };
 
 Session.prototype.prev = function() {
-    if (this.current > 0) {
-        this.current--;
+    if (this.index > 0) {
+        this.index--;
         this.gotoCurrentVariant();
         return true;
     } else {
@@ -197,25 +217,54 @@ Session.prototype.prev = function() {
     }
 };
 
+Session.prototype.goto = function(variantIndex) {
+    this.index = variantIndex;
+    console.log('this.bamFiles.length: ' + this.bamFiles.length);
+    if (app.browser.tiers.length === 0)
+        this.loadTiers();
+    this.gotoCurrentVariant();
+}
+
 function Sessions() {
     this.sessions = [];
-    this.current = null;
+    this.index = null;
+}
+
+Sessions.prototype.refreshStyles = function() {
+    this.sessions[this.index].refreshStyles();
+}
+
+Sessions.prototype.goto = function(sessionIndex, variantIndex) {
+    // determine if the sessionIndex has changed
+    if (this.index === sessionIndex) {
+        if (typeof(variantIndex) === 'undefined')
+            this.sessions[this.index].gotoCurrentVariant();
+        else
+            this.sessions[this.index].goto(variantIndex);
+    } else {
+        app.browser.removeAllTiers();
+        this.index = sessionIndex;
+        this.sessions[this.index].goto(variantIndex);
+    }
+}
+
+Sessions.prototype.gotoCurrentVariant = function() {
+    this.sessions[this.index].gotoCurrentVariant();
 }
 
 Sessions.prototype.load = function(sessionIndex, variantIndex) {
-    // remove old tiers if there
-    var conf = {index: 1};
-    var nTiers = b.tiers.length;
-    for (var i=1; i<nTiers; i++) {
-        b.removeTier(conf);
-    } 
-    this.current = sessionIndex;
-    if (this.sessions[this.current].variantArray.length > 0) {
-        this.sessions[this.current].reload() // already seen the session 
-    } else {
-        this.sessions[sessionIndex].variantFile.get(this.sessions[sessionIndex], b);
-    }
-    this.refreshSelect();
+    if (typeof(variantIndex) === 'undefined')
+        this.goto(sessionIndex)
+    else
+        this.goto(sessionIndex, variantIndex)
+}
+
+/** This method is called upon starting QC */
+Sessions.prototype.init = function() {
+    this.index = 0;
+    this.sessions[this.index].index = 0;
+    this.sessions[this.index].loadTiers();
+    this.sessions[this.index].gotoCurrentVariant();
 }
 
 Sessions.prototype.getLength = function() {
@@ -224,53 +273,40 @@ Sessions.prototype.getLength = function() {
         length += this.sessions[i].getLength();
     }
     return length;
-}   
-
-Sessions.prototype.addSession = function(session) {
-    this.sessions.push(session);
 }
 
 Sessions.prototype.setQC = function(decision) {
-    if (!this.sessions[this.current].setQC(decision)) {
-        console.log('abracadrbra');
-        if (this.current < this.sessions.length - 1) {
+    this.sessions[this.index].setQC(decision);
+    this.sessions[this.index].screenshot();
+
+    if (!this.sessions[this.index].next()) {
+        if (this.index < this.sessions.length - 1) {
 //            console.log('I still live');
 //            var progress = this.sessions[this.current].getProgress(); 
-//            var total = this.sessions[this.current].variantArray.length;
+//            var total = this.sessions[this.current].variants.length;
 //            var message = "You have reviewed <b>" + progress + "</b> of <b>" + total + "</b> variant locations. Do you want to continue to the next set of variants?";
 //            $('#modalConfirmNextSet .modal-body').html(message);
 //            $('#modalConfirmNextSet').modal('show');
-            this.load(this.current + 1);
+            this.goto(this.index + 1, 0);
         } else {
             this.promptQCdownload();
         }
     }
     this.refreshProgressBar();
+    //this.renderVariantList();
 }
 
 Sessions.prototype.prev = function() {
-    if (!this.sessions[this.current].prev()) {
-        if (this.current > 0) {
-           this.load(this.current - 1);
+    if (!this.sessions[this.index].prev()) {
+        if (this.index > 0) {
+            var variantIndex = this.sessions[this.index - 1].variants.length - 1
+            this.goto(this.index - 1, variantIndex);
         }
     }
 }
 
-Sessions.prototype.gotoCurrentVariant = function() {
-    this.sessions[this.current].gotoCurrentVariant();
-}
-
-Sessions.prototype.updateByVariantSelect= function() {
-    this.getCurrent().updateByVariantSelect();
-};
-
-Sessions.prototype.updateBySessionSelect= function() {
-    var s = $("#sessionSelect").val();
-    this.load(s);
-};
-
 Sessions.prototype.getCurrent = function() {
-    return this.sessions[this.current];
+    return this.sessions[this.index];
 }; 
 
 Sessions.prototype.downloadQCreport = function() {
@@ -284,12 +320,15 @@ Sessions.prototype.downloadQCreport = function() {
     var out = $("#QCreportFilename").val();
     var blob = new Blob([str], {type: "text/plain;charset=utf-8"});
     saveAs(blob, out);
+
+    var content = app.zip.generate({type:"blob"});
+    saveAs(content, "results.zip");
 };
 
 Sessions.prototype.getNumberVariants = function() {
     var numVariants = 0;
     for (var i=0; i<this.sessions.length; i++) {
-        numVariants += this.sessions[i].variantArray.length;
+        numVariants += this.sessions[i].variants.length;
     }
     return numVariants;
 };
@@ -340,7 +379,7 @@ Sessions.prototype.refreshSelect = function() {
         for (var i = 0; i < this.sessions.length; i++) {
             selectList.append($("<option>").attr("value", i).html(this.sessions[i].variantFile.name));
         }
-        selectList.val(this.current);
+        selectList.val(this.index);
         $("#sessionSelectHolder").html(selectList);
     } else {
         var button = '<button type="button" class="btn btn-default" disabled="disabled">' + this.sessions[0].variantFile.name  + '</button>';
@@ -349,11 +388,9 @@ Sessions.prototype.refreshSelect = function() {
 };
 
 Sessions.prototype.refreshProgressBar = function() {
-    var progress = this.sessions[this.current].getProgress();
-    var total  = this.sessions[this.current].variantArray.length;
+    var progress = this.sessions[this.index].getProgress();
+    var total  = this.sessions[this.index].variants.length;
     var percent =  String((100*progress/total)|0) + "%";
     $("#variantProgress").attr("aria-valuenow", percent);
     $("#variantProgress").css("width", percent);
 };
-
-

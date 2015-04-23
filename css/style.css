@@ -158,6 +158,7 @@ table.color-code tr.a td {
 
 .progress {
    /* height: 10px;*/
+   width: 100px;
 }
 
 /*.progress-bar-fixed {
@@ -444,4 +445,31 @@ dt.smallTopMargin {
 
 .alert-file-loading {
     margin-top: 15px; 
+}
+
+
+.modal-body-scrollable {
+    max-height: calc(100vh - 144px);
+    overflow-y: auto;
+}
+
+.dalliance-view {
+    display: none;
+}
+
+.qc-variant {
+    background-color: limegreen !important;
+}
+
+.qc-variant {
+    background-color: limegreen !important;
+}
+
+.slider {
+  float: none !important;
+}
+
+.list-group-current-variant {
+    background-color: aliceblue;
+    font-weight: bold;
 }
