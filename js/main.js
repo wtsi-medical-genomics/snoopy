@@ -69,6 +69,9 @@ if (storedSettings) {
     }
 }
 
+var zip = new JSZip();
+var imageFolder = zip.folder('images');
+
 $(document).ready(function() {
 
         // Listen for button to load files

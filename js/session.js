@@ -94,9 +94,27 @@ Session.prototype.updateByVariantSelect= function() {
 
 Session.prototype.setQC = function(decision) {
     this.variantArray[this.current].score = decision;
+    this.screenshot();
     this.refreshVariantList();
     return this.next();
 };
+
+Session.prototype.screenshot = function() {
+    // Take a screenshot
+    var imgdata = b.exportImage();
+    imgdata = imgdata.split(',');
+    if (imgdata.length === 2) {
+        var screenshot = imgdata[1];
+        var imgName = '';
+        this.bamFiles.forEach(function(f) {
+            imgName += f.name + '-';
+        });
+        imgName += this.variantArray[this.current].string()
+        imageFolder.file(imgName + '.png', screenshot, {base64: true});
+    } else {
+        console.log('more than two parts to the image');
+    }
+}
 
 Session.prototype.print = function(backgroundColor) {
     var str = this.variantFile.print(null, false, backgroundColor);
@@ -284,6 +302,9 @@ Sessions.prototype.downloadQCreport = function() {
     var out = $("#QCreportFilename").val();
     var blob = new Blob([str], {type: "text/plain;charset=utf-8"});
     saveAs(blob, out);
+
+    var content = zip.generate({type:"blob"});
+    saveAs(content, "results.zip");
 };
 
 Sessions.prototype.getNumberVariants = function() {
