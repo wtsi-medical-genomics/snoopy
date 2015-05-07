@@ -49,6 +49,7 @@ gulp.task('default', function() {
         'css/*',
         'fonts/*',
         ['FileSaver.js/FileSaver.min.js' , 'FileSaver.js'],
+        ['jszip/dist/jszip.min.js' , 'jszip/dist/'],
         ['dalliance/build/*' , 'dalliance/'],
         'dalliance/css/*',
 //        'dalliance/fonts/*',
