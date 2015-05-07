@@ -1,548 +1,555 @@
 <!DOCTYPE html>
 <html lang="en"><head>
-        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-        <meta http-equiv="X-Pagesmith-Decor" content="no" />
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="description" content="">
-        <meta name="author" content="">
-        <link rel="icon" href="http://getbootstrap.com/favicon.ico">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-Pagesmith-Decor" content="no" />
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="icon" href="http://getbootstrap.com/favicon.ico">
 
-        <title>Snoopy</title>
+<title>Snoopy</title>
 
-        <!-- Bootstrap core CSS -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-        <link href="css/style.css" rel="stylesheet">
-        <link href="dalliance/css/dalliance-scoped.css" rel="stylesheet">
-        <!-- Custom styles for this template -->
-        <script language="javascript" src="dalliance/build/dalliance-all.js"></script>
-        <script language="javascript" src="FileSaver.js/FileSaver.min.js"></script>
-        <script language="javascript" src="jszip/dist/jszip.min.js"></script>
-        <script language="javascript" src="js/loadedfiletypes.js"></script>
-        <script language="javascript" src="js/session.js"></script>
-        <script language="javascript" src="js/variant.js"></script>
-        <script language="javascript" src="js/styles.js"></script>
-    </head>
+<!-- Bootstrap core CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+<link href="css/style.css" rel="stylesheet">
+<link href="dalliance/css/dalliance-scoped.css" rel="stylesheet">
+<!-- Custom styles for this template -->
+<script language="javascript" src="dalliance/build/dalliance-all.js"></script>
+<script language="javascript" src="FileSaver.js/FileSaver.min.js"></script>
+<script language="javascript" src="jszip/dist/jszip.min.js"></script>
+<script language="javascript" src="js/loadedfiletypes.js"></script>
+<script language="javascript" src="js/session.js"></script>
+<script language="javascript" src="js/variant.js"></script>
+<script language="javascript" src="js/styles.js"></script>
+</head>
 
-    <body>
-        <div id="app">
-        <div id="menubar">
-        <div class="navbar navbar-inverse">
-            <div class="navbar-header">
-                <div class="navbar-brand">Snoopy</div>
-            </div>
-            <ul class="nav navbar-nav pull-left dalliance-view">
-                <li class="dropdown">
-                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">File <span class="caret"></span></a>
-                  <ul class="dropdown-menu" role="menu">
-                    <li><a href="#" data-toggle="modal" data-target="#modalRestart">Restart Snoopy</a></li>
-                    <li><a href="#">Export results</a></li>
-                  </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" id="viewMenu">View <span class="caret"></span></a>
-                    <ul class="dropdown-menu" role="menu">
-                        <li><a href="#" class="view-choice" data-value="mismatch">Mismatch</a></li>
-                        <li><a href="#" class="view-choice" data-value="coverage">Coverage</a></li>
-                        <li><a href="#" class="view-choice" data-value="condensed">Condensed</a></li>
-                    </ul>
-                </li>
-            </ul>
-            <ul class="nav navbar-nav pull-right">
-                <li><a href="#" data-toggle="modal" data-target="#modalSettings">Settings</a></li>
-                <li><a href="#" data-toggle="modal" data-target="#modalHelp">Help</a></li>
-                <li><a href="#" data-toggle="modal" data-target="#modalAbout">About</a></li>
-                <li><a href="https://github.com/wtsi-medical-genomics/snoopy/" target="_blank">GitHub</a></li>
-            </ul>
+<body>
+  <div id="app">
+    <div id="menubar">
+      <div class="navbar navbar-inverse">
+        <div class="navbar-header">
+          <div class="navbar-brand">Snoopy</div>
         </div>
-        <div class="navbar navbar-default" id="controlCenter">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default" id="currentVariantTarget" data-toggle="modal" data-target="#modalVariantSelect">
-                    </button>
-                </div>
+        <ul class="nav navbar-nav pull-left dalliance-view">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">File <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#" data-toggle="modal" data-target="#modalRestart">Restart Snoopy</a></li>
+              <li><a href="#">Export results</a></li>
+            </ul>
+          </li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" id="viewMenu">View <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#" class="view-choice" data-value="raw">Raw</a></li>
+              <li><a href="#" class="view-choice" data-value="mismatch">Mismatch</a></li>
+              <li><a href="#" class="view-choice" data-value="condensed">Condensed</a></li>
+              <li><a href="#" class="view-choice" data-value="coverage">Coverage</a></li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav pull-right">
+          <li><a href="#" data-toggle="modal" data-target="#modalSettings">Settings</a></li>
+          <li><a href="#" data-toggle="modal" data-target="#modalHelp">Help</a></li>
+          <li><a href="#" data-toggle="modal" data-target="#modalAbout">About</a></li>
+          <li><a href="https://github.com/wtsi-medical-genomics/snoopy/" target="_blank">GitHub</a></li>
+        </ul>
+      </div>
+      <div class="navbar navbar-default" id="controlCenter">
+        <div class="btn-group">
+          <button type="button" class="btn btn-default" id="currentVariantTarget" data-toggle="modal" data-target="#modalVariantSelect">
+          </button>
+        </div>
 <!--                 <span class="progress" id="progressBar">
                     <span class="progress-bar" id="variantProgress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
                     </span>
-                </span> -->
-                <div class="btn-group">
+                  </span> -->
+                  <div class="btn-group">
                     <button type="button" class="btn btn-default" id="buttonHome">
-                        <span class="glyphicon glyphicon-home"></span>
+                      <span class="glyphicon glyphicon-home"></span>
                     </button>
-                </div>
-                <div class="btn-group">
+                  </div>
+                  <div class="btn-group">
                     <button type="button" class="btn btn-default" id="buttonGoBack">
-                        <span class="glyphicon glyphicon-chevron-left"></span> Previous
+                      <span class="glyphicon glyphicon-chevron-left"></span> Previous
                     </button>
-                </div>
-                <div class="btn-group" id="qcDecision">
+                  </div>
+                  <div class="btn-group" id="qcDecision">
                     <button type="button" class="btn btn-default qc-decision" id="buttonQCNotVariant" data-value="not variant">Not a Variant <span class="glyphicon glyphicon-chevron-right"></span></button>
                     <button type="button" class="btn btn-default qc-decision" id="buttonQCPotentialVariant" data-value="uncertain">Uncertain <span class="glyphicon glyphicon-chevron-right"></span></button>
                     <button type="button" class="btn btn-default qc-decision" id="buttonQCCertainVariant"  data-value="variant">Variant <span class="glyphicon glyphicon-chevron-right"></span></button>
+                  </div>
                 </div>
-        </div>
-        </div>
+              </div>
 
-        <div class="container" id="fileLoader">
-            <div class="row">
-                <div class="col-md-2"></div>
-                <div class="col-md-8">
+              <div class="container" id="fileLoader">
+                <div class="row">
+                  <div class="col-md-2"></div>
+                  <div class="col-md-8">
                     <div id="sectionPickMode">
-                        <div class="panel panel-default" id="panelWelcome">
-                            <div class="panel-body">
-                                <h4>Welcome to Snoopy</h4>
-                                <p class="justify" id="paragraphWelcome">Snoopy is a quality control tool to review predicted variants in BAM files using the Dalliance genome browser. There are a few ways to use this tool:</p>
-                            </div>
+                      <div class="panel panel-default" id="panelWelcome">
+                        <div class="panel-body">
+                          <h4>Welcome to Snoopy</h4>
+                          <p class="justify" id="paragraphWelcome">Snoopy is a quality control tool to review predicted variants in BAM files using the Dalliance genome browser. There are a few ways to use this tool:</p>
                         </div>
-                        <div class="panel panel-default choice" id="panelManual">
-                            <div class="panel-body">
-                                <h4>Manual</h4>
-                                <p class="justify" id="paragraphManual">This mode is used when you want to manually add files from your local machine or from a server. Using Snoopy in this way will limit you to only one variant file.</p>
-                                <div class="file-input btn btn-primary btn-file" id="buttonGoManual">
-                                    Go manual <span class="glyphicon glyphicon-chevron-right"></span>
-                                </div>
-                            </div>
+                      </div>
+                      <div class="panel panel-default choice" id="panelManual">
+                        <div class="panel-body">
+                          <h4>Manual</h4>
+                          <p class="justify" id="paragraphManual">This mode is used when you want to manually add files from your local machine or from a server. Using Snoopy in this way will limit you to only one variant file.</p>
+                          <div class="file-input btn btn-primary btn-file" id="buttonGoManual">
+                            Go manual <span class="glyphicon glyphicon-chevron-right"></span>
+                          </div>
                         </div>
-                        <div class="panel panel-default choice" id="panelBatch">
-                            <div class="panel-body">
-                                <h4>Batch</h4>
-                                <p class="justify" id="paragraphBatch">In this mode you have a file prepared that lists multiple “sessions”. Each session consists of a remote file listing variants along with a collection of remote BAM files.</p>
-                                <div class="file-input btn btn-success btn-file" id="buttonGoBatch">
-                                    Go batch <span class="glyphicon glyphicon-chevron-right"></span>
-                                </div>
-                            </div>
+                      </div>
+                      <div class="panel panel-default choice" id="panelBatch">
+                        <div class="panel-body">
+                          <h4>Batch</h4>
+                          <p class="justify" id="paragraphBatch">In this mode you have a file prepared that lists multiple “sessions”. Each session consists of a remote file listing variants along with a collection of remote BAM files.</p>
+                          <div class="file-input btn btn-success btn-file" id="buttonGoBatch">
+                            Go batch <span class="glyphicon glyphicon-chevron-right"></span>
+                          </div>
                         </div>
+                      </div>
                     </div>
                     <div id="sectionLoadFiles">
-                        <div class="panel panel-default choice" id="panelFileLoading">
-                            <div class="panel-body">
-                                <h4 class="title"></h4>
-                            </div>
+                      <div class="panel panel-default choice" id="panelFileLoading">
+                        <div class="panel-body">
+                          <h4 class="title"></h4>
                         </div>
-                       <div class="file-input btn btn-default btn-file" id="buttonShowLoadRemoteFileModal">
-                            <span class="glyphicon glyphicon-th-list"></span> Load Remote File 
+                      </div>
+                      <div class="file-input btn btn-default btn-file" id="buttonShowLoadRemoteFileModal">
+                        <span class="glyphicon glyphicon-th-list"></span> Load Remote File 
+                      </div>
+                      <div class="btn-group" id="buttonLoadLocalFileButton">
+                        <div class="file-input btn btn-default btn-file">
+                          <span class="glyphicon glyphicon-floppy-disk"></span><span id="loadFilesText"> Load Local File(s)</span><input type="file" multiple id="fileLoaded">
                         </div>
-                        <div class="btn-group" id="buttonLoadLocalFileButton">
-                            <div class="file-input btn btn-default btn-file">
-                                <span class="glyphicon glyphicon-floppy-disk"></span><span id="loadFilesText"> Load Local File(s)</span><input type="file" multiple id="fileLoaded">
-                            </div>
+                      </div>
+                      <div class="btn-group">
+                        <div class="btn btn-default" id="buttonLoadDalliance">
+                          <span class="glyphicon glyphicon-search"></span> Start Quality Control 
                         </div>
-                        <div class="btn-group">
-                            <div class="btn btn-default" id="buttonLoadDalliance">
-                                <span class="glyphicon glyphicon-search"></span> Start Quality Control 
-                            </div>
-                        </div>
-                        <div id="fileLoadingErrorListTarget"></div>
-                        <div id="fileLoadingFileListTarget"></div>
+                      </div>
+                      <div id="fileLoadingErrorListTarget"></div>
+                      <div id="fileLoadingFileListTarget"></div>
                     </div>
+                  </div>
+                  <div class="col-md-2"></div>
                 </div>
-                <div class="col-md-2"></div>
-            </div>
-        </div><!-- /.container -->
+              </div><!-- /.container -->
 
-        <div id="my-dalliance-holder">
-            <div id="svgHolder"></div>
-        </div>
+              <div id="my-dalliance-holder">
+                <div id="svgHolder"></div>
+              </div>
 
-        <!-- Variant Select Modal -->
-        <div class="modal fade" id="modalVariantSelect" tabindex="-1" role="dialog" aria-labelledby="myModalLoadRemote" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
+              <!-- Variant Select Modal -->
+              <div class="modal fade" id="modalVariantSelect" tabindex="-1" role="dialog" aria-labelledby="myModalLoadRemote" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                        <h4 class="modal-title">Select Variant</h4>
+                      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                      <h4 class="modal-title">Select Variant</h4>
                     </div>
                     <div class="modal-body modal-body-scrollable" id="variantListTarget">
                     </div>
+                  </div>
                 </div>
-            </div>
-        </div>
+              </div>
 
-        <!-- Load Remote File Modal -->
-        <div class="modal fade" id="modalLoadRemote" tabindex="-1" role="dialog" aria-labelledby="myModalLoadJSON" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
+              <!-- Load Remote File Modal -->
+              <div class="modal fade" id="modalLoadRemote" tabindex="-1" role="dialog" aria-labelledby="myModalLoadJSON" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                        <h4 class="modal-title" id="myModalLoadJSON">Load remote JSON file</h4>
+                      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                      <h4 class="modal-title" id="myModalLoadJSON">Load remote JSON file</h4>
                     </div>
                     <div class="modal-body">
-                        <form role="form">
-                            <div class="input-group form-stretch">
-                                <div class="input-group-addon serverLocation"></div>
-                                <input type="text" class="form-control" placeholder="...path to file on server" id="remoteFilename">
-                            </div>
-                        </form>
+                      <form role="form">
+                        <div class="input-group form-stretch">
+                          <div class="input-group-addon serverLocation"></div>
+                          <input type="text" class="form-control" placeholder="...path to file on server" id="remoteFilename">
+                        </div>
+                      </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="buttonLoadRemoteFile">Load</button>
+                      <button type="button" class="btn btn-primary" id="buttonLoadRemoteFile">Load</button>
                     </div>
+                  </div>
                 </div>
-            </div>
-        </div>
+              </div>
 
 
-        <!-- Download QC Report Modal -->
-        <div class="modal fade" id="modalDownloadQCreport" tabindex="-1" role="dialog" aria-labelledby="myModalDownloadQCreport" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
+              <!-- Download QC Report Modal -->
+              <div class="modal fade" id="modalDownloadQCreport" tabindex="-1" role="dialog" aria-labelledby="myModalDownloadQCreport" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                        <h4 class="modal-title" id="myModalDownloadQCreport">Download QC Report</h4>
+                      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                      <h4 class="modal-title" id="myModalDownloadQCreport">Download QC Report</h4>
                     </div>
                     <div class="modal-body">
-                        You have reviewed all of the 43 variant locations. 
+                      You have reviewed all of the 43 variant locations. 
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="buttonDownloadQCreport">Download Report</button>
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      <button type="button" class="btn btn-primary" id="buttonDownloadQCreport">Download Report</button>
                     </div>
+                  </div>
                 </div>
-            </div>
-        </div>
+              </div>
 
 
-        <!-- Restart Modal -->
-        <div class="modal fade" id="modalRestart" tabindex="-1" role="dialog" aria-labelledby="myModalRestart" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
+              <!-- Restart Modal -->
+              <div class="modal fade" id="modalRestart" tabindex="-1" role="dialog" aria-labelledby="myModalRestart" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                        <h4 class="modal-title" id="myModalRestart">Are you sure you want to restart?</h4>
+                      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                      <h4 class="modal-title" id="myModalRestart">Are you sure you want to restart?</h4>
                     </div>
                     <div class="modal-body">
-                        Doing so will lose all quality control work so far.
+                      Doing so will lose all quality control work so far.
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="buttonRestart">Restart</button>
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                      <button type="button" class="btn btn-primary" id="buttonRestart">Restart</button>
                     </div>
+                  </div>
                 </div>
-            </div>
-        </div>
+              </div>
 
 
-       <!-- Help Modal -->
-        <div class="modal fade" id="modalHelp" tabindex="-1" role="dialog" aria-labelledby="myModalHelp" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
+              <!-- Help Modal -->
+              <div class="modal fade" id="modalHelp" tabindex="-1" role="dialog" aria-labelledby="myModalHelp" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                        <h4 class="modal-title" id="myModalHel">Help</h4>
+                      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                      <h4 class="modal-title" id="myModalHel">Help</h4>
                     </div>
                     <div class="modal-body modal-body-scrollable">
-                        <h4 class="page-header">
-                            Load Your Files
-                        </h4>
-                        Load BAM files, BAI files and a text file (.txt) with variant locations, one per line. The variant text file can list both SNPs and CNVs. SNPs can be in any of the following formats:
-                        <ul class="list-unstyled">
-                            <li>chr:location</li>
-                            <li>chr-location</li>
-                            <li>chr,location</li>
-                            <li>chr location</li>
-                        </ul>
-						For example, a SNP location may be 16:48000281.
-						And the format for CNVs is as SNPs except the location consists of two numbers. For example, a CNV location may be 16:48000281-48000289.
-						
-                        You can repeatedly press Load More Files, that is, you don't have to select all of your files from a single open file dialog.  Once you have loaded all of your files, click 
-                        <button type="button" class="btn btn-success btn-sm">
-                            <span class="glyphicon glyphicon-search"></span> Start Quality Control 
-                        </button>
-                        <h4 class="page-header">
-                           Loading a batch of remote files 
-                        </h4>
-                        You can load a batch of remote BAM files and a variant file by listing them in a JavaScript Object Notation (JSON) file. JSON files have a dictionary like structure (key:value) which makes them useful for transferring data that can be easily read by many programming languages. The template of a JSON file that Snoopy expects is found below:<br><br>
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                    BATCH_FILENAME.json
-                            </div>
-                            <div class="panel-body">
-                                <pre>
-{
-    "sessions" : [
-    {
-        "variant_locations": "PATH/TO/VARIANT_FILE.TXT",
-        "bams": [
-            "PATH/TO/BAM_1",
-            "PATH/TO/BAM_2",
-            ...
-            "PATH/TO/BAM_n"
-        ]
-    },
-    {
-        "variant_locations": "PATH/TO/VARIANT_FILE.TXT",
-        "bams": [
-            "PATH/TO/BAM_1",
-            "PATH/TO/BAM_2",
-            ...
-            "PATH/TO/BAM_n"
-        ]
-    }
-}
-                                </pre>
-                            </div>
-                        </div>
-                        In the template you have the freedom to change whatever is capitalised but you must leave the keys (<code>variant_locations</code>, <code>bams</code>) alone. The paths can be relative to your home directory <code>~/...</code> or absolute <code>/lustre/scratch113/...</code>. There is no need to include the <code>https://web-lustre-01...</code> as this is automically prefixed. Lastly, quotation marks must wrap all keys and values.
+                      <h4 class="page-header">
+                        Load Your Files
+                      </h4>
+                      Load BAM files, BAI files and a text file (.txt) with variant locations, one per line. The variant text file can list both SNPs and CNVs. SNPs can be in any of the following formats:
+                      <ul class="list-unstyled">
+                        <li>chr:location</li>
+                        <li>chr-location</li>
+                        <li>chr,location</li>
+                        <li>chr location</li>
+                      </ul>
+                      For example, a SNP location may be 16:48000281.
+                      And the format for CNVs is as SNPs except the location consists of two numbers. For example, a CNV location may be 16:48000281-48000289.
 
-                        <br><br>Note that in batch mode, the JSON  file can only point at remote files. This is unavoiadable as local files have to be explicitly loaded into web browser.
-
-                        <h4 class="page-header">
-                            Quality Control 
-                        </h4>
-                        At this point you will see the Dalliance genomve viewer with your BAM files loaded, with the labels being the filenames. By default, differenes between the read and the reference are shown while matches are colored: plus strand is salmon; negative strand is pastel blue.  The first variant from your text file will located be in the center and highlighted. Make a decision about this variant and advance to the next by clicking one of 
-                        <button type="button" class="btn btn-default btn-sm" >Not a Variant <span class="glyphicon glyphicon-chevron-right"></span></button>
-                        <button type="button" class="btn btn-default btn-sm" >Uncertain <span class="glyphicon glyphicon-chevron-right"></span></button>
-                        <button type="button" class="btn btn-default btn-sm" >Variant <span class="glyphicon glyphicon-chevron-right"></span></button>
-                        To go back you can either click 
-                        <button type="button" class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-chevron-left"></span> Previous</button>
-                        or select from the drop down list any variant site from your text file. The drop down list also displays your previous QC decision with the symbols listed in the table below.
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Symbol</th>
-                                    <th>QC Decision</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>&#x2717;</td><td>Not a Variant</td></tr>
-                                <tr><td>?</td><td>Uncertain</td></tr>
-                                <tr><td>&#x2713;</td><td>Variant</td></tr>
-                            </tbody>
-                        </table>
-                        As you progress through your variants you will notice the status bar growing to reflect this.
-                        <h4 class="page-header">
-                            QC Review File
-                        </h4>
-                        When you have reached the final candidate variant, you will be asked if you would like to download the QC decisions. Note that you can download your progress before this point (i.e. you haven't reviewed all of the variants) by clicking on the download icon 
-                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-floppy-save"></span></button>. When prompred, provide a filename and this will be downloaded onto your machine as a text file. The results file has the following format
-                        <div class="panel panel-default qc-file-format">
-                            <div class="panel-body">
-                                date and time of report creation<br>
-                                BAM filename 1<br>
-                                BAM filename 2<br>
-                                .<br>
-                                .<br>
-                                .<br><br>
-
-
-                                chr:variant location 1 QC decision<br>
-                                chr:variant location 2 QC decision<br>
-                                .<br>
-                                .<br>
-                                .
-                            </div>
-                        </div>
-                        Where QC decision has the following encoding.
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Code</th>
-                                    <th>QC Decision</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>-1</td><td>Not a Variant</td></tr>
-                                <tr><td>0</td><td>Uncertain</td></tr>
-                                <tr><td>1</td><td>Certain Variant</td></tr>
-                                <tr><td>-99</td><td>No Decision Made</td></tr>  
-                            </tbody>
-                        </table>
-
-                        <h4 class="page-header">
-                            Restart 
-                        </h4>
-                        To restart at any time (which will lose all work unless you have downloaded your progress) click  
-                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-repeat"></span></button>.
-                    </div>
+                      You can repeatedly press Load More Files, that is, you don't have to select all of your files from a single open file dialog.  Once you have loaded all of your files, click 
+                      <button type="button" class="btn btn-success btn-sm">
+                        <span class="glyphicon glyphicon-search"></span> Start Quality Control 
+                      </button>
+                      <h4 class="page-header">
+                       Loading a batch of remote files 
+                     </h4>
+                     You can load a batch of remote BAM files and a variant file by listing them in a JavaScript Object Notation (JSON) file. JSON files have a dictionary like structure (key:value) which makes them useful for transferring data that can be easily read by many programming languages. The template of a JSON file that Snoopy expects is found below:<br><br>
+                     <div class="panel panel-default">
+                      <div class="panel-heading">
+                        BATCH_FILENAME.json
+                      </div>
+                      <div class="panel-body">
+                        <pre>
+                          {
+                          "sessions" : [
+                          {
+                          "variant_locations": "PATH/TO/VARIANT_FILE.TXT",
+                          "bams": [
+                          "PATH/TO/BAM_1",
+                          "PATH/TO/BAM_2",
+                          ...
+                          "PATH/TO/BAM_n"
+                          ]
+                        },
+                        {
+                        "variant_locations": "PATH/TO/VARIANT_FILE.TXT",
+                        "bams": [
+                        "PATH/TO/BAM_1",
+                        "PATH/TO/BAM_2",
+                        ...
+                        "PATH/TO/BAM_n"
+                        ]
+                      }
+                    }
+                  </pre>
                 </div>
-            </div>
-        </div>
+              </div>
+              In the template you have the freedom to change whatever is capitalised but you must leave the keys (<code>variant_locations</code>, <code>bams</code>) alone. The paths can be relative to your home directory <code>~/...</code> or absolute <code>/lustre/scratch113/...</code>. There is no need to include the <code>https://web-lustre-01...</code> as this is automically prefixed. Lastly, quotation marks must wrap all keys and values.
 
-        <div id="settingsHolder">
-        </div>
+              <br><br>Note that in batch mode, the JSON  file can only point at remote files. This is unavoiadable as local files have to be explicitly loaded into web browser.
 
-        <div class="modal fade" id="modalConfirmNextSet" tabindex="-1" role="dialog" aria-labelledby="myModalConfirmNextSet" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                        <h4 class="modal-title" id="myModalLabel">Go to the next set?</h4>
-                    </div>
-                    <div class="modal-body">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Stay on this set</button>
-                        <button type="button" class="btn btn-primary" id="loadNextSession">Review the next set</button>
-                    </div>
+              <h4 class="page-header">
+                Quality Control 
+              </h4>
+              At this point you will see the Dalliance genomve viewer with your BAM files loaded, with the labels being the filenames. By default, differenes between the read and the reference are shown while matches are colored: plus strand is salmon; negative strand is pastel blue.  The first variant from your text file will located be in the center and highlighted. Make a decision about this variant and advance to the next by clicking one of 
+              <button type="button" class="btn btn-default btn-sm" >Not a Variant <span class="glyphicon glyphicon-chevron-right"></span></button>
+              <button type="button" class="btn btn-default btn-sm" >Uncertain <span class="glyphicon glyphicon-chevron-right"></span></button>
+              <button type="button" class="btn btn-default btn-sm" >Variant <span class="glyphicon glyphicon-chevron-right"></span></button>
+              To go back you can either click 
+              <button type="button" class="btn btn-default btn-sm" ><span class="glyphicon glyphicon-chevron-left"></span> Previous</button>
+              or select from the drop down list any variant site from your text file. The drop down list also displays your previous QC decision with the symbols listed in the table below.
+              <table>
+                <thead>
+                  <tr>
+                    <th>Symbol</th>
+                    <th>QC Decision</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>&#x2717;</td><td>Not a Variant</td></tr>
+                  <tr><td>?</td><td>Uncertain</td></tr>
+                  <tr><td>&#x2713;</td><td>Variant</td></tr>
+                </tbody>
+              </table>
+              As you progress through your variants you will notice the status bar growing to reflect this.
+              <h4 class="page-header">
+                QC Review File
+              </h4>
+              When you have reached the final candidate variant, you will be asked if you would like to download the QC decisions. Note that you can download your progress before this point (i.e. you haven't reviewed all of the variants) by clicking on the download icon 
+              <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-floppy-save"></span></button>. When prompred, provide a filename and this will be downloaded onto your machine as a text file. The results file has the following format
+              <div class="panel panel-default qc-file-format">
+                <div class="panel-body">
+                  date and time of report creation<br>
+                  BAM filename 1<br>
+                  BAM filename 2<br>
+                  .<br>
+                  .<br>
+                  .<br><br>
+
+
+                  chr:variant location 1 QC decision<br>
+                  chr:variant location 2 QC decision<br>
+                  .<br>
+                  .<br>
+                  .
                 </div>
-            </div>
-        </div>
+              </div>
+              Where QC decision has the following encoding.
+              <table>
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>QC Decision</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>-1</td><td>Not a Variant</td></tr>
+                  <tr><td>0</td><td>Uncertain</td></tr>
+                  <tr><td>1</td><td>Certain Variant</td></tr>
+                  <tr><td>-99</td><td>No Decision Made</td></tr>  
+                </tbody>
+              </table>
 
-    <div class="modal fade" id="modalSettings" tabindex="-1" role="dialog" aria-labelledby="myModalSettings" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class=
-            "sr-only">Close</span></button>
-            <h4 class="modal-title" id="myModalSettings">
-              Settings
-            </h4>
-          </div>
-          <div class="modal-body" id="targetSettings">
-
+              <h4 class="page-header">
+                Restart 
+              </h4>
+              To restart at any time (which will lose all work unless you have downloaded your progress) click  
+              <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-repeat"></span></button>.
             </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
-    </div>
 
-    <script id="settingsTemplate" type="text/template">
-        <dl>
-            <dt class="smallTopMargin">Default server location</dt>
-                <dd>
-                    <input type="text" id="serverLocation" class="textboxFullWidth" value="<%= settings.serverLocation %>">
-                </dd>
+      <div id="settingsHolder">
+      </div>
 
-            <div class="dalliance-view">
-                <dt>Dalliance zoom level</dt>
+      <div class="modal fade" id="modalConfirmNextSet" tabindex="-1" role="dialog" aria-labelledby="myModalConfirmNextSet" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+              <h4 class="modal-title" id="myModalLabel">Go to the next set?</h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Stay on this set</button>
+              <button type="button" class="btn btn-primary" id="loadNextSession">Review the next set</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="modalSettings" tabindex="-1" role="dialog" aria-labelledby="myModalSettings" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class=
+                "sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalSettings">
+                  Settings
+                </h4>
+              </div>
+              <div class="modal-body" id="targetSettings">
+                <dl>
+                  <dt class="smallTopMargin">Default server location</dt>
+                  <dd>
+                    <input type="text" id="settingsServerLocation" class="textboxFullWidth">
+                  </dd>
+                  <div class="dalliance-view">
+                    <dt>Dalliance zoom level</dt>
                     <dd>
-                        <input type="radio" name="defaultZoomLevel" value="unit" <%= settings.defaultZoomLevel == "unit" ? "checked" : "" %>>
-                        <label for="defaultZoomLevelUnit">Unit base</label>
-                        <br>
-                        <input type="radio" name="defaultZoomLevel" value="custom" <%= settings.defaultZoomLevel == "custom" ? "checked" : "" %>>
-                        <input type="text" id="zoomLevelText" value="<%= zoomLevel %>"> bp
-                        <button type="button" id="captureZoom" class="btn btn-primary btn-sm">Capture current zoom level</button>
-
+                      <input type="radio" name="defaultZoomLevel" value="unit">
+                      <label for="defaultZoomLevelUnit">Unit base</label>
+                      <br>
+                      <input type="radio" name="defaultZoomLevel" value="custom">
+                      <input type="text" id="settingsZoomLevelText"> bp
+                      <button type="button" id="captureZoom" class="btn btn-primary btn-sm">Capture current zoom level</button>
                     </dd>
                     <dd>
-                        <input type="checkbox" id="autoZoom" <%= settings.autoZoom ? "checked" : "" %> >
-                        <label for="autoZoom">Automatically zoom to default level when visiting new candidate variant</label>
+                      <input type="checkbox" id="settingsAutoZoom">
+                      <label for="settingsAutoZoom">Automatically zoom to default level when visiting new candidate variant</label>
                     </dd>
-                <dt>Tier display style</dt>
+                    <dt>Raw style</dt>
                     <dd>
-                        <select id="selectTierStyle">
-                            <option value="mismatch">Mismatch</option>
-                            <option value="coverage">Coverage Histogram</option>
-                        </select>
-                        
-                        <dd id="mismatchOptions" class="bufferHeight" style="display:<%= settings.defaultView == 'mismatch' ? 'block' : 'none' %>">
-                            <input type="color" id="plusStrandColor" value="<%= settings.plusColor %>"> Plus strand <br>
-                            <input type="color" id="minusStrandColor" value="<%= settings.minusColor %>"> Minus strand
-                        </dd>
-                        
-                        <dd id="coverageOptions" class="bufferHeight" style="display:<%= settings.defaultView == 'coverage' ? 'block' : 'none' %>">
-                            Some coverage option
-                        </div>
+                      <input type="color" id="a"> A color<br>
+                      <input type="color" id="a"> C color<br>
+                      <input type="color" id="g"> G color<br>
+                      <input type="color" id="t"> T color<br>
+                      <input type="color" id="i"> Insertion color<br>
+                      <input type="color" id="d"> Deletion color<br>
+                      <input type="checkbox" id="settingsCondensedShowQual">
+                      <label for="settingsCondensedShowQual">Reflect base quality with transparency
                     </dd>
-            </div> 
-        </dl>
-    </script>
+                    <dt>Mismatch style</dt>
+                    <dd>
+                      <input type="color" id="settingsPlusStrandColor"> Plus strand color<br>
+                      <input type="color" id="settingsMinusStrandColor"> Minus strand color
+                      <input type="checkbox" id="settingsCondensedShowQual"><br>
+                      <label for="settingsCondensedShowQual">Reflect base quality with transparency
+                    </dd>
+                    <dt>Condensed style</dt>
+                    <dd>
+                      <input type="color" id="settingsMatchColor"> Match color<br>
+                      <input type="checkbox" id="settingsCondensedShowQual">
+                      <label for="settingsCondensedShowQual">Reflect base quality with transparency
+                    </dd>
+                    <dt>Coverage histogram style</dt>
+                    <dd id="coverageOptions">
+                      Some coverage option
+                    </dd>
+                  </div> 
+                </dl>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
 
-   
-    <div class="modal fade" id="modalLoadURL" tabindex="-1" role="dialog" aria-labelledby="myModalLoadURL" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+
+        <div class="modal fade" id="modalLoadURL" tabindex="-1" role="dialog" aria-labelledby="myModalLoadURL" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    <h4 class="modal-title" id="myModalLoadJSON">Load remote JSON file</h4>
-                </div>
-                <div class="modal-body">
-                    <form role="form" id="formLoadURL">
-                        <div class="input-group form-stretch">
-                            <div class="input-group-addon serverLocation"></div>
-                            <input type="text" class="form-control" placeholder="...path to file on server" id="JSONfilename">
-                        </div>
-                    </form>
-                </div>
-                
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="buttonLoadJSONFile">Load</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <script id="fileLoadingFileListTemplate" type="text/template">
-        <% _.each(sessions.slice().reverse(), function(session,index,list) { %>
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLoadJSON">Load remote JSON file</h4>
+              </div>
+              <div class="modal-body">
+                <form role="form" id="formLoadURL">
+                  <div class="input-group form-stretch">
+                    <div class="input-group-addon serverLocation"></div>
+                    <input type="text" class="form-control" placeholder="...path to file on server" id="JSONfilename">
+                  </div>
+                </form>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="buttonLoadJSONFile">Load</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script id="fileLoadingFileListTemplate" type="text/template">
+          <% _.each(sessions.slice().reverse(), function(session,index,list) { %>
             <div class="panel panel-session panel-info choice" data-id="<%= session.ID %>">
-                <div class="panel-heading">
-                    <button class="btn btn-default pull-right btn-xs destroy">
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </button>
-                    Session #<%= session.ID + 1%>
+              <div class="panel-heading">
+                <button class="btn btn-default pull-right btn-xs destroy">
+                  <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                </button>
+                Session #<%= session.ID + 1%>
+              </div>
+              <div class="panel-body">
+                <div class="panel panel-loading-list">
+                  <div class="panel-heading">Files</div>
+                  <div class="panel-body">
+                    <ul>
+                      <% _.each(session.bamFiles,function(bamFile,index,list) { %>
+                        <li>...<%= bamFile.file.slice(-80) %></li>
+                        <% }) %>
+                    </ul>
+                  </div>
                 </div>
-                <div class="panel-body">
-                    <div class="panel panel-loading-list">
-                        <div class="panel-heading">Files</div>
-                        <div class="panel-body">
-                            <ul>
-                                <% _.each(session.bamFiles,function(bamFile,index,list) { %>
-                                    <li>...<%= bamFile.file.slice(-80) %></li>
-                                <% }) %>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="panel panel-loading-list">
-                        <div class="panel-heading">Variants</div>
-                        <div class="panel-body">
-                            <% _.each(session.variants,function(variant,index,list) { %>
-                                <div class="col-md-3"><%= variant.chr + ":" + variant.loc %></div>
-                            <% }) %>
-                        </div>
-                    </div>
+                <div class="panel panel-loading-list">
+                  <div class="panel-heading">Variants</div>
+                  <div class="panel-body">
+                    <% _.each(session.variants,function(variant,index,list) { %>
+                      <div class="col-md-3"><%= variant.chr + ":" + variant.loc %></div>
+                      <% }) %>
+                  </div>
                 </div>
+              </div>
             </div>
-        <% }) %>
-    </script>
-
-    <script id="variantSelectTemplate" type="text/template">
-        <% _.each(sessions, function(session,sessionIndex,list) { %>
-            <div class="list-group list-group-session" data-id="<%= session.ID %>">
-                <a href="#" class="list-group-item active">
-                    <h4 class="list-group-item-heading">Session</h4>
-                    <p class="list-group-item-text">
-                        <ul>
-                            <% _.each(session.bamFiles, function(bamFile,bamIndex,list) { %>
-                                <li><%= bamFile.name %></li>
-                            <% }) %>
-                        </ul>
-                    </p>
-                </a>
-                <% _.each(session.variants,function(variant,variantIndex,list) { %>
-                    
-                    <a href="#" 
-                        class="list-group-item list-group-item-variant  <%= index === sessionIndex && session.index === variantIndex ? 'list-group-current-variant' : ''%>"
-                        data-id="<%= variantIndex %>"
-                    >
-                        <% if (variant.score !== 'not reviewed') { %>
-                            <span class="badge" style="background-color: <%= variant.colorCode[variant.score] %>">
-                                <%= variant.score %>
-                            </span>
-                        <% } %>
-                        <%= variant.chr %>:<%= variant.loc %>
-                    </a>
-                <% }) %>
-            </div>
-        <% }) %>
-    </script>
-
-    <script id="fileLoadingErrorListTemplate" type="text/template">
-        <div class="alert alert-danger alert-dismissible alert-file-loading" role="alert" id="fileLoadingAlert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <% _.each(errors,function(error,index,list) { %>
-                <%= error %><br>
             <% }) %>
-        </div>
-    </script>
-    </div>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script> 
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
-    <script language="javascript" src="js/main.js"></script>
+</script>
 
-    </body>
+<script id="variantSelectTemplate" type="text/template">
+  <% _.each(sessions, function(session,sessionIndex,list) { %>
+    <div class="list-group list-group-session" data-id="<%= session.ID %>">
+      <a href="#" class="list-group-item active">
+        <h4 class="list-group-item-heading">Session</h4>
+        <p class="list-group-item-text">
+          <ul>
+            <% _.each(session.bamFiles, function(bamFile,bamIndex,list) { %>
+              <li><%= bamFile.name %></li>
+              <% }) %>
+          </ul>
+        </p>
+      </a>
+      <% _.each(session.variants,function(variant,variantIndex,list) { %>
+
+        <a href="#" 
+        class="list-group-item list-group-item-variant  <%= index === sessionIndex && session.index === variantIndex ? 'list-group-current-variant' : ''%>"
+        data-id="<%= variantIndex %>"
+        >
+        <% if (variant.score !== 'not reviewed') { %>
+          <span class="badge" style="background-color: <%= variant.colorCode[variant.score] %>">
+            <%= variant.score %>
+          </span>
+          <% } %>
+          <%= variant.chr %>:<%= variant.loc %>
+        </a>
+        <% }) %>
+    </div>
+    <% }) %>
+</script>
+
+<script id="fileLoadingErrorListTemplate" type="text/template">
+  <div class="alert alert-danger alert-dismissible alert-file-loading" role="alert" id="fileLoadingAlert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <% _.each(errors,function(error,index,list) { %>
+      <%= error %><br>
+      <% }) %>
+  </div>
+</script>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script> 
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
+<script language="javascript" src="js/main.js"></script>
+
+</body>
 </html>
 

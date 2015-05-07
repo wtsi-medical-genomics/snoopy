@@ -1,5 +1,40 @@
 var styleSheets = 
 {
+    "raw": {
+        "styles": [
+            {
+                "type": "density",
+                "zoom": "low",
+                "style": {
+                    "glyph": "HISTOGRAM",
+                    "COLOR1": "black",
+                    "COLOR2": "red",
+                    "HEIGHT": 30
+                }
+            },
+            {
+                "type": "density",
+                "zoom": "medium",
+                "style": {
+                    "glyph": "HISTOGRAM",
+                    "COLOR1": "black",
+                    "COLOR2": "red",
+                    "HEIGHT": 30
+                }
+            },
+            {
+                "type": "bam",
+                "zoom": "high",
+                "style": {
+                    "glyph": "__SEQUENCE",
+                    "HEIGHT": 8,
+                    "BUMP": true,
+                    "LABEL": false,
+                    "ZINDEX": 20
+                }
+            }
+        ]
+    },
     "coverage": {
         "styles": [
             {
@@ -106,7 +141,7 @@ var styleSheets =
                     //"__INSERTIONS": "yes",
                     //"padding": 2,
                     "_minusColor": "#E8E8E8",
-                    "_plusColor": "#E8E8E8"
+                    "_plusColor": "#E8E8E8",
                 }
             }
         ]

@@ -45,7 +45,7 @@ $(function() {
                     defaultZoomLevel: 'unit',
                     autoZoom: true,
                     customZoom: false,
-                    defaultView: 'mismatch',
+                    dallianceView: 'mismatch',
                     plusColor: '#FFEBD7',
                     minusColor: '#BED8EA',
                     qcEncoding: {
@@ -85,7 +85,7 @@ $(function() {
             this.$modalDownloadQCreport = this.$app.find('#modalDownloadQCreport');
             this.$modalLoadRemote = this.$app.find('#modalLoadRemote');
             this.$modalSettings = this.$app.find('#modalSettings');
-            this.settingsTemplate = _.template($("#settingsTemplate").html());
+            //this.settingsTemplate = _.template($("#settingsTemplate").html());
             this.$fileLoadingFileListTarget = this.$app.find('#fileLoadingFileListTarget');
             this.fileLoadingFileListTemplate = _.template($("#fileLoadingFileListTemplate").html());
             this.$fileLoadingErrorListTarget = $("#fileLoadingErrorListTarget");
@@ -121,6 +121,16 @@ $(function() {
             //this.currentVariantTemplate = _.template($("#currentVariantTemplate").html());
             this.$currentVariantTarget = this.$app.find('#currentVariantTarget');
             this.$viewChoice = this.$app.find('.view-choice');
+
+            // settings
+            this.$settingsZoomLevelText = this.$app.find('#settingsZoomLevelText');
+            this.$settingsServerLocation = this.$app.find('#settingsServerLocation');
+            this.$settingsDefaultZoomLevel =this.$app.find('input:radio[name="defaultZoomLevel"]:checked');
+            this.$settingsAutoZoom = this.$app.find('#autoZoom');
+            this.$settingsDallianceView = this.$app.find('#selectTierStyle');
+            this.$settingsPlusColor = this.$app.find('#plusStrandColor');
+            this.$settingsMinusColor = this.$app.find('#minusStrandColor');
+
         },
 
         bindEvents: function() {
@@ -146,7 +156,7 @@ $(function() {
             this.$targetSettings.on('change', "#selectTierStyle", this.selectTierStyle.bind(this));
             this.$targetSettings.on('click', "#captureZoom", this.captureZoom.bind(this));
             this.$targetSettings.on('click', '#captureZoom', this.selectCustomZoom.bind(this));
-            this.$targetSettings.on('focus', '#zoomLevelText', this.selectCustomZoom.bind(this));
+            this.$targetSettings.on('focus', '#settingsZoomLevelText', this.selectCustomZoom.bind(this));
             
             this.$buttonLoadRemoteFile.on('click', this.loadRemoteFile.bind(this));
             this.$formLoadURL.submit(function(event) {
@@ -259,11 +269,11 @@ $(function() {
         },
         captureZoom: function() {
             console.log('captureZoom');
-            var $zoomLevelText = this.$targetSettings.find('#zoomLevelText'),
+            var $settingsZoomLevelText = this.$targetSettings.find('#settingsZoomLevelText'),
                 $zoomRadio = $('input:radio[name="defaultZoomLevel"]'),
                 cz = Math.round(b.viewEnd - b.viewStart);
 
-            $zoomLevelText.val(cz);  
+            $settingsZoomLevelText.val(cz);  
             //$("#defaultZoomLevel").prop("checked", true);
             $zoomRadio.filter('[value="custom"]').prop('checked', true);
         },
@@ -409,22 +419,25 @@ $(function() {
         },
         hideSettingsModal: function() {
 
-            var customZoom = this.$targetSettings.find('#zoomLevelText').val().trim() | 0;
-            customZoom /= this.browser.zoomBase  || 0; // browser may not exist at this point
-            
-            // User has not entered something sensible so assign something worthwhile
-            if (customZoom < 0)
-                customZoom = Math.exp(b.zoomMin/b.zoomExpt);
+            this.settings.serverLocation = this.$settingsServerLocation.val().trim();
+            if (this.view === 'dalliance') {
+                var customZoom = this.$settingsZoomLevelText.val().trim() | 0;
+                customZoom /= this.browser.zoomBase  || 0; // browser may not exist at this point
+                
+                // User has not entered something sensible so assign something worthwhile
+                if (customZoom < 0)
+                    customZoom = Math.exp(b.zoomMin/b.zoomExpt);
 
-            this.settings = {
-                serverLocation:   this.$targetSettings.find('#serverLocation').val().trim(),
-                defaultZoomLevel: $('input:radio[name="defaultZoomLevel"]:checked').val(),
-                autoZoom:         this.$targetSettings.find('#autoZoom').prop('checked'),
-                customZoom:       customZoom,
-                defaultView:      this.$targetSettings.find('#selectTierStyle').val(),
-                plusColor:        this.$targetSettings.find('#plusStrandColor').val(),
-                minusColor:       this.$targetSettings.find('#minusStrandColor').val()
-            };
+                this.settings = {
+                    defaultZoomLevel: this.$defaultZoomLevel.val(),
+                    autoZoom:         this.$autoZoom.prop('checked'),
+                    customZoom:       customZoom,
+                    dallianceView:    this.$dallianceView.val(),
+                    plusColor:        this.$plusColor.val(),
+                    minusColor:       this.$minusColor.val()
+                };
+            }
+
             console.log(this.settings);
             //     //     defaultView: 'mismatch',
             //     //     plusColor: '#FFEBD7',
@@ -470,15 +483,27 @@ $(function() {
         showSettingsModal: function() {
             console.log('in showSettingsModal');
             console.log(this.settings);
-            this.$targetSettings.html(this.settingsTemplate({
-                    settings: this.settings,
-                    zoomLevel: this.settings.customZoom * this.browser.zoomBase || 0,
-                    view: this.view
-                }));
+            // this.$targetSettings.html(this.settingsTemplate({
+            //         settings: this.settings,
+            //         zoomLevel: this.settings.customZoom * this.browser.zoomBase || 0,
+            //         view: this.view
+            //     }));
 
             //$("#zoomLevelText").val(b.zoomBase * this.settings.currentZoom);
 
-
+            this.$settingsServerLocation.val(this.settings.serverLocation);
+            this.$settingsDefaultZoomLevel.val(this.settings.defaultZoomLevel);
+            this.$settingsAutoZoom.prop('checked', this.settings.autoZoom);
+            this.$settingsDallianceView.val(this.settings.dallianceView);
+            this.$settingsPlusColor.val(this.settings.plusColor);
+            this.$settingsMinusColor.val(this.settings.minusColor);
+            
+            // defaultZoomLevel: 'unit',
+            // autoZoom: true,
+            // customZoom: false,
+            // dallianceView: 'mismatch',
+            // plusColor: '#FFEBD7',
+            // minusColor: '#BED8EA',
             //$("#captureZoom").click(function() {
             //    $("#defaultZoomLevelCurrent").prop("checked", true);
              //   var cz = Math.round(b.viewEnd - b.viewStart);
@@ -561,7 +586,7 @@ $(function() {
         },
         changeView: function(e) {
             var v = $(e.target).data('value');
-            app.settings.defaultView = v;
+            app.settings.dallianceView = v;
             this.sessions.refreshStyles();
         },
         loadDalliance: function() {
@@ -625,6 +650,7 @@ $(function() {
                 disableDefaultFeaturePopup : true,
                 noPersist : true,
                 noPersistView : true,
+                noClearHighlightsButton: true,
                 // sources: [
                 //     this.referenceGenome
                 // ],

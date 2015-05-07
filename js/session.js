@@ -68,9 +68,9 @@ Session.prototype.loadTiers = function() {
     app.browser.removeAllTiers();
     app.browser.addTier(app.referenceGenome);
     for (var i=0; i < this.bamFiles.length; ++i) {
-        var style = styleSheets[app.settings.defaultView]['styles'];
+        var style = styleSheets[app.settings.dallianceView]['styles'];
         var bamTier = this.bamFiles[i].getTier(style);
-        if (app.settings.defaultView === 'condensed')
+        if (app.settings.dallianceView === 'condensed')
             bamTier.padding = 0;
         if (bamTier) { 
             app.browser.addTier(bamTier);
@@ -82,11 +82,11 @@ Session.prototype.loadTiers = function() {
 Session.prototype.refreshStyles = function() {
     // get styles and update each tier
     for (var i=1; i<app.browser.tiers.length; ++i) {
-        var style = styleSheets[app.settings.defaultView];
+        var style = styleSheets[app.settings.dallianceView];
         console.log(app.browser.tiers[i]);
         console.log(style);
         app.browser.tiers[i].setStylesheet(style);
-        if (app.settings.defaultView === 'condensed')
+        if (app.settings.dallianceView === 'condensed')
             app.browser.tiers[i].padding = 0;
         console.log('app.browser.tiers[i].padding: ' + app.browser.tiers[i].padding);
     }
