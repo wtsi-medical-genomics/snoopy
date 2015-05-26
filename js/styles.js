@@ -30,7 +30,9 @@ var styleSheets =
                     "HEIGHT": 8,
                     "BUMP": true,
                     "LABEL": false,
-                    "ZINDEX": 20
+                    "ZINDEX": 20,
+                    "__disableQuals": true,
+                    "__INSERTIONS": false,
                 }
             }
         ]
@@ -99,7 +101,9 @@ var styleSheets =
                     "LABEL": false,
                     "ZINDEX": 20,
                     "__SEQCOLOR": "mismatch",
-                    "__INSERTIONS": "yes"
+                    "__INSERTIONS": false,
+                    "_minusColor": "#87CEFA",
+                    "_plusColor": "#FFA07A",
                 }
             }
         ]

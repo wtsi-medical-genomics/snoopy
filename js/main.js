@@ -1,13 +1,9 @@
-"use strict";
-
-// var displaySettings = [];
-// mismatch.styles[2].style._plusColor = settings.plusColor;
-// mismatch.styles[2].style._minusColor = settings.minusColor;
-var app, utils;
-
-
+var app = app || {},
+utils = utils || {};
 
 $(function() {
+    "use strict";
+    
     utils = {
         getExtension: function(f) {
             if (typeof(f) !== "string") {
@@ -40,20 +36,62 @@ $(function() {
             // if (storedSettings) {
             //     this.settings = JSON.parse(storedSettings);
             // } else {
-                this.settings = {
-                    serverLocation: 'https://web-lustre-01.internal.sanger.ac.uk/',
-                    defaultZoomLevel: 'unit',
-                    autoZoom: true,
-                    customZoom: false,
-                    dallianceView: 'mismatch',
-                    plusColor: '#FFEBD7',
-                    minusColor: '#BED8EA',
-                    qcEncoding: {
-                        'not variant': 'not variant',
-                        'uncertain': 'uncertain',
-                        'variant': 'variant'
-                    }
-                }
+            this.settings = {
+                serverLocation: 'https://web-lustre-01.internal.sanger.ac.uk/',
+                defaultZoomLevel: 'unit',
+                autoZoom: true,
+                customZoom: false,
+                dallianceView: 'mismatch',
+                colors: {
+                    A: '#008000', 
+                    C: '#0000FF', 
+                    G: '#FFA500', 
+                    T: '#FF0000', 
+                    '-': '#FF69B4', 
+                    I: '#800080'
+                },
+                styles: styleSheets,
+                // styles: {
+                //     raw: {
+                //         colors: {
+                //             A: 'green', 
+                //             C: 'blue', 
+                //             G: 'orange', 
+                //             T: 'red',
+                //             D : 'hotpink',
+                //             I : 'red'
+                //         },
+                //         disableQuals: false,
+                //         insertions: false
+                //     },
+                //     mismatch: {
+                //         colors: {
+                //             plus: '#FFEBD7',
+                //             minus: '#BED8EA'
+                //         },
+                //         disableQuals: false,
+                //         insertions: false
+                //     },
+                //     condensed: {
+                //         colors: {
+                //             matches: 'lightgrey',
+                //             D: 'hotpink',
+                //             I: 'red'
+                //         },
+                //         disableQuals: true
+                //     },
+                //     coverage: {
+                //         threshold: 2,
+                //         height: 120
+                //     }
+                // },
+                qcEncoding: {
+                    'not variant': 'not variant',
+                    'uncertain': 'uncertain',
+                    'variant': 'variant'
+                },
+                coverageThreshold: 0.2
+            }
             //}
 
             this.referenceGenome = {
@@ -126,10 +164,26 @@ $(function() {
             this.$settingsZoomLevelText = this.$app.find('#settingsZoomLevelText');
             this.$settingsServerLocation = this.$app.find('#settingsServerLocation');
             this.$settingsDefaultZoomLevel =this.$app.find('input:radio[name="defaultZoomLevel"]:checked');
-            this.$settingsAutoZoom = this.$app.find('#autoZoom');
+            this.$settingsAutoZoom = this.$app.find('#settingsAutoZoom');
             this.$settingsDallianceView = this.$app.find('#selectTierStyle');
-            this.$settingsPlusColor = this.$app.find('#plusStrandColor');
-            this.$settingsMinusColor = this.$app.find('#minusStrandColor');
+            this.$settingsA = this.$app.find('#settingsA');
+            this.$settingsC = this.$app.find('#settingsC');
+            this.$settingsG = this.$app.find('#settingsG');
+            this.$settingsT = this.$app.find('#settingsT');
+            this.$settingsI = this.$app.find('#settingsI');
+            this.$settingsD = this.$app.find('#settingsD');
+            this.$settingsRawShowInsertions = this.$app.find('#settingsRawShowInsertions');
+            this.$settingsRawEnableQuals = this.$app.find('#settingsRawEnableQuals');
+            this.$settingsMismatchPlusStrandColor = this.$app.find('#settingsMismatchPlusStrandColor');
+            this.$settingsMismatchMinusStrandColor = this.$app.find('#settingsMismatchMinusStrandColor');
+            this.$settingsMismatchShowInsertions = this.$app.find('#settingsMismatchShowInsertions');
+            this.$settingsMismatchEnableQuals = this.$app.find('#settingsMismatchEnableQuals');
+            this.$settingsCondensedMatchColor = this.$app.find('#settingsCondensedMatchColor');
+            // this.$settingsCondensedD = this.$app.find('#settingsCondensedD');
+            // this.$settingsCondensedI = this.$app.find('#settingsCondensedI');
+            this.$settingsCondensedEnableQuals = this.$app.find('#settingsCondensedEnableQuals');
+            this.$settingsCoverageThreshold = this.$app.find('#settingsCoverageThreshold');
+            this.$settingsCoverageHeight = this.$app.find('#settingsCoverageHeight');
 
         },
 
@@ -150,6 +204,7 @@ $(function() {
             this.$buttonShowRemoteFileModal.on('click', this.showRemoteFileModal.bind(this));
             this.$buttonShowLoadRemoteFileModal.on('click', this.showLoadRemoteFileModal.bind(this));
 
+            this.$buttonGoManual.on('click', this.goManual.bind(this));
             this.$buttonGoBatch.on('click', this.goBatch.bind(this));
             this.$modalSettings.on('hidden.bs.modal', this.hideSettingsModal.bind(this));
             this.$modalSettings.on('show.bs.modal', this.showSettingsModal.bind(this));
@@ -188,6 +243,12 @@ $(function() {
                         }.bind(this)
                 }
             }
+        },
+        goManual: function () {
+            this.mode = 'manual';
+            this.$sectionPickMode.hide()
+            this.$sectionLoadFiles.show()
+            this.$sectionLoadFiles.find('.title').html('Manual Mode');
         },
         goBatch: function() {
             this.mode = 'batch';
@@ -271,7 +332,7 @@ $(function() {
             console.log('captureZoom');
             var $settingsZoomLevelText = this.$targetSettings.find('#settingsZoomLevelText'),
                 $zoomRadio = $('input:radio[name="defaultZoomLevel"]'),
-                cz = Math.round(b.viewEnd - b.viewStart);
+                cz = Math.round(app.browser.viewEnd - app.browser.viewStart);
 
             $settingsZoomLevelText.val(cz);  
             //$("#defaultZoomLevel").prop("checked", true);
@@ -383,7 +444,7 @@ $(function() {
 
                     //s.variantFile = new RemoteVariantFile(this.settings.serverLocation + );
                     for (var bi=0; bi<sessions[i]["bams"].length; bi++) {
-                        var newBam = new RemoteBAM(this.settings.serverLocation + sessions[i]["bams"][bi]);
+                        var newBam = new RemoteBAM(sessions[i]["bams"][bi]);
                         s.bamFiles.push(newBam);
                     }
                     this.sessions.sessions.push(s);
@@ -416,99 +477,6 @@ $(function() {
             console.log('inside renderVariantList and here is the html ' + html)
             this.$currentVariantTarget.html(html);
             this.$variantListTarget.html(this.variantSelectTemplate(this.sessions));
-        },
-        hideSettingsModal: function() {
-
-            this.settings.serverLocation = this.$settingsServerLocation.val().trim();
-            if (this.view === 'dalliance') {
-                var customZoom = this.$settingsZoomLevelText.val().trim() | 0;
-                customZoom /= this.browser.zoomBase  || 0; // browser may not exist at this point
-                
-                // User has not entered something sensible so assign something worthwhile
-                if (customZoom < 0)
-                    customZoom = Math.exp(b.zoomMin/b.zoomExpt);
-
-                this.settings = {
-                    defaultZoomLevel: this.$defaultZoomLevel.val(),
-                    autoZoom:         this.$autoZoom.prop('checked'),
-                    customZoom:       customZoom,
-                    dallianceView:    this.$dallianceView.val(),
-                    plusColor:        this.$plusColor.val(),
-                    minusColor:       this.$minusColor.val()
-                };
-            }
-
-            console.log(this.settings);
-            //     //     defaultView: 'mismatch',
-            //     //     plusColor: '#FFEBD7',
-            //     //     minusColor: '#BED8EA',
-            //     // }
-
-            // // this.settings = {
-            // //     serverLocation: 
-            //     defaultZoomLevelUnit = $("#defaultZoomLevelUnit").prop("checked");
-            // this.settings.autoZoom = $("#autoZoom").prop("checked"); 
-            // this.settings.plusColor = $("#plusStrandColor").val();
-            // this.settings.minusColor = $("#minusStrandColor").val();
-
-            // if(!this.settings.defaultZoomLevelUnit) {
-            //     var w = $("#zoomLevelText").val() | 0; // don't worry about type, it will be caught below
-            //     if (w <= 0) { // if the user has not entered a sensible value use b.zoomMin
-            //     this.settings.currentZoom = Math.exp(b.zoomMin/b.zoomExpt);
-            //     this.settings.defaultZoomLevelUnit = true;
-            //     } else {
-            //         settings.currentZoom = w / b.zoomBase; 
-            //     }
-            // }
-
-            // for (var i=1; i<b.tiers.length; ++i) { 
-            //     var cs = $("#displaySelect" + (i - 1)).val(); 
-            //     console.log(cs);
-            //     if(cs === "mismatch") {
-            //         //b.tiers[i].init();
-            //         b.tiers[i].setStylesheet(mismatch);
-            //         displaySettings[i - 1] = "mismatch";
-            //     } else {
-            //         b.tiers[i].setStylesheet(baseCoverage);
-            //         displaySettings[i - 1] = "coverage";
-            //     }
-            //     b.tiers[i].stylesheet.styles[2].style._plusColor = settings.plusColor;
-            //     b.tiers[i].stylesheet.styles[2].style._minusColor = settings.minusColor;
-            // }
-            // setTimeout(function(){b.refresh()}, 1000);
-
-            // this.settings.defaultView = displaySettings[0];
-            // localStorage.setItem("snoopySettings", JSON.stringify(this.settings));
-        },
-        showSettingsModal: function() {
-            console.log('in showSettingsModal');
-            console.log(this.settings);
-            // this.$targetSettings.html(this.settingsTemplate({
-            //         settings: this.settings,
-            //         zoomLevel: this.settings.customZoom * this.browser.zoomBase || 0,
-            //         view: this.view
-            //     }));
-
-            //$("#zoomLevelText").val(b.zoomBase * this.settings.currentZoom);
-
-            this.$settingsServerLocation.val(this.settings.serverLocation);
-            this.$settingsDefaultZoomLevel.val(this.settings.defaultZoomLevel);
-            this.$settingsAutoZoom.prop('checked', this.settings.autoZoom);
-            this.$settingsDallianceView.val(this.settings.dallianceView);
-            this.$settingsPlusColor.val(this.settings.plusColor);
-            this.$settingsMinusColor.val(this.settings.minusColor);
-            
-            // defaultZoomLevel: 'unit',
-            // autoZoom: true,
-            // customZoom: false,
-            // dallianceView: 'mismatch',
-            // plusColor: '#FFEBD7',
-            // minusColor: '#BED8EA',
-            //$("#captureZoom").click(function() {
-            //    $("#defaultZoomLevelCurrent").prop("checked", true);
-             //   var cz = Math.round(b.viewEnd - b.viewStart);
-              //  $("#zoomLevelText").val(cz);
-            //});
         },
 
         loadJSONFile2: function () {
@@ -619,6 +587,7 @@ $(function() {
             $("#fileLoader").css("display", "none");
             $("#controlCenter, #progressBar").css("display", "block");
             $("#my-dalliance-holder").css("opacity", "1");
+            this.view = 'dalliance'
             this.sessions.index = 0;
             //this.renderVariantList();
 
@@ -628,11 +597,11 @@ $(function() {
                 viewEnd:      30000100,
                 cookieKey:    'human-grc_h37',
                 coordSystem: {
-                speciesName: 'Human',
-                taxon: 9606,
-                auth: 'GRCh',
-                version: '37',
-                ucscName: 'hg19'
+                    speciesName: 'Human',
+                    taxon: 9606,
+                    auth: 'GRCh',
+                    version: '37',
+                    ucscName: 'hg19'
                 },
                 singleBaseHighlight : false,
                 defaultHighlightFill : 'black',
@@ -658,7 +627,20 @@ $(function() {
                     //uiPrefix: 'file:///Users/dr9/Developer/snoopy/dalliance/',
                 fullScreen: true,
             });
-            this.sessions.init();
+            this.browser.addInitListener(function() {
+                this.sessions.init()
+            }.bind(this));
+
+            // this.browser.addViewListener(function(chr, min, max) {
+            //     console.log(chr + ':' + min + '-' + max);
+            //     if (this.settings.autoZoom) {
+            //         if (this.settings.defaultZoomLevel === 'unit') { 
+            //             this.browser.zoomStep(-1000000);
+            //         } else {
+            //             this.browser.zoom(this.settings.customZoom);
+            //         }
+            //     }
+            // }.bind(this));
         },
         variantSelected: function(e) {
             this.$modalVariantSelect.modal('hide');
@@ -674,6 +656,157 @@ $(function() {
 
             this.sessions.goto(sessionIndex, variantIndex);
         },
+        hideSettingsModal: function() {
+            // Regardless of where the app is currently at, we can always set the serverLocation
+            this.settings.serverLocation = this.$settingsServerLocation.val().trim();
+            
+            if (this.view === 'dalliance') {
+                var customZoom = this.$settingsZoomLevelText.val().trim() | 0;
+                customZoom /= this.browser.zoomBase  || 0; // browser may not exist at this point
+                
+                // User has not entered something sensible so assign something worthwhile
+                if (customZoom < 0)
+                    customZoom = Math.exp(b.zoomMin/b.zoomExpt);
+                
+                this.settings.defaultZoomLevel = $('input[name=defaultZoomLevel]:checked').val();
+                this.settings.autoZoom = this.$settingsAutoZoom.prop('checked');
+                this.settings.customZoom = customZoom;
+                //this.settings.dallianceView = this.$settingsDallianceView.val();
+                this.settings.colors = {
+                    A: this.$settingsA.val(), 
+                    C: this.$settingsC.val(), 
+                    G: this.$settingsG.val(), 
+                    T: this.$settingsT.val(),
+                    '-': this.$settingsD.val(),
+                    I: this.$settingsI.val()
+                };
+
+                this.settings.styles.raw.styles[2].style.__INSERTIONS = this.$settingsRawShowInsertions.prop('checked');
+                this.settings.styles.raw.styles[2].style.__disableQuals = !this.$settingsRawEnableQuals.prop('checked');
+                
+                this.settings.styles.mismatch.styles[2].style._plusColor = this.$settingsMismatchPlusStrandColor.val();
+                this.settings.styles.mismatch.styles[2].style._minusColor = this.$settingsMismatchMinusStrandColor.val();
+                this.settings.styles.mismatch.styles[2].style.__INSERTIONS = this.$settingsMismatchShowInsertions.prop('checked');
+                this.settings.styles.mismatch.styles[2].style.__disableQuals = !this.$settingsMismatchEnableQuals.prop('checked');
+                
+                // In this view both plus and minus strand are the same color but so only need to set one.
+                this.settings.styles.condensed.styles[2].style._plusColor = this.$settingsCondensedMatchColor.val();
+                this.settings.styles.condensed.styles[2].style._minusColor = this.$settingsCondensedMatchColor.val();
+                console.log('here')
+                this.settings.styles.condensed.styles[2].style.__disableQuals = !this.$settingsCondensedEnableQuals.prop('checked');
+                
+                this.settings.coverageThreshold = this.$settingsCoverageThreshold.val().trim();
+                this.settings.styles.coverage.styles[2].style.HEIGHT = this.$settingsCoverageHeight.val().trim();
+                this.sessions.refreshStyles();
+            }
+            
+
+            console.log(this.settings);
+            //     //     defaultView: 'mismatch',
+            //     //     plusColor: '#FFEBD7',
+            //     //     minusColor: '#BED8EA',
+            //     // }
+
+            // // this.settings = {
+            // //     serverLocation: 
+            //     defaultZoomLevelUnit = $("#defaultZoomLevelUnit").prop("checked");
+            // this.settings.autoZoom = $("#autoZoom").prop("checked"); 
+            // this.settings.plusColor = $("#plusStrandColor").val();
+            // this.settings.minusColor = $("#minusStrandColor").val();
+
+            // if(!this.settings.defaultZoomLevelUnit) {
+            //     var w = $("#zoomLevelText").val() | 0; // don't worry about type, it will be caught below
+            //     if (w <= 0) { // if the user has not entered a sensible value use b.zoomMin
+            //     this.settings.currentZoom = Math.exp(b.zoomMin/b.zoomExpt);
+            //     this.settings.defaultZoomLevelUnit = true;
+            //     } else {
+            //         settings.currentZoom = w / b.zoomBase; 
+            //     }
+            // }
+
+            // for (var i=1; i<b.tiers.length; ++i) { 
+            //     var cs = $("#displaySelect" + (i - 1)).val(); 
+            //     console.log(cs);
+            //     if(cs === "mismatch") {
+            //         //b.tiers[i].init();
+            //         b.tiers[i].setStylesheet(mismatch);
+            //         displaySettings[i - 1] = "mismatch";
+            //     } else {
+            //         b.tiers[i].setStylesheet(baseCoverage);
+            //         displaySettings[i - 1] = "coverage";
+            //     }
+            //     b.tiers[i].stylesheet.styles[2].style._plusColor = settings.plusColor;
+            //     b.tiers[i].stylesheet.styles[2].style._minusColor = settings.minusColor;
+            // }
+            // setTimeout(function(){b.refresh()}, 1000);
+
+            // this.settings.defaultView = displaySettings[0];
+            // localStorage.setItem("snoopySettings", JSON.stringify(this.settings));
+        },
+        showSettingsModal: function() {
+            console.log('in showSettingsModal');
+            console.log(this.settings);
+            // this.$targetSettings.html(this.settingsTemplate({
+            //         settings: this.settings,
+            //         zoomLevel: this.settings.customZoom * this.browser.zoomBase || 0,
+            //         view: this.view
+            //     }));
+
+            //$("#zoomLevelText").val(b.zoomBase * this.settings.currentZoom);
+
+            this.$settingsServerLocation.val(this.settings.serverLocation);
+            // this.$settingsDefaultZoomLevel.val(this.settings.defaultZoomLevel);
+            $('input[name=defaultZoomLevel][value=' + this.settings.defaultZoomLevel + ']').prop('checked', true);
+            this.$settingsAutoZoom.prop('checked', this.settings.autoZoom);
+            //this.$settingsDallianceView.val(this.settings.dallianceView);
+            //this.$settingsZoomLevelText.val(this.settings.customZoom * this.browser.zoomBase || 0);
+            
+            // This needs to be taken out of the stylesheet and straight into settings.
+            // TODO: amend index.html
+            this.$settingsA.val(this.settings.colors.A);
+            this.$settingsC.val(this.settings.colors.C);
+            this.$settingsG.val(this.settings.colors.G);
+            this.$settingsT.val(this.settings.colors.T);
+            this.$settingsI.val(this.settings.colors.I);
+            this.$settingsD.val(this.settings.colors['-']);
+
+            this.$settingsRawShowInsertions.prop('checked', this.settings.styles.raw.styles[2].style.__INSERTIONS);
+            this.$settingsRawEnableQuals.prop('checked', !this.settings.styles.raw.styles[2].style.__disableQuals);
+            
+            this.$settingsMismatchPlusStrandColor.val(this.settings.styles.mismatch.styles[2].style._plusColor);
+            this.$settingsMismatchMinusStrandColor.val(this.settings.styles.mismatch.styles[2].style._minusColor);
+            this.$settingsMismatchShowInsertions.prop('checked', this.settings.styles.mismatch.styles[2].style.__INSERTIONS);
+            this.$settingsMismatchEnableQuals.prop('checked', !this.settings.styles.mismatch.styles[2].style.__disableQuals);
+            
+            // In this view both plus and minus strand are the same color but so only need to set one.
+            this.$settingsCondensedMatchColor.val(this.settings.styles.condensed.styles[2].style._plusColor);
+            // These are set straight in the settings rather than in a stylesheet.
+            // this.$settingsCondensedD.val(this.settings.styles.condensed.colors.D);
+            // this.$settingsCondensedI.val(this.settings.styles.condensed.colors.I);
+            this.$settingsCondensedEnableQuals.prop('checked', !this.settings.styles.condensed.styles[2].style.__disableQuals);
+            
+            // NEXT
+            this.$settingsCoverageThreshold.val(this.settings.coverageThreshold);
+            this.$settingsCoverageHeight.val(this.settings.styles.coverage.styles[2].style.HEIGHT);
+            
+                    // qcEncoding: {
+                    //     'not variant': 'not variant',
+                    //     'uncertain': 'uncertain',
+                    //     'variant': 'variant'
+                    // }
+
+            // defaultZoomLevel: 'unit',
+            // autoZoom: true,
+            // customZoom: false,
+            // dallianceView: 'mismatch',
+            // plusColor: '#FFEBD7',
+            // minusColor: '#BED8EA',
+            //$("#captureZoom").click(function() {
+            //    $("#defaultZoomLevelCurrent").prop("checked", true);
+             //   var cz = Math.round(b.viewEnd - b.viewStart);
+              //  $("#zoomLevelText").val(cz);
+            //});
+        }
     }
     app.init();
 });

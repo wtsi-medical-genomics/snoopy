@@ -68,11 +68,20 @@ function RemoteBAM(file) {
 RemoteBAM.prototype = new BAM;
 
 RemoteBAM.prototype.getTier = function(style) {
-    this.tier["bamURI"] = this.file;
-    this.tier["name"] = this.name;
-    this.tier["credentials"] = true;
-    this.tier["style"] = style;
+    // Determine if this file needs to be accessed via SSH.
+    var re_ssh = /^\w+@.+:.+$/; 
+    var match  = re_ssh.exec(this.file);
+    if (match) {
+        this.tier["samURI"] = window.location.origin + '/' + this.file;
+        this.tier["tier_type"] = 'samserver';
+    } else {
+        this.tier["bamURI"] = this.file;
+        this.tier["credentials"] = true;
+
+    }
     this.tier["padding"] = 0;
+    this.tier["name"] = app.settings.serverLocation + this.name;
+    this.tier["style"] = style;
     this.tier["scaleVertical"] = true;
     return this.tier;
 }

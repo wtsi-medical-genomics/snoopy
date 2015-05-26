@@ -66,9 +66,10 @@ Session.prototype.reload = function(variantIndex) {
 
 Session.prototype.loadTiers = function() {
     app.browser.removeAllTiers();
+    app.browser.baseColors = app.settings.colors;
     app.browser.addTier(app.referenceGenome);
     for (var i=0; i < this.bamFiles.length; ++i) {
-        var style = styleSheets[app.settings.dallianceView]['styles'];
+        var style = app.settings.styles[app.settings.dallianceView].styles;
         var bamTier = this.bamFiles[i].getTier(style);
         if (app.settings.dallianceView === 'condensed')
             bamTier.padding = 0;
@@ -81,8 +82,9 @@ Session.prototype.loadTiers = function() {
 
 Session.prototype.refreshStyles = function() {
     // get styles and update each tier
+    app.browser.baseColors = app.settings.colors;
     for (var i=1; i<app.browser.tiers.length; ++i) {
-        var style = styleSheets[app.settings.dallianceView];
+        var style = app.settings.styles[app.settings.dallianceView];
         console.log(app.browser.tiers[i]);
         console.log(style);
         app.browser.tiers[i].setStylesheet(style);
@@ -183,13 +185,13 @@ Session.prototype.variantHTML = function() {
 
 Session.prototype.gotoCurrentVariant = function() {
     this.variants[this.index].visit();
-    if (app.settings.autoZoom) {
-        if (app.settings.defaultZoomLevel) { 
-            app.browser.zoomStep(-1000000);
-        } else {
-            app.browser.zoom(app.settings.currentZoom);
-        }
-    }
+    // if (app.settings.autoZoom) {
+    //     if (app.settings.defaultZoomLevel === 'unit') { 
+    //         app.browser.zoomStep(-1000000);
+    //     } else {
+    //         app.browser.zoom(app.settings.customZoom);
+    //     }
+    // }
     console.log('sending variants to the variant list template');
     app.renderVariantList(this.variants[this.index].html());
     //document.getElementById("variantSelect").value = this.current;
@@ -261,6 +263,7 @@ Sessions.prototype.load = function(sessionIndex, variantIndex) {
 
 /** This method is called upon starting QC */
 Sessions.prototype.init = function() {
+    console.log(this);
     this.index = 0;
     this.sessions[this.index].index = 0;
     this.sessions[this.index].loadTiers();

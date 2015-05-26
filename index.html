@@ -409,35 +409,43 @@
                       <input type="checkbox" id="settingsAutoZoom">
                       <label for="settingsAutoZoom">Automatically zoom to default level when visiting new candidate variant</label>
                     </dd>
+                    <dt>Color settings</dt>
+                    <dd>
+                      <input type="color" id="settingsA"> A<br>
+                      <input type="color" id="settingsC"> C<br>
+                      <input type="color" id="settingsG"> G<br>
+                      <input type="color" id="settingsT"> T<br>
+                      <input type="color" id="settingsI"> Insertion<br>
+                      <input type="color" id="settingsD"> Deletion<br>
+                    </dd>
                     <dt>Raw style</dt>
                     <dd>
-                      <input type="color" id="a"> A color<br>
-                      <input type="color" id="a"> C color<br>
-                      <input type="color" id="g"> G color<br>
-                      <input type="color" id="t"> T color<br>
-                      <input type="color" id="i"> Insertion color<br>
-                      <input type="color" id="d"> Deletion color<br>
-                      <input type="checkbox" id="settingsCondensedShowQual">
-                      <label for="settingsCondensedShowQual">Reflect base quality with transparency
+                      <input type="checkbox" id="settingsRawShowInsertions">
+                      <label for="settingsRawShowInsertions">Show insertions</label><br>
+                      <input type="checkbox" id="settingsRawEnableQuals">
+                      <label for="settingsRawEnableQuals">Reflect base quality with transparency</label>
                     </dd>
                     <dt>Mismatch style</dt>
                     <dd>
-                      <input type="color" id="settingsPlusStrandColor"> Plus strand color<br>
-                      <input type="color" id="settingsMinusStrandColor"> Minus strand color
-                      <input type="checkbox" id="settingsCondensedShowQual"><br>
-                      <label for="settingsCondensedShowQual">Reflect base quality with transparency
+                      <input type="color" id="settingsMismatchPlusStrandColor"> Plus strand color<br>
+                      <input type="color" id="settingsMismatchMinusStrandColor"> Minus strand color<br>
+                      <input type="checkbox" id="settingsMismatchShowInsertions">
+                      <label for="settingsMismatchShowInsertions">Show insertions</label><br>
+                      <input type="checkbox" id="settingsMismatchEnableQuals">
+                      <label for="settingsMismatchEnableQuals">Reflect base quality with transparency</label>
                     </dd>
                     <dt>Condensed style</dt>
                     <dd>
-                      <input type="color" id="settingsMatchColor"> Match color<br>
-                      <input type="checkbox" id="settingsCondensedShowQual">
-                      <label for="settingsCondensedShowQual">Reflect base quality with transparency
+                      <input type="color" id="settingsCondensedMatchColor"> Match color<br>
+                      <input type="checkbox" id="settingsCondensedEnableQuals">
+                      <label for="settingsCondensedEnableQuals">Reflect base quality with transparency</label>
                     </dd>
                     <dt>Coverage histogram style</dt>
-                    <dd id="coverageOptions">
-                      Some coverage option
+                    <dd>
+                      <input type="text" id="settingsCoverageThreshold"> Allele threshold (between 0 and 1)<br>
+                      <input type="text" id="settingsCoverageHeight"> Height
                     </dd>
-                  </div> 
+                  </div>
                 </dl>
               </div>
               <div class="modal-footer">
@@ -549,6 +557,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js"></script>
 <script language="javascript" src="js/main.js"></script>
+<script language="javascript" src="js/settings.js"></script>
 
 </body>
 </html>
