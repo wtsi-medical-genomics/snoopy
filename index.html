@@ -455,6 +455,93 @@
           </div>
         </div>
 
+      <div class="modal fade" id="modalLoadFile" tabindex="-1" role="dialog" aria-labelledby="myModalLoadFile" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class=
+                "sr-only">Close</span></button>
+                <h4 class="modal-title">
+                  Load File
+                </h4>
+              </div>
+              <div class="modal-body" id="targetSettings">          
+                <div role="tabpanel">
+                  <!-- Nav tabs -->
+                  <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#http" aria-controls="http" role="tab" data-toggle="tab">HTTP/S</a></li>
+                    <li role="presentation"><a href="#local-machine" aria-controls="local-machibne" role="tab" data-toggle="tab">Local Machine</a></li>
+                    <li role="presentation"><a href="#local-server" aria-controls="local-server" role="tab" data-toggle="tab">Local Server</a></li>
+                    <li role="presentation"><a href="#ssh-bridge" aria-controls="ssh-bridge" role="tab" data-toggle="tab">SSH-Bridge</a></li>
+                  </ul>
+                  <!-- Tab panes -->
+                  <div class="tab-content" style="background-color: white;">
+                    <div role="tabpanel" class="tab-pane active" id="http">
+                      <p>
+                        Load a file that resides on a remote server and can be accessed via HTTP/S. 
+                        <form role="form">
+                          <div class="input-group form-stretch">
+                            <div class="input-group-addon serverLocation"></div>
+                            <input type="text" class="form-control" placeholder="...path to file on server" id="httpPath">
+                          </div>
+                        </form>
+                      </p>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="loadHTTP">Load</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                      </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="local-machine">
+                      <p>
+                        Load a file that exists on your local machine (e.g. hard drive)
+                        <div class="btn-group" id="buttonLoadLocalFileButton">
+                          <div class="file-input btn btn-default btn-file">
+                            <span class="glyphicon glyphicon-floppy-disk"></span>Load Local File(s)<input type="file" multiple id="localMachineFile">
+                          </div>
+                        </div>
+                      </p>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="loadLocalMachine">Load</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="local-server">
+                      <p>
+                        Load a file that exists on a local server that you've started.
+                        <form role="form">
+                          <div class="input-group form-stretch">
+                            <div class="input-group-addon serverLocation"></div>
+                            <input type="text" class="form-control" placeholder="...path to file on server" id="localServerPath">
+                          </div>
+                        </form>
+                      </p>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="loadLocalServer">Load</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                      </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="ssh-bridge">
+                      <p>
+                        Load a file that exists on a local server that cannot be accessed via HTTP/S. To use this option, an ssh-bridge server must have been started on your local machine.
+                        <form role="form">
+                          <div class="input-group form-stretch">
+                            <div class="input-group-addon serverLocation"></div>
+                            <input type="text" class="form-control" placeholder="...path to file on server" id="sshPath">
+                          </div>
+                        </form>
+                      </p>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-primary" data-dismiss="modal" id="loadSSH">Load</button>
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
 
         <div class="modal fade" id="modalLoadURL" tabindex="-1" role="dialog" aria-labelledby="myModalLoadURL" aria-hidden="true">
           <div class="modal-dialog modal-lg">
@@ -479,6 +566,7 @@
             </div>
           </div>
         </div>
+
 
         <script id="fileLoadingFileListTemplate" type="text/template">
           <% _.each(sessions.slice().reverse(), function(session,index,list) { %>

@@ -156,7 +156,20 @@ $(function() {
             this.$variantListTarget = this.$app.find('#variantListTarget');
             this.$qcDecision = this.$app.find('#qcDecision');
 
-            //this.currentVariantTemplate = _.template($("#currentVariantTemplate").html());
+            this.$modalLoadFile = this.$app.find('#modalLoadFile');
+
+            // file loading dialogue
+            this.$loadHTTP = this.$app.find('#loadHTTP');
+            this.$loadLocalMachine = this.$app.find('#loadLocalMachine');
+            this.$loadLocalServer = this.$app.find('#loadLocalServer');
+            this.$loadSSH = this.$app.find('#loadSSH');
+
+            this.$httpPath = this.$app.find('#httpPath');
+            this.$localMachineFile = this.$app.find('#localMachineFile');
+            this.$localServerPath = this.$app.find('#localServerPath');
+            this.$sshPath = this.$app.find('#sshPath');
+
+            // this.currentVariantTemplate = _.template($("#currentVariantTemplate").html());
             this.$currentVariantTarget = this.$app.find('#currentVariantTarget');
             this.$viewChoice = this.$app.find('.view-choice');
 
@@ -225,6 +238,33 @@ $(function() {
             this.$qcDecision.on('click', this.setQC.bind(this));
 
             this.$viewChoice.on('click', this.changeView.bind(this));
+
+            this.$loadHTTP.on('click', this.loadHTTP.bind(this));
+            this.$loadLocalMachine.on('click', this.loadLocalMachine.bind(this));
+            this.$loadLocalServer.on('click', this.loadLocalServer.bind(this));
+            this.$loadSSH.on('click', this.loadSSH.bind(this));
+        },
+        loadHTTP: function() {
+            this.$modalLoadFile.modal('hide');
+            console.log('the smiths');
+            var httpPath = this.$httpPath.val();
+            console.log(httpPath);
+        },
+        loadLocalServer: function() {
+            this.$modalLoadFile.modal('hide');
+            var localServerPath = this.$localServerPath.val();
+            console.log(localServerPath);
+        },
+        loadSSH: function() {
+            this.$modalLoadFile.modal('hide');
+            var sshPath = this.$sshPath.val();
+            console.log(sshPath);
+        },
+        loadLocalMachine: function() {
+            //Need to show the user what has been loaded
+            this.$modalLoadFile.modal('hide');
+            var files = this.$localMachineFile[0].files;
+            console.log(files)
         },
         loadLocalFile: function() {
             console.log('here!!!!');
@@ -461,7 +501,8 @@ $(function() {
         },
         showLoadRemoteFileModal: function() {
             this.$serverLocation.html(this.settings.serverLocation);
-            this.$modalLoadRemote.modal('show');
+            // this.$modalLoadRemote.modal('show');
+            this.$modalLoadFile.modal('show');
             //this.loadJSONFile2();
             //this.$modalLoadJSON.modal('hide');
         },
