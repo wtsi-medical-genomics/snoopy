@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hello React</title>
+    <!-- Not present in the tutorial. Just for basic styling. -->
+
+	<style>
+
+		.fileTabs {
+			padding: 0px;
+			margin-bottom: 10px;
+		}
+
+		.fileTabs li {
+			display: inline;
+		}
+
+		.fileTabs li a {
+			font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+			font-size: 14px;
+			color: #337ab7;
+			text-decoration: none;
+			background-color: aliceblue;
+			padding: 10px;
+			border: 1px solid aliceblue;
+		}
+
+		.fileTabs li a:hover {
+			color: black;
+			background-color: lightgrey;
+			border: 1px solid lightgrey;
+		}
+
+		.fileTabs .active {
+			color: black;
+			background-color: lightgrey;
+			border: 1px solid lightgrey;
+		}
+
+		.fileBody {
+			background-color: lightgrey;
+			padding: 10px;
+			border: 0px;
+		}
+	</style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
+  </head>
+  <body>
+    <div id="content"></div>
+    <script type="text/jsx;harmony=true">
+
+    	var LoadFileTabs = React.createClass({
+    		getInitialState: function() {
+				return {currentTab: this.props.tabs[0].id};
+			},
+    		handleClick: function(id) {
+    			this.setState({currentTab: id})
+    		},
+    		render: function() {
+    			var currentTab = this.props.tabs.filter(function(tab) {
+    				return this.state.currentTab === tab.id
+    			}.bind(this))[0];
+    			return (
+    				<div className="loadFileTabs">
+	    				<FileTabs tabs={this.props.tabs} handleClick={this.handleClick} active={currentTab.id} />
+						<FileBody text={currentTab.bodyText} />
+					</div>
+				);
+    		}
+    	});
+
+    	var FileTabs = React.createClass({
+    		render: function() {
+    			var tabNodes = this.props.tabs.map(function(tab) {
+    				var active = this.props.active === tab.id
+    				return <FileTab text={tab.tabText} id={tab.id} handleClick={this.props.handleClick} active={active} />
+    			}.bind(this));
+    			return (
+    				<ul className="fileTabs">
+    					{tabNodes}
+					</ul>
+				);
+    		}
+    	})
+
+    	var FileTab = React.createClass({
+    		handleClick: function(event) {
+    			event.preventDefault();
+    			this.props.handleClick(this.props.id)
+    		},
+    		render: function() {
+    	// 		var activeStyle = {
+					// color: 'black',
+					// backgroundColor: 'lightgrey',
+					// border: '1px solid lightgrey'
+    	// 		},
+    	// 		inactiveStyle = {
+					// color: '#337ab7',
+					// backgroundColor: 'aliceblue',
+					// border: '1px solid aliceblue'
+    	// 		};
+    			var classString = 'fileTab';
+    			classString += this.props.active ? ' active' : '';
+    			console.log(classString);
+    			return (
+					<li>
+						<a href="#" onClick={this.handleClick} className={classString}>
+							{this.props.text}
+						</a>
+					</li>
+				);
+    		}
+    	})
+
+    	var FileBody = React.createClass({
+    		render: function() {
+    			return (
+					<div className="fileBody">
+						{this.props.text}
+						
+					</div>
+				);
+    		}
+    	})
+
+    	var 
+
+
+	var tabs = [
+		{id:'HTTP', tabText: 'HTTP/S', bodyText: 'Load a file that resides on a remote server and can be accessed via HTTP/S. <input type="text" class="form-control" placeholder="...path to file on server" id="remoteFilename" />'},
+		{id:'localMachine', tabText: 'Local Machine', bodyText: 'Load a file that exists on your local machine (e.g. hard drive).'},
+		{id:'localServer', tabText: 'Local Server', bodyText: 'Load a file that exists on a local server that you\'ve started.'},
+		{id:'SSH', tabText: 'SSH Bridge', bodyText: 'Load a file that exists on a local server that cannot be accessed via HTTP/S but can be accessed via SSH. To use this option, an ssh-bridge server must have been started on your local machine.'}
+	]
+		React.render(
+			<LoadFileTabs tabs={tabs}/>,
+			document.getElementById('content')
+		);
+    </script>
+  </body>
+</html>
