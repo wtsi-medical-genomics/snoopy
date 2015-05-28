@@ -9,8 +9,12 @@ $(function() {
             if (typeof(f) !== "string") {
                 f = f.name;
             }
-            var parts = f.split(".");
-            return parts[parts.length - 1].toLowerCase();
+            var re_ext = /^.*\.(.*)$/;
+            m = f.match(re_ext);
+            if (m)
+                return m[1].toLowerCase();
+            else
+                return null;
         },
         getNextUID: function() {
             if (typeof(this.ID) == 'undefined')
