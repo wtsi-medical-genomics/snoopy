@@ -112,12 +112,16 @@
                             Go batch <span class="glyphicon glyphicon-chevron-right"></span>
                           </div>
                         </div>
+
                       </div>
                     </div>
                     <div id="sectionLoadFiles">
                       <div class="panel panel-default choice" id="panelFileLoading">
                         <div class="panel-body">
                           <h4 class="title"></h4>
+                          <button type="button" class="btn btn-primary" id="buttonBackToStart">
+                            <span class="glyphicon glyphicon-chevron-left"></span> Back to the start
+                          </button>
                         </div>
                       </div>
                       <div class="file-input btn btn-default btn-file" id="buttonShowLoadRemoteFileModal">
@@ -481,8 +485,12 @@
                         Load a file that resides on a remote server and can be accessed via HTTP/S. 
                         <form role="form">
                           <div class="input-group form-stretch">
-                            <div class="input-group-addon serverLocation"></div>
                             <input type="text" class="form-control" placeholder="...path to file on server" id="httpPath">
+                          </div>
+                          <div class="checkbox">
+                            <label>
+                              <input type="checkbox"> Requires credentials
+                            </label>
                           </div>
                         </form>
                       </p>
@@ -510,7 +518,6 @@
                         Load a file that exists on a local server that you've started.
                         <form role="form">
                           <div class="input-group form-stretch">
-                            <div class="input-group-addon serverLocation"></div>
                             <input type="text" class="form-control" placeholder="...path to file on server" id="localServerPath">
                           </div>
                         </form>
@@ -525,8 +532,7 @@
                         Load a file that exists on a local server that cannot be accessed via HTTP/S. To use this option, an ssh-bridge server must have been started on your local machine.
                         <form role="form">
                           <div class="input-group form-stretch">
-                            <div class="input-group-addon serverLocation"></div>
-                            <input type="text" class="form-control" placeholder="...path to file on server" id="sshPath">
+                            <input type="text" class="form-control" placeholder="user@server:path" id="sshPath">
                           </div>
                         </form>
                       </p>

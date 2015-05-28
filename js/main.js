@@ -18,6 +18,13 @@ $(function() {
             else
                 this.ID++;
             return this.ID;
+        },
+        isIn: function(el, list) {
+            el = el.toLowerCase();
+            list = list.map(function (x) {
+                return String.prototype.toLowerCase.call(x);
+            });
+            return list.indexOf(el) > -1;
         }
     }
 
@@ -173,6 +180,8 @@ $(function() {
             this.$currentVariantTarget = this.$app.find('#currentVariantTarget');
             this.$viewChoice = this.$app.find('.view-choice');
 
+            this.$buttonBackToStart = this.$app.find('#buttonBackToStart');
+
             // settings
             this.$settingsZoomLevelText = this.$app.find('#settingsZoomLevelText');
             this.$settingsServerLocation = this.$app.find('#settingsServerLocation');
@@ -243,22 +252,37 @@ $(function() {
             this.$loadLocalMachine.on('click', this.loadLocalMachine.bind(this));
             this.$loadLocalServer.on('click', this.loadLocalServer.bind(this));
             this.$loadSSH.on('click', this.loadSSH.bind(this));
+
+            this.$buttonBackToStart.on('click', this.reload.bind(this))
         },
         loadHTTP: function() {
             this.$modalLoadFile.modal('hide');
-            console.log('the smiths');
             var httpPath = this.$httpPath.val();
+            var ext = utils.getExtension(f);
             console.log(httpPath);
+            if (this.mode === 'batch')
+                if(ext !== 'json') {
+                this.renderFileLoadingErrorList('Cannot load file of type <strong>' + ext + '</strong> in batch mode');
+                return;
+            } else { // manual
+                if(this.utils.isIn(ext, ['BAM', 'SAM', 'CRAM'])) {
+
+                }
+            }
+
+            //this.loadRemoteFile(httpPath);
         },
         loadLocalServer: function() {
             this.$modalLoadFile.modal('hide');
             var localServerPath = this.$localServerPath.val();
             console.log(localServerPath);
+            this.loadRemoteFile(localServerPath);
         },
         loadSSH: function() {
             this.$modalLoadFile.modal('hide');
             var sshPath = this.$sshPath.val();
             console.log(sshPath);
+            this.loadRemoteFile(sshPath);
         },
         loadLocalMachine: function() {
             //Need to show the user what has been loaded
@@ -387,13 +411,14 @@ $(function() {
             this.$serverLocation.html(this.settings.serverLocation);
             this.$modalLoadRemote.modal('show');
         },
-        loadRemoteFile: function() {
-            this.$modalLoadRemote.modal('hide');
+        loadRemoteFile: function(f) {
+            // this.$modalLoadRemote.modal('hide');
             this.$fileLoadingErrorListTarget.html('');
             this.errors = [];
 
-            var f = this.$remoteFilename.val(),
-            ext = utils.getExtension(f);
+            // var f = this.$remoteFilename.val(),
+            console.log(f)
+            var ext = utils.getExtension(f);
 
             if (this.mode === 'batch' && ext !== 'json') {
                 this.renderFileLoadingErrorList('Cannot load file of type <strong>' + ext + '</strong> in batch mode');
@@ -401,10 +426,11 @@ $(function() {
             }
 
             $.ajax({
-                url: this.settings.serverLocation + f,
+                // url: this.settings.serverLocation + f,
+                url: f,
                 xhrFields: { withCredentials: true }
             }).done(function(data) {
-                console.log(data);  
+                console.log(data);
                 if (this.mode === 'batch') {
                     this.parseBatchFile(data);
                 } else {
