@@ -6,15 +6,10 @@ $(function() {
     
     utils = {
         getExtension: function(f) {
-            if (typeof(f) !== "string") {
-                f = f.name;
-            }
+            f = typeof(f) === 'string' ? f : f.name;
             var re_ext = /^.*\.(.*)$/;
-            m = f.match(re_ext);
-            if (m)
-                return m[1].toLowerCase();
-            else
-                return null;
+            var m = f.match(re_ext);
+            return m ? m[1].toLowerCase() : null;
         },
         getNextUID: function() {
             if (typeof(this.ID) == 'undefined')
@@ -24,9 +19,9 @@ $(function() {
             return this.ID;
         },
         isIn: function(el, list) {
-            el = el.toLowerCase();
+            el = typeof(el) === 'string' ? el.toLowerCase() : el
             list = list.map(function (x) {
-                return String.prototype.toLowerCase.call(x);
+                return typeof(x) === 'string' ? String.prototype.toLowerCase.call(x) : x;
             });
             return list.indexOf(el) > -1;
         }
@@ -210,10 +205,11 @@ $(function() {
             this.$settingsCondensedEnableQuals = this.$app.find('#settingsCondensedEnableQuals');
             this.$settingsCoverageThreshold = this.$app.find('#settingsCoverageThreshold');
             this.$settingsCoverageHeight = this.$app.find('#settingsCoverageHeight');
-
         },
 
         bindEvents: function() {
+
+
             // Listen for button to load files
             //document.getElementById('fileLoaded').addEventListener('change', loadLocalFiles, false);
             this.$localFile.on('change', this.loadLocalFile.bind(this));
@@ -262,18 +258,35 @@ $(function() {
         loadHTTP: function() {
             this.$modalLoadFile.modal('hide');
             var httpPath = this.$httpPath.val();
-            var ext = utils.getExtension(f);
+            var ext = utils.getExtension(httpPath);
             console.log(httpPath);
-            if (this.mode === 'batch')
+            if (this.mode === 'batch') {
                 if(ext !== 'json') {
-                this.renderFileLoadingErrorList('Cannot load file of type <strong>' + ext + '</strong> in batch mode');
-                return;
+                    this.renderFileLoadingErrorList('Cannot load file of type <strong>' + ext + '</strong> in batch mode');
+                    return;
+                }
             } else { // manual
-                if(this.utils.isIn(ext, ['BAM', 'SAM', 'CRAM'])) {
-
+                // this.sessions[0] is used as the sessoin in manual note
+                if(utils.isIn(ext, ['BAM', 'SAM', 'CRAM'])) {
+                    var newBam = new RemoteBAM(httpPath);
+                    this.sessions[0].bamFiles.push(newBam);
+                } else if(ext === 'bai') {
+                    //need to check if the same bam occurs in the existing bams
+                    //var newBam = new RemoteBAM(httpPath);
+                    //this.sessions[0].bamFiles.push(newBam);
+                } else if(utils.isIn(ext, ['txt', null])) {
+                    //assumed to be a variant at this point
+                    console.log('it is being treated as a variant list');
+                    $.ajax({
+                        url: httpPath,
+                        xhrFields: { withCredentials: true }
+                    }).done(function(fileText) {
+                        this.sessions.sessions[0].parseVariants(fileText);
+                    }.bind(this)).fail(function(jqXHR, textStatus) {
+                        this.renderFileLoadingErrorList('<strong>Error</strong>: Could not access variant file ' + v);
+                    }.bind(this));
                 }
             }
-
             //this.loadRemoteFile(httpPath);
         },
         loadLocalServer: function() {
@@ -314,9 +327,11 @@ $(function() {
         },
         goManual: function () {
             this.mode = 'manual';
-            this.$sectionPickMode.hide()
-            this.$sectionLoadFiles.show()
+            this.$sectionPickMode.hide();
+            this.$sectionLoadFiles.show();
             this.$sectionLoadFiles.find('.title').html('Manual Mode');
+            var s = new Session();
+            this.sessions.sessions.push(s);
         },
         goBatch: function() {
             this.mode = 'batch';
@@ -411,7 +426,6 @@ $(function() {
             $zoomRadio.filter('[value="custom"]').prop('checked', true);
         },
         showRemoteFileModal: function() {
-            console.log('inside showRemoteFileModal');
             this.$serverLocation.html(this.settings.serverLocation);
             this.$modalLoadRemote.modal('show');
         },
@@ -530,7 +544,15 @@ $(function() {
             this.$modalLoadRemote.modal('show');
         },
         showLoadRemoteFileModal: function() {
-            this.$serverLocation.html(this.settings.serverLocation);
+            var cb = function(f) {
+                console.log('in the callback');
+                console.log(f);
+            }
+            React.render(
+                React.createElement(LoadFileTabs, {callback: cb}),
+                document.getElementById('loadfiletabstarget')
+            );
+            // this.$serverLocation.html(this.settings.serverLocation);
             // this.$modalLoadRemote.modal('show');
             this.$modalLoadFile.modal('show');
             //this.loadJSONFile2();

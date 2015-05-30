@@ -23,6 +23,50 @@
 <script language="javascript" src="js/session.js"></script>
 <script language="javascript" src="js/variant.js"></script>
 <script language="javascript" src="js/styles.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
+
+<style>
+
+    .fileTabs {
+      padding: 0px;
+      margin-bottom: 10px;
+      margin-top: 10px;
+    }
+
+    .fileTabs li {
+      display: inline;
+    }
+
+    .fileTabs li a {
+      font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+      font-size: 14px;
+      color: #337ab7;
+      text-decoration: none;
+      background-color: aliceblue;
+      padding: 10px;
+      border: 1px solid white;
+    }
+
+    .fileTabs li a:hover {
+      color: black;
+      background-color: lightgrey;
+      border: 1px solid lightgrey;
+    }
+
+    .fileTabs .active {
+      color: black;
+      background-color: lightgrey;
+      border: 1px solid white;
+    }
+
+    .fileBody {
+      background-color: linen;
+      padding: 10px;
+      border: 0px;
+    }
+  </style>
+
 </head>
 
 <body>
@@ -112,11 +156,10 @@
                             Go batch <span class="glyphicon glyphicon-chevron-right"></span>
                           </div>
                         </div>
-
                       </div>
                     </div>
                     <div id="sectionLoadFiles">
-                      <div class="panel panel-default choice" id="panelFileLoading">
+                      <div class="panel panel-default choice">
                         <div class="panel-body">
                           <h4 class="title"></h4>
                           <button type="button" class="btn btn-primary" id="buttonBackToStart">
@@ -140,6 +183,49 @@
                       <div id="fileLoadingErrorListTarget"></div>
                       <div id="fileLoadingFileListTarget"></div>
                     </div>
+
+
+
+                    <div id="sectionLoadFilesManual">
+                      <div class="panel panel-default choice">
+                        <div class="panel-body">
+                          <h4 class="title">Manual Mode</h4>
+                          <button type="button" class="btn btn-primary" id="buttonBackToStart">
+                            <span class="glyphicon glyphicon-chevron-left"></span> Back to the start
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div class="panel panel-default choice" id="panelManual">
+                        <div class="panel-body">
+                          <h4>Load </h4>
+                          <p class="justify" id="paragraphManual">This mode is used when you want to manually add files from your local machine or from a server. Using Snoopy in this way will limit you to only one variant file.</p>
+                          <div class="file-input btn btn-primary btn-file" id="buttonGoManual">
+                            Go manual <span class="glyphicon glyphicon-chevron-right"></span>
+                          </div>
+                        </div>
+                      </div>
+
+
+                      <div class="file-input btn btn-default btn-file" id="buttonShowLoadRemoteFileModal">
+                        <span class="glyphicon glyphicon-th-list"></span> Load Remote File 
+                      </div>
+                      <div class="btn-group" id="buttonLoadLocalFileButton">
+                        <div class="file-input btn btn-default btn-file">
+                          <span class="glyphicon glyphicon-floppy-disk"></span><span id="loadFilesText"> Load Local File(s)</span><input type="file" multiple id="fileLoaded">
+                        </div>
+                      </div>
+                      <div class="btn-group">
+                        <div class="btn btn-default" id="buttonLoadDalliance">
+                          <span class="glyphicon glyphicon-search"></span> Start Quality Control 
+                        </div>
+                      </div>
+                      <div id="fileLoadingErrorListTarget"></div>
+                      <div id="fileLoadingFileListTarget"></div>
+                    </div>
+
+
+
                   </div>
                   <div class="col-md-2"></div>
                 </div>
@@ -463,88 +549,104 @@
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class=
-                "sr-only">Close</span></button>
-                <h4 class="modal-title">
-                  Load File
-                </h4>
-              </div>
-              <div class="modal-body" id="targetSettings">          
-                <div role="tabpanel">
-                  <!-- Nav tabs -->
-                  <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#http" aria-controls="http" role="tab" data-toggle="tab">HTTP/S</a></li>
-                    <li role="presentation"><a href="#local-machine" aria-controls="local-machibne" role="tab" data-toggle="tab">Local Machine</a></li>
-                    <li role="presentation"><a href="#local-server" aria-controls="local-server" role="tab" data-toggle="tab">Local Server</a></li>
-                    <li role="presentation"><a href="#ssh-bridge" aria-controls="ssh-bridge" role="tab" data-toggle="tab">SSH-Bridge</a></li>
-                  </ul>
-                  <!-- Tab panes -->
-                  <div class="tab-content" style="background-color: white;">
-                    <div role="tabpanel" class="tab-pane active" id="http">
-                      <p>
-                        Load a file that resides on a remote server and can be accessed via HTTP/S. 
-                        <form role="form">
-                          <div class="input-group form-stretch">
-                            <input type="text" class="form-control" placeholder="...path to file on server" id="httpPath">
-                          </div>
-                          <div class="checkbox">
-                            <label>
-                              <input type="checkbox"> Requires credentials
-                            </label>
-                          </div>
-                        </form>
-                      </p>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="loadHTTP">Load</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                      </div>
-                    </div>
-                    <div role="tabpanel" class="tab-pane" id="local-machine">
-                      <p>
-                        Load a file that exists on your local machine (e.g. hard drive)
-                        <div class="btn-group" id="buttonLoadLocalFileButton">
-                          <div class="file-input btn btn-default btn-file">
-                            <span class="glyphicon glyphicon-floppy-disk"></span>Load Local File(s)<input type="file" multiple id="localMachineFile">
-                          </div>
+              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span></button>
+              <h4 class="modal-title">
+                Load File
+              </h4>
+            </div>
+            <div class="modal-body" id="loadfiletabstarget">
+              
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="modalLoadFile234234" tabindex="-1" role="dialog" aria-labelledby="myModalLoadFile" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span>
+              <span class="sr-only">Close</span></button>
+              <h4 class="modal-title">
+                Load File
+              </h4>
+            </div>
+            <div class="modal-body" id="targetSettings">          
+              <div role="tabpanel">
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                  <li role="presentation" class="active"><a href="#http" aria-controls="http" role="tab" data-toggle="tab">HTTP/S</a></li>
+                  <li role="presentation"><a href="#local-machine" aria-controls="local-machibne" role="tab" data-toggle="tab">Local Machine</a></li>
+                  <li role="presentation"><a href="#local-server" aria-controls="local-server" role="tab" data-toggle="tab">Local Server</a></li>
+                  <li role="presentation"><a href="#ssh-bridge" aria-controls="ssh-bridge" role="tab" data-toggle="tab">SSH-Bridge</a></li>
+                </ul>
+                <!-- Tab panes -->
+                <div class="tab-content" style="background-color: white;">
+                  <div role="tabpanel" class="tab-pane active" id="http">
+                    <p>
+                      Load a file that resides on a remote server and can be accessed via HTTP/S. 
+                      <form role="form">
+                        <div class="input-group form-stretch">
+                          <input type="text" class="form-control" placeholder="...path to file on server" id="httpPath">
                         </div>
-                      </p>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="loadLocalMachine">Load</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <div class="checkbox">
+                          <label>
+                            <input type="checkbox"> Requires credentials
+                          </label>
+                        </div>
+                      </form>
+                    </p>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-primary" data-dismiss="modal" id="loadHTTP">Load</button>
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     </div>
-                    </div>
-                    <div role="tabpanel" class="tab-pane" id="local-server">
-                      <p>
-                        Load a file that exists on a local server that you've started.
-                        <form role="form">
-                          <div class="input-group form-stretch">
-                            <input type="text" class="form-control" placeholder="...path to file on server" id="localServerPath">
-                          </div>
-                        </form>
-                      </p>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" id="loadLocalServer">Load</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                  </div>
+                  <div role="tabpanel" class="tab-pane" id="local-machine">
+                    <p>
+                      Load a file that exists on your local machine (e.g. hard drive)
+                      <div class="btn-group" id="buttonLoadLocalFileButton">
+                        <div class="file-input btn btn-default btn-file">
+                          <span class="glyphicon glyphicon-floppy-disk"></span>Load Local File(s)<input type="file" multiple id="localMachineFile">
+                        </div>
                       </div>
+                    </p>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-primary" data-dismiss="modal" id="loadLocalMachine">Load</button>
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                  </div>
+                  </div>
+                  <div role="tabpanel" class="tab-pane" id="local-server">
+                    <p>
+                      Load a file that exists on a local server that you've started.
+                      <form role="form">
+                        <div class="input-group form-stretch">
+                          <input type="text" class="form-control" placeholder="...path to file on server" id="localServerPath">
+                        </div>
+                      </form>
+                    </p>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-primary" data-dismiss="modal" id="loadLocalServer">Load</button>
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     </div>
-                    <div role="tabpanel" class="tab-pane" id="ssh-bridge">
-                      <p>
-                        Load a file that exists on a local server that cannot be accessed via HTTP/S. To use this option, an ssh-bridge server must have been started on your local machine.
-                        <form role="form">
-                          <div class="input-group form-stretch">
-                            <input type="text" class="form-control" placeholder="user@server:path" id="sshPath">
-                          </div>
-                        </form>
-                      </p>
+                  </div>
+                  <div role="tabpanel" class="tab-pane" id="ssh-bridge">
+                    <p>
+                      Load a file that exists on a local server that cannot be accessed via HTTP/S. To use this option, an ssh-bridge server must have been started on your local machine.
+                      <form role="form">
+                        <div class="input-group form-stretch">
+                          <input type="text" class="form-control" placeholder="user@server:path" id="sshPath">
+                        </div>
+                      </form>
+                    </p>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-primary" data-dismiss="modal" id="loadSSH">Load</button>
                       <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     </div>
-                    </div>
+                  </div>
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
@@ -646,6 +748,167 @@
       <% }) %>
   </div>
 </script>
+
+ <script type="text/jsx;harmony=true">
+      var LoadFileTabs = React.createClass({
+        tabs : [
+          {
+            id:'HTTP',
+            tabText: 'HTTP/S',
+            URL: 'web-lustre-01.internal.sanger.ac.uk/~',
+            bodyText: 'Load a file that resides on a remote server and can be accessed via HTTP/S.'
+          },
+          {
+            id:'localMachine',
+            tabText: 'Local Machine',
+            URL: false,
+            bodyText: 'Load a file that exists on your local machine (e.g. hard drive).'
+          },
+          {
+            id:'localServer',
+            tabText: 'Local Server',
+            URL: '127.0.0.1',
+            bodyText: 'Load a file that exists on a local server that you\'ve started.'
+          },
+          {
+            id:'SSH',
+            tabText: 'SSH Bridge',
+            URL: 'dr9@farm3-login:',
+            bodyText: 'Load a file that exists on a local server that cannot be accessed via HTTP/S but can be accessed via SSH. To use this option, an ssh-bridge server must have been started on your local machine.'
+          }
+      ],
+        getInitialState: function() {
+        return {currentTab: this.tabs[0].id};
+      },
+        handleTabClick: function(id) {
+          this.setState({currentTab: id});
+        },
+        handleOK: function(files) {
+          this.props.callback(files);
+        },
+        render: function() {
+          var currentTab = this.tabs.filter(function(tab) {
+            return this.state.currentTab === tab.id
+          }.bind(this))[0];
+          return (
+            <div className="loadFileTabs">
+              <FileTabs tabs={this.tabs} handleClick={this.handleTabClick} active={currentTab.id} />
+            <FileBody text={currentTab.bodyText} URL={currentTab.URL} handleOK={this.handleOK}/>
+          </div>
+        );
+        }
+      });
+
+      var FileTabs = React.createClass({
+        render: function() {
+          var tabNodes = this.props.tabs.map(function(tab) {
+            var active = this.props.active === tab.id
+            return <FileTab tab={tab} key={tab.id} handleClick={this.props.handleClick} active={active} />
+          }.bind(this));
+          return (
+            <ul className="fileTabs">
+              {tabNodes}
+          </ul>
+        );
+        }
+      })
+
+      var FileTab = React.createClass({
+        handleClick: function(event) {
+          event.preventDefault();
+          this.props.handleClick(this.props.tab.id)
+        },
+        render: function() {
+      //    var activeStyle = {
+          // color: 'black',
+          // backgroundColor: 'lightgrey',
+          // border: '1px solid lightgrey'
+      //    },
+      //    inactiveStyle = {
+          // color: '#337ab7',
+          // backgroundColor: 'aliceblue',
+          // border: '1px solid aliceblue'
+      //    };
+          var classString = 'fileTab';
+          classString += this.props.active ? ' active' : '';
+          console.log(classString);
+          return (
+          <li>
+            <a href="#" onClick={this.handleClick} className={classString}>
+              {this.props.tab.tabText}
+            </a>
+          </li>
+        );
+        }
+      })
+
+      var FileBody = React.createClass({
+        handleLocalLoad: function(event) {
+          event.preventDefault();
+          var files = React.findDOMNode(this.refs.file).files
+          console.log(files);
+        },
+        handleOK: function(event) {
+          event.preventDefault();
+          if (this.props.URL) {
+            var files = React.findDOMNode(this.refs.path).value;
+          } else {
+            var files = React.findDOMNode(this.refs.file).files;
+          }
+          this.props.handleOK(files);
+        },
+        render: function() {
+          if (this.props.URL) {
+            var inputForm = (
+            <form role="form" onSubmit={this.handleOK}>
+              <div className="input-group form-stretch">
+                <div className="input-group-addon serverLocation"></div>
+              <input type="text" ref="path" className="form-control" placeholder="...path to file on server" id="remoteFilename" />
+              </div>
+            </form>
+          );
+          } else { // Local file upload
+            var inputForm = (
+                      <div className="btn-group" id="buttonLoadLocalFileButton">
+                        <div className="file-input btn btn-default btn-file">
+                          <span className="glyphicon glyphicon-floppy-disk"></span><span id="loadFilesText"> Load Local File(s)</span>
+                          <input type="file" ref="file" multiple id="fileLoaded" onChange={this.handleLocalLoad}/>
+                        </div>
+                      </div>
+          );
+          }
+          var divStyle = {
+            paddingTop: 10,
+            paddingBottom: 10
+          };
+
+          return (
+          <div className="fileBody">
+            <div style={divStyle}>
+              {this.props.text}
+            </div>
+            <div>
+              {inputForm}
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-primary" onClick={this.handleOK}>Load</button>
+              <button type="button" className="btn btn-default" >Cancel</button>
+            </div>
+          </div>
+        );
+        }
+      })
+
+    // var cb = function(f) {
+    //   console.log('in the callback');
+    //   console.log(f);
+    // }
+    // React.render(
+    //   <LoadFileTabs callback={cb}/>,
+    //   document.getElementById('content')
+    // );
+    </script>
+
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script> 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
