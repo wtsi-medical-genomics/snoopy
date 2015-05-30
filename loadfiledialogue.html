@@ -3,12 +3,14 @@
   <head>
     <title>Hello React</title>
     <!-- Not present in the tutorial. Just for basic styling. -->
-
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+	<link href="css/style.css" rel="stylesheet">
 	<style>
 
 		.fileTabs {
 			padding: 0px;
 			margin-bottom: 10px;
+			margin-top: 10px;
 		}
 
 		.fileTabs li {
@@ -22,7 +24,7 @@
 			text-decoration: none;
 			background-color: aliceblue;
 			padding: 10px;
-			border: 1px solid aliceblue;
+			border: 1px solid white;
 		}
 
 		.fileTabs li a:hover {
@@ -49,22 +51,56 @@
   <body>
     <div id="content"></div>
     <script type="text/jsx;harmony=true">
-
     	var LoadFileTabs = React.createClass({
+    		tabs : [
+					{
+						id:'HTTP',
+						tabText: 'HTTP/S',
+						URL: 'web-lustre-01.internal.sanger.ac.uk/~',
+						bodyText: 'Load a file that resides on a remote server and can be accessed via HTTP/S.'
+					},
+					{
+						id:'localMachine',
+						tabText: 'Local Machine',
+						URL: false,
+						bodyText: 'Load a file that exists on your local machine (e.g. hard drive).'
+					},
+					{
+						id:'localServer',
+						tabText: 'Local Server',
+						URL: '127.0.0.1',
+						bodyText: 'Load a file that exists on a local server that you\'ve started.'
+					},
+					{
+						id:'SSH',
+						tabText: 'SSH Bridge',
+						URL: 'dr9@farm3-login:',
+						bodyText: 'Load a file that exists on a local server that cannot be accessed via HTTP/S but can be accessed via SSH. To use this option, an ssh-bridge server must have been started on your local machine.'
+					}
+			],
     		getInitialState: function() {
-				return {currentTab: this.props.tabs[0].id};
+				return {currentTab: this.tabs[0].id, files: []};
 			},
-    		handleClick: function(id) {
-    			this.setState({currentTab: id})
+    		handleTabClick: function(id) {
+    			this.setState({currentTab: id});
     		},
+    		handleLocalLoadFile: function(files) {
+    			this.setstate({files: files});
+    		},
+    		handleOK: function(files) {
+    			this.props.callback(files);
+    		},
+    		// handleTabClick: function(f) {
+    		// 	this.setState({currentTab: id})
+    		// },
     		render: function() {
-    			var currentTab = this.props.tabs.filter(function(tab) {
+    			var currentTab = this.tabs.filter(function(tab) {
     				return this.state.currentTab === tab.id
     			}.bind(this))[0];
     			return (
     				<div className="loadFileTabs">
-	    				<FileTabs tabs={this.props.tabs} handleClick={this.handleClick} active={currentTab.id} />
-						<FileBody text={currentTab.bodyText} />
+	    				<FileTabs tabs={this.tabs} handleClick={this.handleTabClick} active={currentTab.id} />
+						<FileBody text={currentTab.bodyText} URL={currentTab.URL} handleLocalLoad={this.handleLocalLoadFile} handleURLChange={this.handleURLChange} handleOK={this.handleOK}/>
 					</div>
 				);
     		}
@@ -114,27 +150,69 @@
     	})
 
     	var FileBody = React.createClass({
+    		handleLocalLoad: function(event) {
+    			event.preventDefault();
+    			var files = React.findDOMNode(this.refs.file).files
+    			console.log(files);
+    			this.props.handleLocalLoad(files)
+    		},
+    		handleOK: function(event) {
+    			event.preventDefault();
+    			if (this.props.URL) {
+    				var files = React.findDOMNode(this.refs.path).value;
+    			} else {
+    				var files = React.findDOMNode(this.refs.file).files;
+    			}
+    			this.props.handleOK(files);
+    		},
     		render: function() {
+    			if (this.props.URL) {
+    				var inputForm = (
+						<form role="form">
+							<div className="input-group form-stretch">
+								<div className="input-group-addon serverLocation"></div>
+							<input type="text" ref="path" className="form-control" placeholder="...path to file on server" id="remoteFilename" />
+							</div>
+						</form>
+					);
+    			} else { // Local file upload
+    				var inputForm = (
+                      <div className="btn-group" id="buttonLoadLocalFileButton">
+                        <div className="file-input btn btn-default btn-file">
+                          <span className="glyphicon glyphicon-floppy-disk"></span><span id="loadFilesText"> Load Local File(s)</span>
+                          <input type="file" ref="file" multiple id="fileLoaded" onChange={this.handleLocalLoad}/>
+                        </div>
+                      </div>
+					);
+    			}
+    			var divStyle = {
+    				paddingTop: 10,
+    				paddingBottom: 10
+    			};
+
     			return (
 					<div className="fileBody">
-						{this.props.text}
-						
+						<div style={divStyle}>
+							{this.props.text}
+						</div>
+						<div>
+							{inputForm}
+						</div>
+
+	                    <button type="button" onClick={this.handleOK} className="btn btn-default pull-right">
+         	            	Load
+                    	</button>
 					</div>
 				);
     		}
     	})
 
-    	var 
-
-
-	var tabs = [
-		{id:'HTTP', tabText: 'HTTP/S', bodyText: 'Load a file that resides on a remote server and can be accessed via HTTP/S. <input type="text" class="form-control" placeholder="...path to file on server" id="remoteFilename" />'},
-		{id:'localMachine', tabText: 'Local Machine', bodyText: 'Load a file that exists on your local machine (e.g. hard drive).'},
-		{id:'localServer', tabText: 'Local Server', bodyText: 'Load a file that exists on a local server that you\'ve started.'},
-		{id:'SSH', tabText: 'SSH Bridge', bodyText: 'Load a file that exists on a local server that cannot be accessed via HTTP/S but can be accessed via SSH. To use this option, an ssh-bridge server must have been started on your local machine.'}
-	]
+		var cb = function(f) {
+			console.log('in the callback');
+			console.log(f);
+		}
 		React.render(
-			<LoadFileTabs tabs={tabs}/>,
+			<LoadFileTabs callback={cb}/>,
 			document.getElementById('content')
 		);
     </script>
