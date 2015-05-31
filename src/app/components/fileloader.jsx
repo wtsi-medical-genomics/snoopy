@@ -14,18 +14,29 @@ var FileLoader = React.createClass({
   
   getInitialState() {
     return {
-      key: 0
+      key: 0,
+      files: []
     };
   },
 
   handleSelect(key) {
-    console.log('selected ' + key);
-    this.setState({key});
+    this.setState({key: key});
+  },
+
+  handleFileChange(path) {
+    var f = this.state.files;
+    f[this.state.key] = path
+    this.setState({files: f})
+    console.log(this.state);
+  },
+
+  handleLoadClick() {
+    this.props.onRequestHide();
+    this.props.handleFileLoad(this.state.files[this.state.key]);
 
   },
 
-
-  render: function() {
+  render() {
     var labels = ['HTTP/S', 'Local File', 'Local Server', 'SSH'];
     var loadButtonText = 'Load ' + labels[this.state.key];
 
@@ -34,23 +45,23 @@ var FileLoader = React.createClass({
         <Modal {...this.props} title={this.props.title} animation={false}>
           <div className='modal-body'>
             <p>{this.props.text}</p>
-            <TabbedArea activeKey={this.state.key} onSelect={this.handleSelect}>
+            <TabbedArea activeKey={this.state.key} animation={false} onSelect={this.handleSelect}>
               <TabPane eventKey={0} tab='HTTP/S'>
-                <HTTPTab />
+                <HTTPTab handleFileChange={this.handleFileChange}/>
               </TabPane>
               <TabPane eventKey={1} tab='Local File'>
-                <LocalFileTab multiple={this.props.multiple}/>
+                <LocalFileTab multiple={this.props.multiple} handleFileChange={this.handleFileChange}/>
               </TabPane>
               <TabPane eventKey={2} tab='Local Server'>
-                <LocalServerTab />
+                <LocalServerTab handleFileChange={this.handleFileChange}/>
               </TabPane>
               <TabPane eventKey={3} tab='SSH'>
-                <SSHTab />
+                <SSHTab handleFileChange={this.handleFileChange}/>
               </TabPane>
             </TabbedArea>
           </div>
           <div className='modal-footer'>
-            <Button bsStyle="primary" onClick={this.props.onRequestHide}>{loadButtonText}</Button>
+            <Button bsStyle="primary" onClick={this.handleLoadClick}>{loadButtonText}</Button>
             <Button onClick={this.props.onRequestHide}>Close</Button>
           </div>
         </Modal>
@@ -61,12 +72,15 @@ var FileLoader = React.createClass({
 
 
 var HTTPTab = React.createClass({
-  render: function() {
+  handleFileChange() {
+    this.props.handleFileChange(this.refs.path.getValue());
+  },
+  render() {
     return (
       <div>
         <p>Load a file that resides on a remote server and can be accessed via HTTP/S.</p>
-        <form role="form" onSubmit={this.handleOK}>
-          <Input type="text" ref="path" placeholder="...path to file on server"/>
+        <form role="form">
+          <Input type="text" ref="path" placeholder="...path to file on server" onChange={this.handleFileChange}/>
         </form>
       </div>
     );
@@ -75,14 +89,18 @@ var HTTPTab = React.createClass({
 
 var LocalFileTab = React.createClass({
   
+  handleFileChange() {
+    var files = React.findDOMNode(this.refs.file).files;
+    this.props.handleFileChange(files);
+  },
   
   
-  render: function() {
+  render() {
 
     if (this.props.multiple)
-      var input = (<input type="file" ref="file" multiple onChange={this.handleLocalLoad}/>);
+      var input = (<input type="file" ref="file" multiple onChange={this.handleFileChange}/>);
     else
-      var input = (<input type="file" ref="file" onChange={this.handleLocalLoad}/>);
+      var input = (<input type="file" ref="file" onChange={this.handleFileChange}/>);
 
     return (
       <div>
@@ -95,12 +113,15 @@ var LocalFileTab = React.createClass({
 
 
 var LocalServerTab = React.createClass({
-  render: function() {
+  handleFileChange() {
+    this.props.handleFileChange(this.refs.path.getValue());
+  },
+  render() {
     return (
       <div>
         <p>Load a file that exists on a local server that you have started.</p>
         <form role="form" onSubmit={this.handleOK}>
-          <Input type="text" ref="path" placeholder="...path to file on server"/>
+          <Input type="text" ref="path" placeholder="...path to file on server" onChange={this.handleFileChange}/>
         </form>
       </div>
     );
@@ -108,12 +129,15 @@ var LocalServerTab = React.createClass({
 });
 
 var SSHTab = React.createClass({
-  render: function() {
+  handleFileChange() {
+    this.props.handleFileChange(this.refs.path.getValue());
+  },
+  render() {
     return (
       <div>
         <p>Load a file that exists on a local server that cannot be accessed via HTTP/S but can be accessed via SSH. To use this option, an ssh-bridge server must have been started on your local machine.</p>
         <form role="form" onSubmit={this.handleOK}>
-          <Input type="text" ref="path" placeholder="...path to file on server"/>
+          <Input type="text" ref="path" placeholder="...path to file on server" onChange={this.handleFileChange}/>
         </form>
       </div>
     );
