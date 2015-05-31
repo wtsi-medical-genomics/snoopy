@@ -9,8 +9,9 @@ var Navbar = rb.Navbar;
 var NavItem = rb.NavItem;
 var MenuItem = rb.MenuItem;
 var DropdownButton = rb.DropdownButton;
-
-
+var Col = rb.Col;
+var Row = rb.Row;
+var Grid = rb.Grid;
 var Main = React.createClass({
   
   getInitialState: function() {
@@ -24,8 +25,16 @@ var Main = React.createClass({
 
     return (
       <div>
-        <MainToolbar view={this.state.view} />
-        <IntroPanel />
+      <MainToolbar view={this.state.view} />
+        <Grid>
+          <Row className='show-grid'>
+            <Col md={2}></Col>
+            <Col md={8}>
+              <IntroPanel />
+            </Col>
+            <Col md={2}></Col>
+          </Row>
+        </Grid>
       </div>
     );
   },
