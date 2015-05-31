@@ -1,5 +1,7 @@
 /** In this file, we create a React component which incorporates components provided by material-ui */
 
+var LoadManual = require('./loadmanual.jsx'); 
+
 var React = require('react');
 var rb = require('react-bootstrap');
 var Alert = rb.Alert;
@@ -12,39 +14,61 @@ var DropdownButton = rb.DropdownButton;
 var Col = rb.Col;
 var Row = rb.Row;
 var Grid = rb.Grid;
+var Button = rb.Button;
+var Glyphicon = rb.Glyphicon;
+
+
+
 var Main = React.createClass({
   
   getInitialState: function() {
-    return {view: 'intro'};
+    return {view: 'loadmanual'};
   },
 
   render: function() {
-    const title = (
-      <h3>Panel title</h3>
-    );
+    var Child;
+    switch (this.state.view) {
+      case 'intro': Child = Intro; break;
+      case 'loadmanual': Child = LoadManual; break;
+      default:      Child = Intro;
+    }
 
     return (
       <div>
-      <MainToolbar view={this.state.view} />
-        <Grid>
-          <Row className='show-grid'>
-            <Col md={2}></Col>
-            <Col md={8}>
-              <IntroPanel />
-            </Col>
-            <Col md={2}></Col>
-          </Row>
-        </Grid>
+        <MainToolbar view={this.state.view} />
+        <Child />
       </div>
     );
   },
 
 });
 
+var Intro = React.createClass({
+  render: function() {
+    return (
+      <div>
+        <Grid>
+          <Row className='show-grid'>
+            <Col md={2}></Col>
+            <Col md={8}>
+              <IntroPanel />
+              <ManualPanel />
+              <BatchPanel />
+            </Col>
+            <Col md={2}></Col>
+          </Row>
+        </Grid>
+      </div>
+    );
+  }
+
+});
+
+
 var MainToolbar = React.createClass({
 
   render: function() {
-    if (this.props.view === 'intro') {
+    
       return (
         <Navbar brand='Snoopy' inverse toggleNavKey={0}>
           <Nav right eventKey={0}> {/* This is the eventKey referenced */}
@@ -55,7 +79,7 @@ var MainToolbar = React.createClass({
           </Nav>
         </Navbar>      
       );
-    }
+    
   }
 
 });
@@ -66,14 +90,56 @@ var IntroPanel = React.createClass({
     return (
       <Panel>
       <h4>Welcome to Snoopy</h4>
-        <p className="justify">
+        <p>
           Snoopy is a quality control tool to review predicted variants in BAM files using the Dalliance genome browser. There are a few ways to use this tool:
         </p>
       </Panel>
     );
   }
 
-})
+});
+
+
+var ManualPanel = React.createClass({
+
+  render: function() {
+    var style = {
+      backgroundColor: '#D5EBF6'
+    };
+
+    return (
+      <Panel style={style}>
+        <h4>Manual</h4>
+          <p>
+            This mode is used when you want to manually add files from your local machine or from a server. Using Snoopy in this way will limit you to only one variant file.
+          </p>
+          <Button bsStyle="primary">Go Manual<Glyphicon glyph="chevron-right"/></Button>
+      </Panel>
+    );
+  }
+
+});
+
+
+var BatchPanel = React.createClass({
+
+  render: function() {
+    var panelStyle = {
+      backgroundColor: '#EEFFEB'
+    };
+
+    return (
+      <Panel style={panelStyle}>
+        <h4>Manual</h4>
+          <p>
+            In this mode you have a file prepared that lists multiple “sessions”. Each session consists of a remote file listing variants along with a collection of remote BAM files.
+          </p>
+          <Button bsStyle="success">Go Batch<Glyphicon glyph="chevron-right"/></Button>
+      </Panel>
+    );
+  }
+
+});
 
 
 module.exports = Main;
