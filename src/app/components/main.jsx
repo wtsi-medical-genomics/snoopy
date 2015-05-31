@@ -1,7 +1,3 @@
-/** In this file, we create a React component which incorporates components provided by material-ui */
-
-var LoadManual = require('./loadmanual.jsx'); 
-
 var React = require('react');
 var rb = require('react-bootstrap');
 var Alert = rb.Alert;
@@ -17,19 +13,21 @@ var Grid = rb.Grid;
 var Button = rb.Button;
 var Glyphicon = rb.Glyphicon;
 
-
+var LoadManual = require('./loadmanual.jsx'); 
+var QC = require('./qc.jsx');
 
 var Main = React.createClass({
   
-  getInitialState: function() {
-    return {view: 'loadmanual'};
+  getInitialState() {
+    return {view: 'qc'};
   },
 
-  render: function() {
+  render() {
     var Child;
     switch (this.state.view) {
       case 'intro': Child = Intro; break;
       case 'loadmanual': Child = LoadManual; break;
+      case 'qc': Child = QC; break;
       default:      Child = Intro;
     }
 
@@ -44,7 +42,7 @@ var Main = React.createClass({
 });
 
 var Intro = React.createClass({
-  render: function() {
+  render() {
     return (
       <div>
         <Grid>
@@ -67,7 +65,7 @@ var Intro = React.createClass({
 
 var MainToolbar = React.createClass({
 
-  render: function() {
+  render() {
     
       return (
         <Navbar brand='Snoopy' inverse toggleNavKey={0}>
@@ -86,7 +84,7 @@ var MainToolbar = React.createClass({
 
 var IntroPanel = React.createClass({
 
-  render: function() {
+  render() {
     return (
       <Panel>
       <h4>Welcome to Snoopy</h4>
@@ -102,7 +100,7 @@ var IntroPanel = React.createClass({
 
 var ManualPanel = React.createClass({
 
-  render: function() {
+  render() {
     var style = {
       backgroundColor: '#D5EBF6'
     };
@@ -123,7 +121,7 @@ var ManualPanel = React.createClass({
 
 var BatchPanel = React.createClass({
 
-  render: function() {
+  render() {
     var panelStyle = {
       backgroundColor: '#EEFFEB'
     };

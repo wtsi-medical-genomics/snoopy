@@ -33,6 +33,7 @@ var FileLoader = React.createClass({
   handleLoadClick() {
     this.props.onRequestHide();
     this.props.handleFileLoad(this.state.files[this.state.key]);
+    //this.props.handleFileLoad('http://127.0.0.1:8000/examples/variants.txt');
 
   },
 
@@ -73,7 +74,7 @@ var FileLoader = React.createClass({
 
 var HTTPTab = React.createClass({
   handleFileChange() {
-    this.props.handleFileChange(this.refs.path.getValue());
+    this.props.handleFileChange(this.refs.path.getValue());    
   },
   render() {
     return (

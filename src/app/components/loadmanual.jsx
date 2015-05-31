@@ -11,6 +11,8 @@ var Glyphicon = rb.Glyphicon;
 var Pager = rb.Pager;
 var PageItem = rb.PageItem;
 var ModalTrigger = rb.ModalTrigger;
+var ListGroup = rb.ListGroup;
+var ListGroupItem = rb.ListGroupItem;
 
 var FileLoader = require('./fileloader.jsx');
 var getName = require('../utils.js').getName;
@@ -20,13 +22,31 @@ var getName = require('../utils.js').getName;
 
 var LoadManual = React.createClass({
 
-  handleVariantText: function(ftext, fpath) {
-    session.variantFile = fpath;
-    session.parseVariants(ftext);
+  getInitialState() {
+    return {session: new Session()};
   },
 
-  render: function() {
-    console.log('i am in loadmanul');
+  handleVariantText(ftext, fpath) {
+    var s = this.state.session;
+    s.variantFile = fpath;
+    s.parseVariants(ftext);
+    this.setState({session: s});
+  },
+
+  handleDataFile(files) {
+    var s = this.state.session;
+    s.addFile(files);
+    this.setState({session: s});
+    console.log(s);
+  },
+
+  handleRemoveDataFile(id) {
+    var s = this.state.session;
+    s.remove(id);
+    this.setState({session: s});
+  },
+
+  render() {
     return (
       <div>
         <Grid>
@@ -34,10 +54,18 @@ var LoadManual = React.createClass({
             <Col md={2}></Col>
             <Col md={8}>
               <TitlePanel />
-              <LoadVariantsPanel handleVariantText={this.handleVariantText}/>
-              <LoadDataPanel />
+              <LoadVariantsPanel
+                handleVariantText={this.handleVariantText}
+                session={this.state.session}
+              />
+              <LoadDataPanel
+                handleDataFile={this.handleDataFile}
+                session={this.state.session}
+                handleRemoveDataFile={this.handleRemoveDataFile}
+              />
               <Pager>
                 <PageItem previous href='#'>&larr; Cancel, Return To Main Menu</PageItem>
+                 <PageItem next href='#'>Proceed to QC &rarr;</PageItem>
               </Pager>
             </Col>
             <Col md={2}></Col>
@@ -65,17 +93,21 @@ var TitlePanel = React.createClass({
 
 var LoadVariantsPanel = React.createClass({
   handleFileLoad(file) {
-    console.log('call back in variant load');
-    console.log(typeof(file));
     if (typeof(file) === 'object') {
       // a file object has been loaded
       file = file[0];
+      var reader = new FileReader();
+      reader.readAsText(file);
+      reader.onload = () => {
+        this.props.handleVariantText(reader.result, '(local) ' + file.name);
+          // sessionInstance.load(reader.result);
+      };
     } else {
       // a URL has been loaded
       var request = new XMLHttpRequest();
       request.open('GET', file, true);
       request.setRequestHeader('Content-Type', 'text/plain');
-      request.onload = function() {
+      request.onload = () => {
         if (request.status >= 200 && request.status < 400) {
           // Success!
           console.log('in the request onload');
@@ -85,27 +117,30 @@ var LoadVariantsPanel = React.createClass({
           // We reached our target server, but it returned an error
           console.log('oops');
         }
-      }.bind(this);
+      };
       request.send('');
     }
-
-      // jquery.ajax({
-      //     url: file,
-      //     contentType: 'text/plain',
-      //     crossDomain: true
-      //     //xhrFields: { withCredentials: true }
-      // }).done(function(fileText) {
-      //     console.log(fileText);
-      //     //s.parseVariants(fileText);
-      // }).fail(function(jqXHR, textStatus) {
-      //     //this.renderFileLoadingErrorList('<strong>Error</strong>: Could not access variant file ' + v);
-      //     console.log('it failed');
-      // }.bind(this));
-    // }
-    // console.log(file);
-
   },
   render: function() {
+    var tableStyle = {
+      'width': '100%'
+    };
+
+    if (this.props.session.variants.length && this.props.session.variantFile) {
+      var variantNode = (
+        <ListGroup className='someTopMargin'>
+          <ListGroupItem bsStyle='success'>
+            <table style={tableStyle}>
+              <tr>
+                <td><b>{this.props.session.variantFile}</b></td>
+                <td>n = {this.props.session.variants.length}</td>
+              </tr>
+            </table>
+          </ListGroupItem>
+        </ListGroup>
+      );
+    }
+
     return (
       <Panel>
         <h4>Select Variant File</h4>
@@ -123,16 +158,84 @@ var LoadVariantsPanel = React.createClass({
           }>
           <Button bsStyle="primary"><Glyphicon glyph="floppy-disk"/> Select Variant List</Button>
         </ModalTrigger>
-        
+        {variantNode}
       </Panel>
     );
   }
 
 });
 
-var LoadDataPanel = React.createClass({
+var DataFileRow = React.createClass({
+  
+  handleRemove() {
+    console.log(this.props);
+    this.props.handleRemove(this.props.file.id);
+  },
 
-  render: function() {
+  render() {
+    return (
+      <div>
+        <Glyphicon glyph='remove-sign' onClick={this.handleRemove} /> <b>{this.props.file.name}</b>
+      </div>
+    );
+  }
+});
+
+var LoadDataPanel = React.createClass({
+  handleFileLoad(files) {
+    console.log(this.props);
+    this.props.handleDataFile(files);
+  },
+  handleRemove(key) {
+    console.log(key);
+    this.props.handleRemoveDataFile(key);
+  },
+  compare(a,b) {
+    if (a.name < b.name)
+      return -1;
+    if (a.name > b.name)
+      return 1;
+    return 0;
+  },
+  render() {
+    var tableStyle = {
+      'width': '100%'
+    };
+
+    var fileNodes;
+    if (this.props.session.bamFiles.length + this.props.session.baiFiles.length) {
+      var files = this.props.session.bamFiles.concat(this.props.session.baiFiles);
+      var files = files.sort(this.compare);
+      var fileRows = files.map((file) => {
+        return <DataFileRow file={file} key={file.id} handleRemove={this.handleRemove} />
+      });
+      console.log(files);
+      fileNodes = (
+        <ListGroup className='someTopMargin'>
+          <ListGroupItem bsStyle='success'>
+              {fileRows}
+          </ListGroupItem>
+        </ListGroup>
+      );
+    };
+
+    // if (this.props.session.baiFiles.length) {
+    //   var baiRows = this.props.session.baiFiles.map((baiFile) => {
+    //     console.log(baiFile);
+    //     return <DataFileRow file={baiFile} key={baiFile.id} handleRemove={this.handleRemove} />
+    //   });
+
+    //   var baiNodes = (
+    //     <ListGroup className='someTopMargin'>
+    //       <ListGroupItem bsStyle='success'>
+    //         <table style={tableStyle}>
+    //           {baiRows}
+    //         </table>
+    //       </ListGroupItem>
+    //     </ListGroup>
+    //   );
+    // }
+
     return (
       <Panel>
         <h4>Select Sequence Data</h4>
@@ -142,13 +245,14 @@ var LoadDataPanel = React.createClass({
           <ModalTrigger modal={
             <FileLoader
               title='Select Sequence Data'
-              multiple={false}
+              multiple={true}
               text='Using one of the following menas of file access, select your BAMs view. Note that for local BAM files, BAIs will also need to be loaded.'
+              handleFileLoad={this.handleFileLoad}
             />
           }>
           <Button bsStyle="primary"><Glyphicon glyph="floppy-disk"/> Select Sequence Data</Button>
         </ModalTrigger>
-        
+        {fileNodes}
       </Panel>
     );
   }
