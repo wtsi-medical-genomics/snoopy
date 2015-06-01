@@ -15,20 +15,10 @@ var Glyphicon = rb.Glyphicon;
 
 var QC = React.createClass({
   
-  render() {
-    return (
-      <div>
-        <QCToolbar />
-        <DallianceHolder />
-      </div>
-    );
-  }
-
-});
-
-
-var DallianceHolder = React.createClass({
   componentDidMount() {
+
+    console.log(this.props.sessions);
+
     var b = new Browser({
       chr:          '18',
       viewStart:    117141,
@@ -73,9 +63,23 @@ var DallianceHolder = React.createClass({
   },
 
   render() {
+    return (
+      <div>
+        <QCToolbar />
+        <DallianceHolder />
+      </div>
+    );
+  }
+
+});
+
+
+var DallianceHolder = React.createClass({
+
+  render() {
     var style = {
       backgroundColor: 'white',
-      border: '4px solid black'
+      border: '4px solid darkcyan'
     }
     return (
         <div id="svgHolder" style={style}></div>

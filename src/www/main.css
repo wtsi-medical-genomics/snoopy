@@ -1,3 +1,16 @@
+
+.QCToolbar .navbar-nav>li>a {
+   padding-top: 7.5px !important; 
+   padding-bottom: 7.5px !important;
+   padding-left: 5px !important;
+   padding-right: 5px !important;
+}
+
+
+.someTopMargin {
+    margin-top: 10px;
+}
+
 .nav-tabs>li>a {
     background-color: aliceblue;
 }
@@ -198,8 +211,7 @@ table.color-code tr.a td {
     display: none;
 }
 
-#controlCenter {
-    display: none;
+.controlCenter {
     padding: 7.5px;
 }
 

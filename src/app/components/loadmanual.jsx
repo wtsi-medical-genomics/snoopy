@@ -46,13 +46,20 @@ var LoadManual = React.createClass({
     this.setState({session: s});
   },
 
+  handleGoQC(e) {
+    e.preventDefault();
+    var s = new Sessions();
+    s.sessions[0] = this.state.session;
+    this.props.handleGoQC(s);
+  },
+
   render() {
     return (
       <div>
         <Grid>
           <Row className='show-grid'>
-            <Col md={2}></Col>
-            <Col md={8}>
+            <Col md={3}></Col>
+            <Col md={6}>
               <TitlePanel />
               <LoadVariantsPanel
                 handleVariantText={this.handleVariantText}
@@ -65,10 +72,10 @@ var LoadManual = React.createClass({
               />
               <Pager>
                 <PageItem previous href='#'>&larr; Cancel, Return To Main Menu</PageItem>
-                 <PageItem next href='#'>Proceed to QC &rarr;</PageItem>
+                 <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
               </Pager>
             </Col>
-            <Col md={2}></Col>
+            <Col md={3}></Col>
           </Row>
         </Grid>
       </div>

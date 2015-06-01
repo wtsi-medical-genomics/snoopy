@@ -19,22 +19,37 @@ var QC = require('./qc.jsx');
 var Main = React.createClass({
   
   getInitialState() {
-    return {view: 'qc'};
+    return {view: 'intro'}; //intro, loadmanual, loadbatch, qc
+  },
+
+  handleGoManual() {
+    this.setState({view: 'loadmanual'});
+  },
+
+  handleGoQC(sessions) {
+    this.setState({view: 'qc', sessions: sessions});
   },
 
   render() {
     var Child;
     switch (this.state.view) {
-      case 'intro': Child = Intro; break;
-      case 'loadmanual': Child = LoadManual; break;
-      case 'qc': Child = QC; break;
-      default:      Child = Intro;
+      case 'intro':
+        child = <Intro handleGoManual={this.handleGoManual} />;
+        break;
+      case 'loadmanual':
+        child = <LoadManual handleGoQC={this.handleGoQC}/>;
+        break;
+      case 'qc':
+        child = <QC sessions={this.state.sessions} />;
+        break;
+      default:
+        child = <Intro />;
     }
 
     return (
-      <div>
+      <div className="outerWrapper">
         <MainToolbar view={this.state.view} />
-        <Child />
+        {child}
       </div>
     );
   },
@@ -42,18 +57,23 @@ var Main = React.createClass({
 });
 
 var Intro = React.createClass({
+
+  handleGoManual() {
+    this.props.handleGoManual();
+  },
+
   render() {
     return (
-      <div>
+      <div className="innerWrapper">
         <Grid>
           <Row className='show-grid'>
-            <Col md={2}></Col>
-            <Col md={8}>
+            <Col md={3}></Col>
+            <Col md={6}>
               <IntroPanel />
-              <ManualPanel />
+              <ManualPanel handleGoManual={this.handleGoManual}/>
               <BatchPanel />
             </Col>
-            <Col md={2}></Col>
+            <Col md={3}></Col>
           </Row>
         </Grid>
       </div>
@@ -100,6 +120,11 @@ var IntroPanel = React.createClass({
 
 var ManualPanel = React.createClass({
 
+  handleClick(e) {
+    e.preventDefault();
+    this.props.handleGoManual();
+  },
+
   render() {
     var style = {
       backgroundColor: '#D5EBF6'
@@ -111,7 +136,7 @@ var ManualPanel = React.createClass({
           <p>
             This mode is used when you want to manually add files from your local machine or from a server. Using Snoopy in this way will limit you to only one variant file.
           </p>
-          <Button bsStyle="primary">Go Manual<Glyphicon glyph="chevron-right"/></Button>
+          <Button bsStyle="primary" onClick={this.handleClick}>Go Manual<Glyphicon glyph="chevron-right"/></Button>
       </Panel>
     );
   }
@@ -128,7 +153,7 @@ var BatchPanel = React.createClass({
 
     return (
       <Panel style={panelStyle}>
-        <h4>Manual</h4>
+        <h4>Batch</h4>
           <p>
             In this mode you have a file prepared that lists multiple “sessions”. Each session consists of a remote file listing variants along with a collection of remote BAM files.
           </p>
