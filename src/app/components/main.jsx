@@ -30,6 +30,10 @@ var Main = React.createClass({
     this.setState({view: 'qc', sessions: sessions});
   },
 
+  handleGoIntro() { 
+    this.setState({view: 'intro'});
+  },
+
   render() {
     var Child;
     switch (this.state.view) {
@@ -37,7 +41,7 @@ var Main = React.createClass({
         child = <Intro handleGoManual={this.handleGoManual} />;
         break;
       case 'loadmanual':
-        child = <LoadManual handleGoQC={this.handleGoQC}/>;
+        child = <LoadManual handleGoQC={this.handleGoQC} handleGoIntro={this.handleGoIntro}/>;
         break;
       case 'qc':
         child = <QC sessions={this.state.sessions} />;
@@ -62,6 +66,10 @@ var Intro = React.createClass({
     this.props.handleGoManual();
   },
 
+  handleGoIntro() {
+    this.props.handleGoIntro();
+  },
+
   render() {
     return (
       <div className="innerWrapper">
@@ -70,7 +78,7 @@ var Intro = React.createClass({
             <Col md={3}></Col>
             <Col md={6}>
               <IntroPanel />
-              <ManualPanel handleGoManual={this.handleGoManual}/>
+              <ManualPanel handleGoManual={this.handleGoManual} handleGoIntro={this.handleGoIntro}/>
               <BatchPanel />
             </Col>
             <Col md={3}></Col>

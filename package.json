@@ -1,0 +1,39 @@
+{
+  "name": "snoopy-bootstrap-react",
+  "version": "0.2.0",
+  "description": "Variant QC webtool built with Dalliance",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wtsi-medical-genomics/snoopy"
+  },
+  "scripts": {
+    "start": "gulp"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "reactify",
+        {
+          "es6": true
+        }
+      ]
+    ]
+  },
+  "devDependencies": {
+    "browser-sync": "^1.8.1",
+    "browserify": "^7.0.3",
+    "gulp": "^3.8.10",
+    "gulp-notify": "^2.1.0",
+    "gulp-util": "^3.0.1",
+    "pretty-hrtime": "^0.2.2",
+    "reactify": "^0.17.1",
+    "require-dir": "^0.1.0",
+    "underscore": "^1.7.0",
+    "vinyl-source-stream": "^1.0.0",
+    "watchify": "^2.2.1"
+  },
+  "dependencies": {
+    "react-bootstrap": ">=0.23",
+    "react": ">=0.13"
+  }
+}

@@ -30,9 +30,12 @@ var FileLoader = React.createClass({
     console.log(this.state);
   },
 
-  handleLoadClick() {
+  handleSubmit() {
+    console.log('here!');
     this.props.onRequestHide();
-    this.props.handleFileLoad(this.state.files[this.state.key]);
+    var v = this.state.files[this.state.key];
+    if (v)
+      this.props.handleFileLoad(v);
     //this.props.handleFileLoad('http://127.0.0.1:8000/examples/variants.txt');
 
   },
@@ -48,7 +51,7 @@ var FileLoader = React.createClass({
             <p>{this.props.text}</p>
             <TabbedArea activeKey={this.state.key} animation={false} onSelect={this.handleSelect}>
               <TabPane eventKey={0} tab='HTTP/S'>
-                <HTTPTab handleFileChange={this.handleFileChange}/>
+                <HTTPTab handleFileChange={this.handleFileChange} handleSubmit={this.handleSubmit}/>
               </TabPane>
               <TabPane eventKey={1} tab='Local File'>
                 <LocalFileTab multiple={this.props.multiple} handleFileChange={this.handleFileChange}/>
@@ -57,12 +60,12 @@ var FileLoader = React.createClass({
                 <LocalServerTab handleFileChange={this.handleFileChange}/>
               </TabPane>
               <TabPane eventKey={3} tab='SSH'>
-                <SSHTab handleFileChange={this.handleFileChange}/>
+                <SSHTab handleFileChange={this.handleFileChange} handleSubmit={this.handleSubmit}/>
               </TabPane>
             </TabbedArea>
           </div>
           <div className='modal-footer'>
-            <Button bsStyle="primary" onClick={this.handleLoadClick}>{loadButtonText}</Button>
+            <Button bsStyle="primary" onClick={this.handleSubmit}>{loadButtonText}</Button>
             <Button onClick={this.props.onRequestHide}>Close</Button>
           </div>
         </Modal>
@@ -76,12 +79,16 @@ var HTTPTab = React.createClass({
   handleFileChange() {
     this.props.handleFileChange(this.refs.path.getValue());    
   },
+  handleSubmit(e) {
+    e.preventDefault();
+    this.props.handleSubmit();
+  },
   render() {
     return (
       <div>
         <p>Load a file that resides on a remote server and can be accessed via HTTP/S.</p>
-        <form role="form">
-          <Input type="text" ref="path" placeholder="...path to file on server" onChange={this.handleFileChange}/>
+        <form role="form" onSubmit={this.handleSubmit}>
+          <Input type="text" ref="path" placeholder="[server URL]/[path to file]" onChange={this.handleFileChange}/>
         </form>
       </div>
     );
@@ -93,11 +100,8 @@ var LocalFileTab = React.createClass({
   handleFileChange() {
     var files = React.findDOMNode(this.refs.file).files;
     this.props.handleFileChange(files);
-  },
-  
-  
+  },  
   render() {
-
     if (this.props.multiple)
       var input = (<input type="file" ref="file" multiple onChange={this.handleFileChange}/>);
     else
@@ -117,12 +121,16 @@ var LocalServerTab = React.createClass({
   handleFileChange() {
     this.props.handleFileChange(this.refs.path.getValue());
   },
+  handleSubmit(e) {
+    e.preventDefault();
+    this.props.handleSubmit();
+  },
   render() {
     return (
       <div>
         <p>Load a file that exists on a local server that you have started.</p>
-        <form role="form" onSubmit={this.handleOK}>
-          <Input type="text" ref="path" placeholder="...path to file on server" onChange={this.handleFileChange}/>
+        <form role="form" onSubmit={this.handleSubmit}>
+          <Input type="text" ref="path" placeholder="[local server]/[path to file]" onChange={this.handleFileChange}/>
         </form>
       </div>
     );
@@ -133,12 +141,16 @@ var SSHTab = React.createClass({
   handleFileChange() {
     this.props.handleFileChange(this.refs.path.getValue());
   },
+  handleSubmit(e) {
+    e.preventDefault();
+    this.props.handleSubmit();
+  },
   render() {
     return (
       <div>
         <p>Load a file that exists on a local server that cannot be accessed via HTTP/S but can be accessed via SSH. To use this option, an ssh-bridge server must have been started on your local machine.</p>
-        <form role="form" onSubmit={this.handleOK}>
-          <Input type="text" ref="path" placeholder="...path to file on server" onChange={this.handleFileChange}/>
+        <form role="form" onSubmit={this.handleSubmit}>
+          <Input type="text" ref="path" placeholder="[local server]/[user]@[remote server]:[path to file]" onChange={this.handleFileChange}/>
         </form>
       </div>
     );

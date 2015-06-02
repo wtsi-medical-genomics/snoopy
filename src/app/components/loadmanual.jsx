@@ -17,6 +17,9 @@ var ListGroupItem = rb.ListGroupItem;
 var FileLoader = require('./fileloader.jsx');
 var getName = require('../utils.js').getName;
 
+var session = require('../session.js');
+var Session = session.Session;
+var Sessions = session.Sessions;
 
 
 
@@ -53,6 +56,11 @@ var LoadManual = React.createClass({
     this.props.handleGoQC(s);
   },
 
+  handleGoBack(e) {
+    e.preventDefault();
+    this.props.handleGoIntro();
+  },
+
   render() {
     return (
       <div>
@@ -71,7 +79,7 @@ var LoadManual = React.createClass({
                 handleRemoveDataFile={this.handleRemoveDataFile}
               />
               <Pager>
-                <PageItem previous href='#'>&larr; Cancel, Return To Main Menu</PageItem>
+                <PageItem previous href='#' onClick={this.handleGoBack}>&larr; Cancel, Return To Main Menu</PageItem>
                  <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
               </Pager>
             </Col>
@@ -114,6 +122,7 @@ var LoadVariantsPanel = React.createClass({
       var request = new XMLHttpRequest();
       request.open('GET', file, true);
       request.setRequestHeader('Content-Type', 'text/plain');
+      request.withCredentials = true;
       request.onload = () => {
         if (request.status >= 200 && request.status < 400) {
           // Success!
@@ -253,7 +262,7 @@ var LoadDataPanel = React.createClass({
             <FileLoader
               title='Select Sequence Data'
               multiple={true}
-              text='Using one of the following menas of file access, select your BAMs view. Note that for local BAM files, BAIs will also need to be loaded.'
+              text='Using one of the following menas of file access, select the BAMs you wish to view. Note that for local BAM files, BAIs will also need to be loaded.'
               handleFileLoad={this.handleFileLoad}
             />
           }>

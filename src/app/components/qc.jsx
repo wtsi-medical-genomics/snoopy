@@ -13,53 +13,14 @@ var Grid = rb.Grid;
 var Button = rb.Button;
 var Glyphicon = rb.Glyphicon;
 
-var QC = React.createClass({
-  
+
+var QC = React.createClass({ 
   componentDidMount() {
 
     console.log(this.props.sessions);
-
-    var b = new Browser({
-      chr:          '18',
-      viewStart:    117141,
-      viewEnd:      117341,
-      // chr:          '16',
-      // viewStart:    48000629,
-      // viewEnd:      48000820,
-      // noPersistView : true,
-      cookieKey:    'human-grc_h37',
-      coordSystem: {
-        speciesName: 'Human',
-        taxon: 9606,
-        auth: 'GRCh',
-        version: '37',
-        ucscName: 'hg19'
-      },
-      maxHeight : 10000,
-      setDocumentTitle: true,
-      //uiPrefix: window.location.origin + '/',
-      fullScreen: true,
-      disableDefaultFeaturePopup : true,
-      noPersist : true,
-      maxWorkers : 3,
-      baseColors: {
-        A: 'green', 
-        C: 'blue', 
-        G: 'orange', 
-        T: 'red',
-        '-' : 'black', // deletion
-        I : 'mediumpurple' // insertion
-      },
-      sources: [
-        {
-          name: 'Genome',
-          twoBitURI: 'http://www.biodalliance.org/datasets/hg19.2bit',
-          tier_type: 'sequence',
-          provides_entrypoints: true,
-          pinned: true
-        }
-      ]
-    });
+    //this.props.sessions.loadDalliance();
+    this.props.sessions.init();
+    
   },
 
   render() {
@@ -90,6 +51,10 @@ var DallianceHolder = React.createClass({
 
 var QCToolbar = React.createClass({
 
+  handleVariant() {
+
+  },
+
   render() {
 
       return (
@@ -100,7 +65,7 @@ var QCToolbar = React.createClass({
             <NavItem eventKey={2} href='#'><Button><Glyphicon glyph="chevron-left"/>Previous</Button></NavItem>
             <NavItem eventKey={3} href='#'><Button>Not a Variant<Glyphicon glyph="chevron-right"/></Button></NavItem>
             <NavItem eventKey={4} href='#'><Button>Uncertain<Glyphicon glyph="chevron-right"/></Button></NavItem>
-            <NavItem eventKey={5} href='#'><Button>Variant<Glyphicon glyph="chevron-right"/></Button></NavItem>
+            <NavItem eventKey={5} href='#' handleClick={this.handleVariant}><Button>Variant<Glyphicon glyph="chevron-right"/></Button></NavItem>
           </Nav>
         </Navbar>   
       );    
