@@ -21,6 +21,12 @@ var session = require('../session.js');
 var Session = session.Session;
 var Sessions = session.Sessions;
 
+var lft = require('../loadedfiletypes.js');
+var LocalBAM = lft.LocalBAM;
+var LocalBAI = lft.LocalBAI;
+var RemoteBAM = lft.RemoteBAM;
+var RemoteBAI = lft.RemoteBAI;
+
 
 
 var LoadManual = React.createClass({
@@ -181,18 +187,50 @@ var LoadVariantsPanel = React.createClass({
 
 });
 
+var IndexMessage = React.createClass({
+  
+  render() {
+    if (this.props.file instanceof LocalBAM) {
+      if (this.props.file.index) {
+        return (<div><Glyphicon glyph='thumbs-up' /> Local Index Loaded</div>);
+      }
+      else {
+        return (<div><Glyphicon glyph='warning-sign' /> Needs Local Index</div>);
+      }
+    } else {
+      return null
+    }
+  }
+});
+
 var DataFileRow = React.createClass({
   
-  handleRemove() {
+  handleRemove(e) {
+    e.preventDefault();
     console.log(this.props);
     this.props.handleRemove(this.props.file.id);
   },
 
   render() {
+    var indexMessage;
+    if (this.props.file instanceof LocalBAM) {
+      if (this.props.file.index) {
+        indexMessage = (<div><td></td><td>Local Index Loaded</td></div>);
+      }
+      else {
+        indexMessage = (<div><td><Glyphicon glyph='warning-sign' /></td><td>Needs Local Index</td></div>);
+      }
+    } else {
+      indexMessage = (<div><td></td><td></td></div>);
+    }
+
+
     return (
-      <div>
-        <Glyphicon glyph='remove-sign' onClick={this.handleRemove} /> <b>{this.props.file.name}</b>
-      </div>
+      <tr>
+        <td><a href="#" onClick={this.handleRemove}><Glyphicon glyph='remove-sign' /></a></td>
+        <td><b>{this.props.file.name}</b></td>
+        <td>{indexMessage}</td>
+      </tr>
     );
   }
 });
@@ -229,7 +267,11 @@ var LoadDataPanel = React.createClass({
       fileNodes = (
         <ListGroup className='someTopMargin'>
           <ListGroupItem bsStyle='success'>
-              {fileRows}
+            <table style={tableStyle}>
+              <tbody>
+                {fileRows}
+              </tbody>
+            </table>
           </ListGroupItem>
         </ListGroup>
       );

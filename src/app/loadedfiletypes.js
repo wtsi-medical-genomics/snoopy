@@ -1,7 +1,7 @@
 "use strict";
 
 var getName = require('./utils.js').getName;
-
+var BAI_RE = /^(.*)\.bai$/i;
 function LoadedFile(file, name, id) {
     this.file = file || null;
     this.name = name || null;
@@ -75,6 +75,12 @@ BAM.prototype.print = function(index, showDelete, backgroundColor) {
     str += "</td></tr>";
     return str;
 }
+
+/** Determine if bai is a suitable index based on filename */
+// BAM.prototype.matchesIndex = function(bai) {
+//     var m = bai.name.match(BAI_RE);
+//     return (m[1] === this.name);
+// }
 
 LocalBAM.prototype.getTier = function(style) {
     this.tier["bamBlob"] = this.file;
@@ -197,6 +203,7 @@ RemoteVariantFile.prototype.get = function(sessionInstance, dallianceBrowser) {
         sessionInstance.load(fileText, dallianceBrowser);
     });
 };
+
 
 function doesItExist(url, callback) {
     $.ajax({

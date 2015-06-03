@@ -13,7 +13,8 @@ var RemoteBAI = loadedfiletypes.RemoteBAI;
 var LocalBAM = loadedfiletypes.LocalBAM;
 var LocalBAI = loadedfiletypes.LocalBAI;
 
-
+var BAI_RE = /^(.*)\.bai$/i;
+var BAM_RE = /^(.*)\.bam$/i;
 var uid = new UID();
 
 var referenceGenome = {
@@ -76,7 +77,47 @@ Session.prototype.addFile = function(file) {
             }
         }
     }
+    this.matchMaker();
+    console.log(this);
 }
+
+/** Determines if any unmatched LocalBAM's have a matching LocalBAI. It is not necessary for
+a RemoteBAM to have a RemoteBAI, as it assumed to be in the same location, but if any RemoteBAI's 
+have been provided marry these to a RemoteBAM.*/
+Session.prototype.matchMaker = function() {
+    var toRemove = [];
+    for (var i=0; i<this.bamFiles.length; ++i) {
+        var bamFile = this.bamFiles[i];
+        if (!bamFile.index) {
+            for (var j=0; j<this.baiFiles.length; ++j) {
+                var baiFile = this.baiFiles[j];
+                var stripBai = baiFile.name.match(BAI_RE);
+                var stripBam = bamFile.name.match(BAM_RE);
+                if ((stripBai[1] === bamFile.name) || (stripBai[1] === stripBam[1]) &&
+                    (bamFile.file.type === baiFile.file.type)) {
+                    this.bamFiles[i].index = baiFile;
+                    toRemove.push(baiFile.id);
+                }
+            }
+        }
+    }
+    toRemove.forEach((id) => {this.remove(id)});
+    // this.bamFiles.forEach((bamFile) => {
+    //     if (!bamFile.index) {
+    //         var match = baiFiles.filter((baiFile) => {
+    //             return (bamFile.name === baiFile.name) && (bamFile.file.type === baiFile.file.type);
+    //         });
+    //         if (match) {
+    //             // If for some reason there is more than one loaded match, only include the first
+    //             if match.hasOwnProperty(length)
+    //                 bamFile.index = match[0];
+    //             else
+    //                 bamFile.index = match;
+    //         }
+    //     }
+    // });
+};
+
 
 Session.prototype.parseVariants = function(variants) {
     // the variants have not been loaded so process the contents of the variant file text
@@ -252,7 +293,7 @@ Session.prototype.variantHTML = function() {
 Session.prototype.gotoCurrentVariant = function() {
     this.variants[this.index].visit();
     // if (app.settings.autoZoom) {
-    //     if (app.settings.defaultZoomLevel === 'unit') { 
+    //     if (app.settings.defaultZoomLevel === 'unit') {
     //         app.browser.zoomStep(-1000000);
     //     } else {
     //         app.browser.zoom(app.settings.customZoom);
@@ -329,47 +370,7 @@ Sessions.prototype.load = function(sessionIndex, variantIndex) {
 
 /** This method is called upon starting QC */
 Sessions.prototype.init = function() {
-    this.browser = new Browser({
-      chr:          '18',
-      viewStart:    117141,
-      viewEnd:      117341,
-      // chr:          '16',
-      // viewStart:    48000629,
-      // viewEnd:      48000820,
-      // noPersistView : true,
-      cookieKey:    'human-grc_h37',
-      coordSystem: {
-        speciesName: 'Human',
-        taxon: 9606,
-        auth: 'GRCh',
-        version: '37',
-        ucscName: 'hg19'
-      },
-      maxHeight : 10000,
-      setDocumentTitle: true,
-      //uiPrefix: window.location.origin + '/',
-      fullScreen: true,
-      disableDefaultFeaturePopup : true,
-      noPersist : true,
-      maxWorkers : 3,
-      baseColors: {
-        A: 'green', 
-        C: 'blue', 
-        G: 'orange', 
-        T: 'red',
-        '-' : 'black', // deletion
-        I : 'mediumpurple' // insertion
-      },
-      sources: [
-        {
-          name: 'Genome',
-          twoBitURI: 'http://www.biodalliance.org/datasets/hg19.2bit',
-          tier_type: 'sequence',
-          provides_entrypoints: true,
-          pinned: true
-        }
-      ]
-    });
+    
     this.browser.addInitListener(function() {
         this.index = 0;
         this.sessions[this.index].index = 0;
