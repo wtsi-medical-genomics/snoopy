@@ -113,7 +113,7 @@ var TitlePanel = React.createClass({
 });
 
 var LoadVariantsPanel = React.createClass({
-  handleFileLoad(file) {
+  handleFileLoad(file, opts) {
     if (typeof(file) === 'object') {
       // a file object has been loaded
       file = file[0];
@@ -237,7 +237,39 @@ var DataFileRow = React.createClass({
 
 var LoadDataPanel = React.createClass({
   handleFileLoad(files) {
-    console.log(this.props);
+    // console.log(this.props);
+    // if (typeof(files) === 'string') {
+    //   // we have a URL so test if the file exists before adding it to a session
+    //   var URL = files;
+    //   var request = new XMLHttpRequest();
+    //   request.open('GET', URL, true);
+
+    //   //request.setRequestHeader('Content-Type', 'text/plain');
+    //   //request.withCredentials = true;
+    //   request.onload = () => {
+    //     if (request.status >= 200 && request.status < 400) {
+    //       // Success!
+    //       console.log('in the request onload');
+    //       console.log(request.responseText);
+    //       this.props.handleVariantText(request.responseText, file);
+    //     } else {
+    //       // We reached our target server, but it returned an error
+    //       console.log('oops');
+    //     }
+    //   };
+    //   request.send('');
+    // } 
+
+    //   typeof(file) === 'object') {
+    //   // a file object has been loaded
+    //   file = file[0];
+    //   var reader = new FileReader();
+    //   reader.readAsText(file);
+    //   reader.onload = () => {
+    //     this.props.handleVariantText(reader.result, '(local) ' + file.name);
+    //       // sessionInstance.load(reader.result);
+    //   };
+    // } else {
     this.props.handleDataFile(files);
   },
   handleRemove(key) {
