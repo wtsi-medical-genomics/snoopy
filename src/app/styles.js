@@ -1,6 +1,6 @@
 "use strict";
 
-var styleSheets = 
+var styles = 
 {
     "raw": {
         "styles": [
@@ -154,4 +154,4 @@ var styleSheets =
     }
 }
 
-module.exports = styleSheets;
+module.exports = styles;

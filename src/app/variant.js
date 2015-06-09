@@ -8,6 +8,10 @@ function Variant(chr) {
     }
 }
 
+// Variant.prototype.setScore(score) {
+//     this.score = score;
+// }
+
 Variant.prototype.scoreString = function() {
 	var s = "";
     switch (this.score) {
@@ -32,10 +36,22 @@ function SNP(chr, loc) {
 	this.loc = loc;
 }
 
-SNP.prototype.visit = function() {
-    app.browser.clearHighlights();
-    app.browser.setCenterLocation('chr' + this.chr, this.loc);
-    app.browser.highlightRegion('chr' + this.chr, this.loc, this.loc + 1);
+SNP.prototype.visit = function(b) {
+    b.clearHighlights();
+    b.setCenterLocation('chr' + this.chr, this.loc);
+    b.highlightRegion('chr' + this.chr, this.loc, this.loc + 1);
+    return this;
+}
+
+SNP.prototype.getLocation = function() {
+    return {chr: 'chr' + this.chr,
+            loc: this.loc}
+}
+
+SNP.prototype.getHighlightRegion = function() {
+    return {chr: 'chr' + this.chr,
+            min: this.loc,
+            max: this.loc + 1}
 }
 
 SNP.prototype.prettyString = function() {
@@ -55,26 +71,39 @@ SNP.prototype.string = function() {
 
 CNV.prototype = new Variant;
 
-function CNV(chr, start, end) {
+function CNV(chr, min, max) {
 	this.base = Variant;
 	this.base(chr);
-	this.start = start;
-	this.end = end;
+	this.min = min;
+	this.max = max;
 }
 
-CNV.prototype.visit = function() {
-    app.browser.clearHighlights();
-	var loc = (this.start + this.end) / 2;
-    app.browser.setCenterLocation('chr' + this.chr, loc);
-    app.browser.highlightRegion('chr' + this.chr, this.start, this.end);
+CNV.prototype.visit = function(b) {
+    b.clearHighlights();
+	var loc = (this.min + this.max) / 2;
+    b.setCenterLocation('chr' + this.chr, loc);
+    b.highlightRegion('chr' + this.chr, this.min, this.max);
+    return this;
+}
+
+CNV.prototype.getLocation = function() {
+    var loc = (this.min + this.max) / 2;
+    return {chr: 'chr' + this.chr,
+            loc: this.loc}
+}
+
+CNV.prototype.getHighlightRegion = function() {
+    return {chr: 'chr' + this.chr,
+            min: this.min,
+            max: this.max}
 }
 
 CNV.prototype.prettyString = function() {
-	return this.chr + ":" + this.start + "-" + this.end + " "+ this.scoreString();
+	return this.chr + ":" + this.min + "-" + this.max + " "+ this.scoreString();
 }
 
 CNV.prototype.string = function() {
-	return this.chr + ":" + this.start + "-" + this.end + " " + this.score;
+	return this.chr + ":" + this.min + "-" + this.max + " " + this.score;
 }
 
 module.exports = {

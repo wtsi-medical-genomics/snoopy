@@ -1,3 +1,9 @@
+.Settings .form-group {
+    margin-bottom: 5px !important; 
+}
+.container {
+    width: 100%;
+}
 
 .QCToolbar .navbar-nav>li>a {
    padding-top: 7.5px !important; 

@@ -1,33 +1,22 @@
 "use strict";
 
-var getName = require('./utils.js').getName;
+
+var utils = require('./utils.js');
+var getName = utils.getName;
+var UID = utils.UID;
+
+var uid = new UID();
 var BAI_RE = /^(.*)\.bai$/i;
-function LoadedFile(file, name, id) {
+
+function LoadedFile(file, name) {
     this.file = file || null;
     this.name = name || null;
-    this.id = id || null;
+    this.id = uid.next();
 }
 
-
-// function uuid() {
-//     /*jshint bitwise:false */
-//     var i, random;
-//     var uuid = '';
-
-//     for (i = 0; i < 32; i++) {
-//         random = Math.random() * 16 | 0;
-//         if (i === 8 || i === 12 || i === 16 || i === 20) {
-//             uuid += '-';
-//         }
-//         uuid += (i === 12 ? 4 : (i === 16 ? (random & 3 | 8) : random))
-//             .toString(16);
-//     }
-//     return uuid;
-// }
-
-function BAM(file, name, id, index) {
+function BAM(file, name, index) {
     this.base = LoadedFile;
-    this.base(file, name, id);
+    this.base(file, name);
     this.index = index || null;
     this.tier = {
        noPersist: true,
@@ -36,16 +25,16 @@ function BAM(file, name, id, index) {
  }
 
 
-function BAI(file, name, id, mapping) {
+function BAI(file, name, mapping) {
     this.base = LoadedFile;
-    this.base(file, name, id);
+    this.base(file, name);
     this.mapping = mapping || null;
  }
 
 
-function LocalBAM(file, id) {
+function LocalBAM(file) {
     this.base = BAM;
-    this.base(file, file.name, id);
+    this.base(file, file.name);
 }
 
 LocalBAM.prototype = new BAM;
@@ -92,16 +81,16 @@ LocalBAM.prototype.getTier = function(style) {
     return this.tier;
 }
 
-function RemoteBAI(file, id) {
+function RemoteBAI(file) {
     this.base = BAI;
-    this.base(file, getName(file), id, true);
+    this.base(file, getName(file), true);
 }
 
 RemoteBAI.prototype = new BAI;
 
-function RemoteBAM(file, id) {
+function RemoteBAM(file) {
     this.base = BAM;
-    this.base(file, getName(file), id);
+    this.base(file, getName(file));
     this.index = true;
 }
 
@@ -126,9 +115,19 @@ RemoteBAM.prototype.getTier = function(style) {
     return this.tier;
 }
 
-function LocalBAI(file, id) {
+// SSHBAM.prototype = new RemoteBAM;
+
+// function SSHBAM(file) {
+//     this.base = BAM;
+//     this.base(file, getName(file));
+//     this.index = true;
+// }
+
+
+
+function LocalBAI(file) {
     this.base = BAI;
-    this.base(file, file.name, id);
+    this.base(file, file.name);
 }
 
 LocalBAI.prototype = new BAI;
@@ -203,19 +202,6 @@ RemoteVariantFile.prototype.get = function(sessionInstance, dallianceBrowser) {
         sessionInstance.load(fileText, dallianceBrowser);
     });
 };
-
-
-function doesItExist(url, callback) {
-    $.ajax({
-        url: url,
-        xhrFields: { withCredentials: true },
-        headers : {Range: "bytes=0-1"}
-    }).done(function() {
-        return callback(true);
-    }).fail(function() {
-        return callback(false);
-    });
-}
 
 module.exports = {
     RemoteBAM: RemoteBAM,

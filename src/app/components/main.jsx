@@ -12,9 +12,13 @@ var Row = rb.Row;
 var Grid = rb.Grid;
 var Button = rb.Button;
 var Glyphicon = rb.Glyphicon;
-
-var LoadManual = require('./loadmanual.jsx'); 
+var ModalTrigger = rb.ModalTrigger;
+var LoadManual = require('./loadmanual.jsx');
+var LoadBatch = require('./loadbatch.jsx');
 var QC = require('./qc.jsx');
+var Settings = require('./settings.jsx');
+var settings = Settings.settings;
+var SettingsModal = Settings.SettingsModal;
 
 var Main = React.createClass({
   
@@ -24,6 +28,10 @@ var Main = React.createClass({
 
   handleGoManual() {
     this.setState({view: 'loadmanual'});
+  },
+
+  handleGoBatch() {
+    this.setState({view: 'loadbatch'});
   },
 
   handleGoQC(sessions) {
@@ -38,10 +46,13 @@ var Main = React.createClass({
     var Child;
     switch (this.state.view) {
       case 'intro':
-        child = <Intro handleGoManual={this.handleGoManual} />;
+        child = <Intro handleGoManual={this.handleGoManual}  handleGoBatch={this.handleGoBatch}/>;
         break;
       case 'loadmanual':
-        child = <LoadManual handleGoQC={this.handleGoQC} handleGoIntro={this.handleGoIntro}/>;
+        child = <LoadManual handleGoQC={this.handleGoQC} handleGoIntro={this.handleGoIntro} />;
+        break;
+      case 'loadbatch':
+        child = <LoadBatch handleGoQC={this.handleGoQC} handleGoIntro={this.handleGoIntro} />;
         break;
       case 'qc':
         child = <QC sessions={this.state.sessions} />;
@@ -66,8 +77,8 @@ var Intro = React.createClass({
     this.props.handleGoManual();
   },
 
-  handleGoIntro() {
-    this.props.handleGoIntro();
+  handleGoBatch() {
+    this.props.handleGoBatch();
   },
 
   render() {
@@ -78,8 +89,8 @@ var Intro = React.createClass({
             <Col md={3}></Col>
             <Col md={6}>
               <IntroPanel />
-              <ManualPanel handleGoManual={this.handleGoManual} handleGoIntro={this.handleGoIntro}/>
-              <BatchPanel />
+              <ManualPanel handleGoManual={this.handleGoManual} />
+              <BatchPanel  handleGoBatch={this.handleGoBatch} />
             </Col>
             <Col md={3}></Col>
           </Row>
@@ -92,13 +103,19 @@ var Intro = React.createClass({
 
 
 var MainToolbar = React.createClass({
+  handleSettings(x, e) {
+    e.preventDefault();
+    console.log('in settings' + x);
+  },
 
   render() {
     
       return (
         <Navbar brand='Snoopy' inverse toggleNavKey={0}>
           <Nav right eventKey={0}> {/* This is the eventKey referenced */}
-            <NavItem eventKey={1} href='#'>Settings</NavItem>
+            <ModalTrigger modal={<SettingsModal />}>
+              <NavItem eventKey={1} href='#'>Settings</NavItem>
+            </ModalTrigger>
             <NavItem eventKey={2} href='#'>Help</NavItem>
             <NavItem eventKey={2} href='#'>About</NavItem>
             <NavItem eventKey={2} href='#'>GitHub</NavItem>
@@ -153,6 +170,11 @@ var ManualPanel = React.createClass({
 
 
 var BatchPanel = React.createClass({
+  
+  handleClick(e) {
+    e.preventDefault();
+    this.props.handleGoBatch();
+  },
 
   render() {
     var panelStyle = {
@@ -165,7 +187,7 @@ var BatchPanel = React.createClass({
           <p>
             In this mode you have a file prepared that lists multiple “sessions”. Each session consists of a remote file listing variants along with a collection of remote BAM files.
           </p>
-          <Button bsStyle="success">Go Batch<Glyphicon glyph="chevron-right"/></Button>
+          <Button bsStyle="success" onClick={this.handleClick}>Go Batch<Glyphicon glyph="chevron-right"/></Button>
       </Panel>
     );
   }

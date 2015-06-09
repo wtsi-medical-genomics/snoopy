@@ -11,6 +11,11 @@ var Modal = rb.Modal;
 var Input = rb.Input;
 var Alert = rb.Alert;
 
+var utils = require('../utils.js');
+var getExtension = utils.getExtension;
+var arrayStringContains = utils.arrayStringContains;
+var combineServerPath = utils.combineServerPath;
+var httpExists = utils.httpExists;
 
 var FileLoader = React.createClass({  
   getInitialState() {
@@ -27,8 +32,9 @@ var FileLoader = React.createClass({
 
   handleInputChange(input) {
     var inputs = this.state.inputs;
-    inputs[this.state.key] = input
-    this.setState({inputs: inputs})
+    inputs[this.state.key] = input;
+    this.setState({inputs: inputs});
+    console.log(input);
   },
 
   handleSubmit() {
@@ -37,9 +43,9 @@ var FileLoader = React.createClass({
     
     var input = this.state.inputs[this.state.key];
     var errors = [];
-    var url;
-
-    switch (this.state.key) {
+    var file;
+    var credentials;
+    switch (this.state.key) { //['HTTP/S', 'Local', 'Local Server', 'SSH Bridge'];
       //HTTP/S
       case 0:
         if (input.server === '') {
@@ -48,24 +54,37 @@ var FileLoader = React.createClass({
         if (input.path === '') {
           errors.push('Please enter a path to your file.');
         }
+        if (!arrayStringContains(getExtension(input.path), this.props.allowedExtensions)) {
+          errors.push('File must have extension: ' + this.props.allowedExtensions.join(', '));
+        }
         if (errors.length === 0) {
-          url = input.server + input.path;
-          opts = {};
+          file = combineServerPath(input.server, input.path);
+          credentials = input.credentials;
+          if (!httpExists(file, credentials)) {
+            errors.push('Unable to access: ' + file);
+          }
         }
         break;
+      case 1:
+        for (var i=0; i<input.files.length; ++i) {
+          var f = input.files[i];
+          if (!arrayStringContains(getExtension(f.name), this.props.allowedExtensions)) {
+            errors.push(file.name + ': File must have extension: ' + this.props.allowedExtensions.join(', '));
+          }
+        }
+        if (errors.length === 0) {
+          file = input.files;
+        }
     }
 
     if (errors.length === 0) {
-      this.props.handleFileLoad(url, opts);
+      this.props.handleFileLoad(file, credentials);
+      this.props.onRequestHide();
     } else{
       console.log(input);
       console.log(errors);
       this.setState({errors:errors});
     }
-    //this.props.onRequestHide();
-
-
-    
 
     //this.props.handleFileLoad('http://127.0.0.1:8000/examples/variants.txt');
 
@@ -120,10 +139,14 @@ var FileLoader = React.createClass({
 
 
 var HTTPTab = React.createClass({
+  // this.props.handleCheckbox(value, e) {
+
+  // },
   handleInputChange() {
     this.props.handleInputChange(
       {server: this.refs.server.getValue().trim(),
-       path: this.refs.path.getValue().trim()
+       path: this.refs.path.getValue().trim(),
+       credentials: this.refs.credentials.getChecked()
       }
     ); 
   },
@@ -134,9 +157,10 @@ var HTTPTab = React.createClass({
     return (
       <div>
         <p>Load a file that resides on a remote server and can be accessed via HTTP/S.</p>
-        <form role="form" onSubmit={this.handleSubmit}>
-          <Input type="text" ref="server" label="HTTP Server Location" placeholder="The URL of the server" onChange={this.handleInputChange}/>
-          <Input type="text" ref="path" label="Path to file on server" placeholder="path to file" onChange={this.handleInputChange}/>
+        <form role="form" onSubmit={this.handleSubmit} onChange={this.handleInputChange}>
+          <Input type="text" ref="server" label="HTTP Server Location" placeholder="The URL of the server" />
+          <Input type="text" ref="path" label="Path to file on server" placeholder="path to file" />
+          <Input type="checkbox" ref="credentials" label="Requires credentials" />
         </form>
       </div>
     );
@@ -147,7 +171,7 @@ var LocalFileTab = React.createClass({
   
   handleInputChange() {
     var files = React.findDOMNode(this.refs.file).files;
-    this.props.handleInputChange(files);
+    this.props.handleInputChange({files: files});
   },  
   render() {
     if (this.props.multiple)

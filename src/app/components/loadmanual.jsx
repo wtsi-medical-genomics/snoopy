@@ -113,7 +113,8 @@ var TitlePanel = React.createClass({
 });
 
 var LoadVariantsPanel = React.createClass({
-  handleFileLoad(file, opts) {
+  handleFileLoad(file, credentials) {
+    console.log(typeof(file));
     if (typeof(file) === 'object') {
       // a file object has been loaded
       file = file[0];
@@ -176,6 +177,7 @@ var LoadVariantsPanel = React.createClass({
               multiple={false}
               text='Using one of the following menas of file access, select a single text file containing a list of variants.'
               handleFileLoad={this.handleFileLoad}
+              allowedExtensions={['txt']}
             />
           }>
           <Button bsStyle="primary"><Glyphicon glyph="floppy-disk"/> Select Variant List</Button>
@@ -236,7 +238,7 @@ var DataFileRow = React.createClass({
 });
 
 var LoadDataPanel = React.createClass({
-  handleFileLoad(files) {
+  handleFileLoad(files, credentials) {
     // console.log(this.props);
     // if (typeof(files) === 'string') {
     //   // we have a URL so test if the file exists before adding it to a session
@@ -270,7 +272,9 @@ var LoadDataPanel = React.createClass({
     //       // sessionInstance.load(reader.result);
     //   };
     // } else {
-    this.props.handleDataFile(files);
+    this.props.handleDataFile(files, credentials);
+    // console.log(files);
+    // console.log(credentials);
   },
   handleRemove(key) {
     console.log(key);
@@ -338,6 +342,7 @@ var LoadDataPanel = React.createClass({
               multiple={true}
               text='Using one of the following menas of file access, select the BAMs you wish to view. Note that for local BAM files, BAIs will also need to be loaded.'
               handleFileLoad={this.handleFileLoad}
+              allowedExtensions={['bam', 'bam.bai', 'bai']}
             />
           }>
           <Button bsStyle="primary"><Glyphicon glyph="floppy-disk"/> Select Sequence Data</Button>
