@@ -78,11 +78,13 @@ var LoadManual = React.createClass({
               <LoadVariantsPanel
                 handleVariantText={this.handleVariantText}
                 session={this.state.session}
+                settings={this.props.settings}
               />
               <LoadDataPanel
                 handleDataFile={this.handleDataFile}
                 session={this.state.session}
                 handleRemoveDataFile={this.handleRemoveDataFile}
+                settings={this.props.settings}
               />
               <Pager>
                 <PageItem previous href='#' onClick={this.handleGoBack}>&larr; Cancel, Return To Main Menu</PageItem>
@@ -178,6 +180,7 @@ var LoadVariantsPanel = React.createClass({
               text='Using one of the following menas of file access, select a single text file containing a list of variants.'
               handleFileLoad={this.handleFileLoad}
               allowedExtensions={['txt']}
+              settings={this.props.settings}
             />
           }>
           <Button bsStyle="primary"><Glyphicon glyph="floppy-disk"/> Select Variant List</Button>
@@ -343,6 +346,7 @@ var LoadDataPanel = React.createClass({
               text='Using one of the following menas of file access, select the BAMs you wish to view. Note that for local BAM files, BAIs will also need to be loaded.'
               handleFileLoad={this.handleFileLoad}
               allowedExtensions={['bam', 'bam.bai', 'bai']}
+              settings={this.props.settings}
             />
           }>
           <Button bsStyle="primary"><Glyphicon glyph="floppy-disk"/> Select Sequence Data</Button>

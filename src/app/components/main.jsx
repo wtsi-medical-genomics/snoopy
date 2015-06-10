@@ -17,13 +17,28 @@ var LoadManual = require('./loadmanual.jsx');
 var LoadBatch = require('./loadbatch.jsx');
 var QC = require('./qc.jsx');
 var Settings = require('./settings.jsx');
-var settings = Settings.settings;
 var SettingsModal = Settings.SettingsModal;
 
 var Main = React.createClass({
   
+  
+
   getInitialState() {
-    return {view: 'intro'}; //intro, loadmanual, loadbatch, qc
+    return {
+      view: 'intro',  //intro, loadmanual, loadbatch, qc
+      settings: {}
+    };
+  },
+
+  componentDidMount() {
+    Settings.init((settings) => {
+      this.setState({settings: settings});
+    })
+    
+  },
+
+  handleSettings(settings) {
+    this.setState({settings: settings})
   },
 
   handleGoManual() {
@@ -46,24 +61,24 @@ var Main = React.createClass({
     var Child;
     switch (this.state.view) {
       case 'intro':
-        child = <Intro handleGoManual={this.handleGoManual}  handleGoBatch={this.handleGoBatch}/>;
+        child = <Intro handleGoManual={this.handleGoManual}  handleGoBatch={this.handleGoBatch} />;
         break;
       case 'loadmanual':
-        child = <LoadManual handleGoQC={this.handleGoQC} handleGoIntro={this.handleGoIntro} />;
+        child = <LoadManual handleGoQC={this.handleGoQC} handleGoIntro={this.handleGoIntro} settings={this.state.settings} />;
         break;
       case 'loadbatch':
-        child = <LoadBatch handleGoQC={this.handleGoQC} handleGoIntro={this.handleGoIntro} />;
+        child = <LoadBatch handleGoQC={this.handleGoQC} handleGoIntro={this.handleGoIntro}  settings={this.state.settings} />;
         break;
       case 'qc':
-        child = <QC sessions={this.state.sessions} />;
+        child = <QC sessions={this.state.sessions} settings={this.state.settings} />;
         break;
       default:
         child = <Intro />;
     }
-
+    console.log(this.state.settings);
     return (
       <div className="outerWrapper">
-        <MainToolbar view={this.state.view} />
+        <MainToolbar view={this.state.view} settings={this.state.settings} handleSettings={this.handleSettings} />
         {child}
       </div>
     );
@@ -73,14 +88,6 @@ var Main = React.createClass({
 
 var Intro = React.createClass({
 
-  handleGoManual() {
-    this.props.handleGoManual();
-  },
-
-  handleGoBatch() {
-    this.props.handleGoBatch();
-  },
-
   render() {
     return (
       <div className="innerWrapper">
@@ -89,8 +96,8 @@ var Intro = React.createClass({
             <Col md={3}></Col>
             <Col md={6}>
               <IntroPanel />
-              <ManualPanel handleGoManual={this.handleGoManual} />
-              <BatchPanel  handleGoBatch={this.handleGoBatch} />
+              <ManualPanel handleGoManual={this.props.handleGoManual} />
+              <BatchPanel  handleGoBatch={this.props.handleGoBatch} />
             </Col>
             <Col md={3}></Col>
           </Row>
@@ -103,17 +110,13 @@ var Intro = React.createClass({
 
 
 var MainToolbar = React.createClass({
-  handleSettings(x, e) {
-    e.preventDefault();
-    console.log('in settings' + x);
-  },
 
   render() {
     
       return (
         <Navbar brand='Snoopy' inverse toggleNavKey={0}>
           <Nav right eventKey={0}> {/* This is the eventKey referenced */}
-            <ModalTrigger modal={<SettingsModal />}>
+            <ModalTrigger modal={<SettingsModal settings={this.props.settings} handleSettings={this.props.handleSettings}/>}>
               <NavItem eventKey={1} href='#'>Settings</NavItem>
             </ModalTrigger>
             <NavItem eventKey={2} href='#'>Help</NavItem>

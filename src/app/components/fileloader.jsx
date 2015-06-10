@@ -17,6 +17,9 @@ var arrayStringContains = utils.arrayStringContains;
 var combineServerPath = utils.combineServerPath;
 var httpExists = utils.httpExists;
 
+var settings = require('./settings.jsx').settings;
+
+
 var FileLoader = React.createClass({  
   getInitialState() {
     return {
@@ -91,6 +94,7 @@ var FileLoader = React.createClass({
   },
 
   render() {
+    console.log(settings);
     var labels = ['HTTP/S', 'Local', 'Local Server', 'SSH Bridge'];
     var loadButtonText = 'Load ' + labels[this.state.key] + ' File';
     var alertInstance;
@@ -113,16 +117,13 @@ var FileLoader = React.createClass({
             <p>{this.props.text}</p>
             <TabbedArea activeKey={this.state.key} animation={false} onSelect={this.handleSelect}>
               <TabPane eventKey={0} tab='HTTP/S'>
-                <HTTPTab handleInputChange={this.handleInputChange} handleSubmit={this.handleSubmit}/>
+                <HTTPTab handleInputChange={this.handleInputChange} handleSubmit={this.handleSubmit} settings={this.props.settings}/>
               </TabPane>
               <TabPane eventKey={1} tab='Local File'>
-                <LocalFileTab multiple={this.props.multiple} handleInputChange={this.handleInputChange}/>
-              </TabPane>
-              <TabPane eventKey={2} tab='Local Server'>
-                <LocalServerTab handleInputChange={this.handleInputChange}/>
+                <LocalFileTab multiple={this.props.multiple} handleInputChange={this.handleInputChange} settings={this.props.settings}/>
               </TabPane>
               <TabPane eventKey={3} tab='SSH Bridge'>
-                <SSHTab handleInputChange={this.handleInputChange} handleSubmit={this.handleSubmit}/>
+                <SSHTab handleInputChange={this.handleInputChange} handleSubmit={this.handleSubmit} settings={this.props.settings}/>
               </TabPane>
             </TabbedArea>
             {alertInstance}
@@ -158,9 +159,19 @@ var HTTPTab = React.createClass({
       <div>
         <p>Load a file that resides on a remote server and can be accessed via HTTP/S.</p>
         <form role="form" onSubmit={this.handleSubmit} onChange={this.handleInputChange}>
-          <Input type="text" ref="server" label="HTTP Server Location" placeholder="The URL of the server" />
-          <Input type="text" ref="path" label="Path to file on server" placeholder="path to file" />
-          <Input type="checkbox" ref="credentials" label="Requires credentials" />
+          <Input type="text" 
+            ref="server"
+            label="HTTP Server Location"
+            placeholder="The URL of the server"
+            defaultValue={this.props.settings.servers.remoteHTTP.location} />
+          <Input type="text"
+            ref="path"
+            label="Path to file on server"
+            placeholder="path to file" />
+          <Input type="checkbox"
+            ref="credentials"
+            label="Requires credentials"
+            defaultChecked={this.props.settings.servers.remoteHTTP.requiresCredentials}/>
         </form>
       </div>
     );
@@ -223,9 +234,24 @@ var SSHTab = React.createClass({
       <div>
         <p>Load a file that exists on a local server that cannot be accessed via HTTP/S but can be accessed via SSH. To use this option, an ssh-bridge server must have been started on your local machine.</p>
         <form className="form-horizontal">
-          <Input type="text" label="Local HTTP Server" labelClassName="col-md-4" wrapperClassName="col-md-8" placeholder="The local server that bridges to the remote server" />
-          <Input type="text" label="Remote SSH Server" labelClassName="col-md-4" wrapperClassName="col-md-8" placeholder="The remote SSH server that stores your files" />
-          <Input type="text" label="Username @ SSH Server" labelClassName="col-md-4" wrapperClassName="col-md-8" placeholder="Your username to login to the remote SSH server" />
+          <Input type="text"
+            label="Local HTTP Server"
+            labelClassName="col-md-4"
+            wrapperClassName="col-md-8"
+            placeholder="The local server that bridges to the remote server"
+            defaultValue={this.props.settings.servers.SSHBridge.localHTTPServer} />
+          <Input type="text"
+            label="Remote SSH Server"
+            labelClassName="col-md-4"
+            wrapperClassName="col-md-8"
+            placeholder="The remote SSH server that stores your files" 
+            defaultValue={this.props.settings.servers.SSHBridge.remoteSSHServer} />
+          <Input type="text"
+            label="Username @ SSH Server"
+            labelClassName="col-md-4"
+            wrapperClassName="col-md-8"
+            placeholder="Your username to login to the remote SSH server" 
+            defaultValue={this.props.settings.servers.SSHBridge.username} />
         </form>
         <form role="form" onSubmit={this.handleSubmit}>
           <Input type="text" ref="path" label="Path to file on server" placeholder="path to file" onChange={this.handleInputChange}/>
