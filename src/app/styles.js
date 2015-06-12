@@ -33,7 +33,7 @@ var styles =
                     "BUMP": true,
                     "LABEL": false,
                     "ZINDEX": 20,
-                    "__disableQuals": true,
+                    "__disableQuals": false,
                     "__INSERTIONS": false,
                 }
             }

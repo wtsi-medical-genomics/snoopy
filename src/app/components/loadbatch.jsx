@@ -27,23 +27,40 @@ var Sessions = session.Sessions;
 var lft = require('../loadedfiletypes.js');
 var LocalBAM = lft.LocalBAM;
 var LocalBAI = lft.LocalBAI;
+var SSHBAM = lft.SSHBAM;
 var RemoteBAM = lft.RemoteBAM;
 var RemoteBAI = lft.RemoteBAI;
+
+var Settings = require('./settings.jsx');
+var getPrefix = Settings.getPrefix;
+var getRequiresCredentials = Settings.getRequiresCredentials;
+
 
 var LoadBatch = React.createClass({
 
   getInitialState() {
-    return {sessions: new Sessions()};
+    return {
+      connection: '',
+      sessions: '',
+    };
+  },
+
+  handleConnection(connection) {
+    this.setState({connection: connection});
   },
 
   handleGoQC(e) {
     e.preventDefault();
-    this.props.handleGoQC();
+    this.props.handleGoQC(this.state.sessions);
   },
 
   handleGoBack(e) {
     e.preventDefault();
     this.props.handleGoIntro();
+  },
+
+  handleSessions(sessions) {
+    this.setState({sessions: sessions});
   },
 
   render() {
@@ -55,8 +72,8 @@ var LoadBatch = React.createClass({
             <Col md={3}></Col>
             <Col md={6}>
               <TitlePanel />
-              <SelectConnectionPanel />
-              <LoadFilePanel />
+              <SelectConnectionPanel settings={this.props.settings} handleConnection={this.handleConnection} />
+              <LoadFilePanel settings={this.props.settings} connection={this.state.connection} handleSessions={this.handleSessions}/>
               <Pager>
                 <PageItem previous href='#' onClick={this.handleGoBack}>&larr; Cancel, Return To Main Menu</PageItem>
                 <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
@@ -89,55 +106,57 @@ var LoadFilePanel = React.createClass({
     // need to figure out which one is being used.
     console.log(filename);
     console.log(jso);
-    var sessions = jso["sessions"];
-    
+    var prefix = getPrefix(this.props.settings, this.props.connection);
+    var connection = this.props.settings.servers[this.props.connection];
+    var sessions = jso["sessions"];    
+    var ss = new Sessions();
     var re_dna_location = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
 
-    // remove anything that may be loaded 
-    variantFiles = [];
-    bamFiles = [];
-    baiFiles = [];
     for (var i=0; i<sessions.length; i++) {
       if (!sessions[i]['variants'] || !sessions[i]['bams']) {
-        this.renderFileLoadingErrorList('<strong>Error</strong>: ill-formed JSON in ' + filename + '. Check file syntax at <a href="http://jsonlint.com/">http://jsonlint.com/</a>');
+        // this.renderFileLoadingErrorList('<strong>Error</strong>: ill-formed JSON in ' + filename + '. Check file syntax at <a href="http://jsonlint.com/">http://jsonlint.com/</a>');
         continue;
       }
-        var s = new Session();
-        var v = sessions[i]["variants"];
-        if (typeof(v) === 'string') {
-          if (v.match(re_dna_location)) {
-            // A single dna location
-            s.parseVariants(v);
-          } else {
-            // A file path
-            var request = new XMLHttpRequest();
-            request.open('GET', url, false);
-            request.setRequestHeader('Range', 'bytes=0-1');
-            request.withCredentials = credentials;
-            request.onload = () => {
-              if (request.status >= 200 && request.status < 400) {
-                s.parseVariants(request.responseText);
-              } else {
-                // We reached our target server, but it returned an error
-                console.log('it does not exist');
-              }
-            }
-            request.send();
-          }
-        } else if (typeof(v) === 'object') {
-          // An array of single dna locations
+      var s = new Session();
+      var v = sessions[i]["variants"];
+      if (typeof(v) === 'string') {
+        if (v.match(re_dna_location)) {
+          // A single dna location
           s.parseVariants(v);
         } else {
-          console.log('Unrecognized variant list/file');
-          console.log(typeof(v));
+          // A file path
+          var request = new XMLHttpRequest();
+          var url = prefix + v;
+          console.log(url);
+          request.open('GET', url, true);
+          // request.setRequestHeader('Range', 'bytes=0-1');
+          request.withCredentials = connection.requiresCredentials || false;
+          request.onload = () => {
+            if (request.status >= 200 && request.status < 400) {
+              s.parseVariants(request.responseText);
+            } else {
+              // We reached our target server, but it returned an error
+              console.log('it does not exist');
+            }
+          }
+          request.send();
         }
-        //s.variantFile = new RemoteVariantFile(this.settings.serverLocation + );
-        for (var bi=0; bi<sessions[i]["bams"].length; bi++) {
-          var newBam = new RemoteBAM(sessions[i]["bams"][bi]);
-          s.bamFiles.push(newBam);
-        }
-        this.sessions.sessions.push(s);
+      } else if (typeof(v) === 'object') {
+        // An array of single dna locations
+        s.parseVariants(v);
+      } else {
+        console.log('Unrecognized variant list/file');
+        console.log(typeof(v));
       }
+      //s.variantFile = new RemoteVariantFile(this.settings.serverLocation + );
+      for (var bi=0; bi<sessions[i]["bams"].length; bi++) {
+        // Add prefix to the file then create the RemoteBAM
+        var file = prefix + sessions[i]["bams"][bi];
+        s.addFile(file, connection);
+      }
+      ss.sessions.push(s);
+    }
+    this.props.handleSessions(ss);
   },
 
   handleFileLoad(file) {
@@ -168,6 +187,16 @@ var LoadFilePanel = React.createClass({
 });
 
 var SelectConnectionPanel = React.createClass({
+  handleChange() {
+    var connection = this.refs.connection.getValue();
+    console.log(connection);
+    this.props.handleConnection(connection);
+  },
+
+  componentDidMount() {
+    this.handleChange();
+  },
+
   render() {
     return (
       <Panel>
@@ -175,13 +204,11 @@ var SelectConnectionPanel = React.createClass({
         <p>
           In the batch mode, a JSON file lists the variants/variant files and sequencing data located either on a remote server or through a local server (see help for more info). Please select the a means of accessing the files listed in your JSON file.
         </p>
-        <Input type='select' label='Select connection' placeholder='select'>
-          <option value='select'>SSH-BRIDGE: dr9@farm3-login</option>
-          <option value='other'>LOCAL HTTP: 127.0.0.1:8000</option>
-          <option value='other'>REMOTE HTTP: web-lustre-01.internal.sanger.ac.uk</option>
-          <option value='other'>other...</option>
+        <Input type="select" ref="connection" label="Select connection" placeholder="select" onChange={this.handleChange}>
+          <option value="remoteHTTP">Remote HTTP : &nbsp; {this.props.settings.servers.remoteHTTP.location}</option>
+          <option value="localHTTP">Local HTTP : &nbsp; {this.props.settings.servers.localHTTP.location}</option>
+          <option value="SSHBridge">SSH-Bridge : &nbsp; {this.props.settings.servers.SSHBridge.username}@{this.props.settings.servers.SSHBridge.remoteSSHServer}</option>
         </Input>
-        <Input type="checkbox" ref="credentials" label="Requires credentials" />
       </Panel>
     );
   }

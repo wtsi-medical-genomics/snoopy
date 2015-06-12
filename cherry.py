@@ -24,16 +24,27 @@ class SSHBridge(object):
 
 
     def fetch(self, ssh_connection, path, lchr, lmin, lmax):
-        c = 'samtools view {} {}:{}-{}'.format(path, lchr, lmin, lmax)
-        print c
-        ssh_stdin, ssh_stdout, ssh_stderr = ssh_connection.exec_command(c)
-        
+        if os.path.splitext(path)[1].lower() in ['.txt', '.json']:
+            c = 'cat {}'.format(path)
+            print c
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh_connection.exec_command(c)
+            for error in ssh_stderr:
+                if error.find('fail to open') >= 0:
+                    return False
+            
+            return ssh_stdout
 
-        for error in ssh_stderr:
-            if error.find('fail to open') >= 0:
-                return False
+        else:
+            c = 'samtools view {} {}:{}-{}'.format(path, lchr, lmin, lmax)
+            print c
+            ssh_stdin, ssh_stdout, ssh_stderr = ssh_connection.exec_command(c)
 
-        return self.parse_samtools_view(ssh_stdout)
+            for error in ssh_stderr:
+                if error.find('fail to open') >= 0:
+                    return False
+
+            return self.parse_samtools_view(ssh_stdout)
+
 
     def parse_samtools_view(self, string):
         listofdicts = []
@@ -59,7 +70,7 @@ class Snoopy(object):
     bridge = SSHBridge()
 
     @cherrypy.expose
-    def ssh(self, user, server, path, lchr, lmin, lmax):
+    def ssh(self, user, server, path, lchr=0, lmin=0, lmax=0):
         L = ['user', 'server', 'path', 'lchr', 'lmin', 'lmax']
         s = ' \n '.join(['{v} = {s}'.format(s=eval(el), v=el) for el in L])
         print s
@@ -70,11 +81,11 @@ class Snoopy(object):
             ssh_connection.load_system_host_keys()
             ssh_connection.connect(server, username=user, password=getpass.getpass())
             Snoopy.ssh_connections[(user, server)] = ssh_connection
-        jso = Snoopy.bridge.fetch(ssh_connection, path, lchr, lmin, lmax)
-        if not jso:
+        payload = Snoopy.bridge.fetch(ssh_connection, path, lchr, lmin, lmax)
+        if not payload:
             raise cherrypy.NotFound()
         else:
-            return jso
+            return payload
 
 
 if __name__ == '__main__':

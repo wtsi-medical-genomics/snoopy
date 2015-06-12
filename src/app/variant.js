@@ -1,3 +1,5 @@
+"use strict";
+
 function Variant(chr) {
 	this.chr = chr;
 	this.score = 'not reviewed';
@@ -66,7 +68,15 @@ SNP.prototype.html = function() {
 }
 
 SNP.prototype.string = function() {
-	return this.chr + ":" + this.loc + " " + this.score;
+	return this.chr + " : " + this.loc + " " + this.score;
+}
+
+SNP.prototype.fileString = function() {
+    return this.chr + "_" + this.loc;
+}
+
+SNP.prototype.locationString = function() {
+    return this.chr + " : " + this.loc;
 }
 
 CNV.prototype = new Variant;
@@ -104,6 +114,14 @@ CNV.prototype.prettyString = function() {
 
 CNV.prototype.string = function() {
 	return this.chr + ":" + this.min + "-" + this.max + " " + this.score;
+}
+
+CNV.prototype.locationString = function() {
+    return this.chr + ":" + this.min + "-" + this.max;
+}
+
+CNV.prototype.fileString = function() {
+    return this.chr + "_" + this.min + "-" + this.max;
 }
 
 module.exports = {

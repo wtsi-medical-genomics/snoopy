@@ -9,12 +9,12 @@ var styleSheets = require('./styles.js');
 var loadedfiletypes = require('./loadedfiletypes.js');
 var RemoteBAM = loadedfiletypes.RemoteBAM;
 var RemoteBAI = loadedfiletypes.RemoteBAI;
+var SSHBAM = loadedfiletypes.SSHBAM;
 var LocalBAM = loadedfiletypes.LocalBAM;
 var LocalBAI = loadedfiletypes.LocalBAI;
 
 var BAI_RE = /^(.*)\.bai$/i;
 var BAM_RE = /^(.*)\.bam$/i;
-
 
 var referenceGenome = {
     name: 'Genome',
@@ -33,11 +33,19 @@ function Session(bamFiles, variantFile) {
    //this.ID = utils.getNextUID();
 };
 
-Session.prototype.addFile = function(file) {
-    if (typeof(file) === 'string') {
+Session.prototype.addFile = function(file, connection) {
+    if (typeof(file) === 'string') { // a URL
         switch (getExtension(file)) {
             case "bam":
-                var newBam = new RemoteBAM(file);
+                switch (connection.type) {
+                    case 'HTTP':
+                        var requiresCredentials = connection.requiresCredentials || false;
+                        var newBam = new RemoteBAM(file, requiresCredentials);
+                        break;
+                    case 'SSHBridge':
+                        var newBam = new SSHBAM(file);
+                        break;
+                }
                 this.bamFiles.push(newBam);
                 break;
             case "bai":
@@ -45,7 +53,7 @@ Session.prototype.addFile = function(file) {
                 this.baiFiles.push(newBai);
                 break;
         }
-    } else {
+    } else { // a file object
         for (var i=0; i < file.length; ++i) {
             var f = file[i];
             switch (getExtension(f)) {
@@ -103,9 +111,9 @@ Session.prototype.setQC = function(decision) {
 
 Session.prototype.next = function(b) {
     if (this.index < this.variants.length - 1) {
-        return this.variants[++this.index].visit(b);
+        return {variant: this.variants[++this.index].visit(b), done: false};
     } else { // at the end now
-        return false;
+        return {variant: this.variants[this.index].visit(b), done: true};
     }
 };
 
@@ -159,14 +167,15 @@ Session.prototype.parseVariants = function(variants) {
     }
 };
 
-Session.prototype.init = function(b) {
+Session.prototype.init = function(b, style) {
     b.removeAllTiers();
     //this.browser.baseColors = app.settings.colors;
     b.addTier(referenceGenome);
-    var style = styleSheets['raw'].styles;
     this.bamFiles.forEach((bamFile) => {
+        // var style = styleSheets['raw'].style;
         b.addTier(bamFile.getTier(style));
     });
+    this.index = 0;
 
     // for (var i=0; i < this.bamFiles.length; ++i) {
     //     var style = styleSheets['raw'].styles;
@@ -178,8 +187,23 @@ Session.prototype.init = function(b) {
     //     // } 
     //     b.addTier(bamTier);
     // }
-    //app.browser.refresh();
+    // b.refresh();
 }
+
+Session.prototype.goto = function(b, style, vi) {
+    b.removeAllTiers();
+    //this.browser.baseColors = app.settings.colors;
+    b.addTier(referenceGenome);
+    this.bamFiles.forEach((bamFile) => {
+        b.addTier(bamFile.getTier(style));
+    });
+    this.index = vi;
+    this.gotoCurrentVariant(b);
+};
+
+Session.prototype.getCurrentVariantIndex = function() {
+    return this.index;
+};
 
 function Sessions() {
     this.sessions = [];
@@ -188,10 +212,10 @@ function Sessions() {
 
 Sessions.prototype.next = function(b) {
     var nextVariant = this.sessions[this.index].next(b);
-    if (!nextVariant) {
+    if (nextVariant.done) {
         if (this.index < this.sessions.length - 1) {
-            this.sessions[++this.index].init(b);
-            nextVariant = this.gotoCurrentVariant(b);
+            this.sessions[++this.index].init(b, this.style);
+            nextVariant = {variant: this.gotoCurrentVariant(b), done: false};
         } else {
             console.log('finished QC');
         }
@@ -204,7 +228,7 @@ Sessions.prototype.previous = function(b) {
     if (!previousVariant) {
         if (this.index > 0) {
             this.index--;
-            this.sessions[this.index].init(b);
+            this.sessions[this.index].init(b, this.style);
             // Need to visit the last element of the previous session
             this.sessions[this.index].index = this.sessions[this.index].variants.length - 1;
             previousVariant = this.gotoCurrentVariant(b);
@@ -220,17 +244,72 @@ Sessions.prototype.setQC = function(decision) {
 };
 
 Sessions.prototype.gotoCurrentVariant = function(b) {
-    this.sessions[this.index].gotoCurrentVariant(b);
+    return this.sessions[this.index].gotoCurrentVariant(b);
 };
 
 Sessions.prototype.getCurrentVariant = function() {
     return this.sessions[this.index].getCurrentVariant();
 };
 
-/** Add tiers and visit the very first session/variant */
-Sessions.prototype.init = function(b) {
-    this.sessions[this.index].init(b)
+Sessions.prototype.goto = function(b, si, vi) {
+    if (this.index !== si) {
+        this.index = si;
+        this.sessions[si].goto(b, this.style, vi);
+    } else {
+        this.sessions[this.index].index = vi;
+        return this.gotoCurrentVariant(b);
+    }
 };
+
+/** Add tiers and visit the very first session/variant */
+// Sessions.prototype.jump = function(b) {
+//     if (typeof(this.style) === 'undefined')
+//         throw "A style sheet has not been set.";
+//     this.sessions[this.index].init(b, style);
+// };
+
+/** Add tiers and visit the very first session/variant */
+Sessions.prototype.init = function(b, style) {
+    if (typeof(style) !== 'undefined')
+        this.style = style;
+    if (typeof(this.style) === 'undefined')
+        throw "A style sheet has not been set.";
+    this.sessions[this.index].init(b, this.style);
+};
+
+Sessions.prototype.getCurrentVariantIndex = function() {
+    return this.sessions[this.index].getCurrentVariantIndex();
+};
+
+Sessions.prototype.getCurrentSessionIndex = function() {
+    return this.index;
+};
+
+Session.prototype.stringCurrentSession = function() {
+    var str = ''
+    this.bamFiles.forEach((bam) => {str += bam.name + '_'});
+    str += this.variants[this.index].fileString()
+    return str;
+}
+
+
+Sessions.prototype.stringCurrentSession = function() {
+    return this.sessions[this.index].stringCurrentSession();
+}
+
+Sessions.prototype.updateStyle = function(b, style) {
+    this.style = style;
+    this.sessions[this.index].updateStyle(b, style);
+}
+
+Session.prototype.updateStyle = function(b, style) {
+    // get styles and update each tier
+    // app.browser.baseColors = app.settings.colors;
+    for (var i=1; i<b.tiers.length; ++i) {
+        b.tiers[i].setStylesheet(style);
+    }
+    b.refresh();
+}
 
 module.exports = {
     Sessions: Sessions,

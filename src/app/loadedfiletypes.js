@@ -24,6 +24,8 @@ function BAM(file, name, index) {
     };
  }
 
+ BAM.prototype = new LoadedFile;
+
 
 function BAI(file, name, mapping) {
     this.base = LoadedFile;
@@ -63,7 +65,7 @@ BAM.prototype.print = function(index, showDelete, backgroundColor) {
     }
     str += "</td></tr>";
     return str;
-}
+};
 
 /** Determine if bai is a suitable index based on filename */
 // BAM.prototype.matchesIndex = function(bai) {
@@ -79,7 +81,7 @@ LocalBAM.prototype.getTier = function(style) {
     this.tier["padding"] = 0;
     this.tier["scaleVertical"] = true;
     return this.tier;
-}
+};
 
 function RemoteBAI(file) {
     this.base = BAI;
@@ -88,41 +90,42 @@ function RemoteBAI(file) {
 
 RemoteBAI.prototype = new BAI;
 
-function RemoteBAM(file) {
+function RemoteBAM(file, requiresCredentials) {
     this.base = BAM;
     this.base(file, getName(file));
     this.index = true;
+    this.requiresCredentials = requiresCredentials || false;
 }
 
 RemoteBAM.prototype = new BAM;
 
 RemoteBAM.prototype.getTier = function(style) {
-    // Determine if this file needs to be accessed via SSH.
-    var re_ssh = /^\w+@.+:.+$/; 
-    var match  = re_ssh.exec(this.file);
-    if (match) {
-        this.tier["samURI"] = window.location.origin + '/' + this.file;
-        this.tier["tier_type"] = 'samserver';
-    } else {
-        this.tier["bamURI"] = this.file;
-        this.tier["credentials"] = true;
-
-    }
+    this.tier["bamURI"] = this.file;
+    this.tier["credentials"] = this.requiresCredentials;
     this.tier["padding"] = 0;
-    this.tier["name"] = app.settings.serverLocation + this.name;
+    this.tier["name"] = this.name;
     this.tier["style"] = style;
     this.tier["scaleVertical"] = true;
     return this.tier;
+};
+
+function SSHBAM(file) {
+    this.base = BAM;
+    this.base(file, getName(file));
+    this.index = true;
 }
 
-// SSHBAM.prototype = new RemoteBAM;
+SSHBAM.prototype = new BAM;
 
-// function SSHBAM(file) {
-//     this.base = BAM;
-//     this.base(file, getName(file));
-//     this.index = true;
-// }
-
+SSHBAM.prototype.getTier = function(style) {
+    this.tier["samURI"] = this.file;
+    this.tier["tier_type"] = 'samserver';
+    this.tier["padding"] = 0;
+    this.tier["name"] = this.name;
+    this.tier["style"] = style;
+    this.tier["scaleVertical"] = true;
+    return this.tier;
+};
 
 
 function LocalBAI(file) {
@@ -141,7 +144,7 @@ LocalBAI.prototype.print = function(index) {
     str += String(index);
     str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
     return str
-}
+};
 
 function VariantFile(file, name) {
     this.base = LoadedFile;
@@ -169,7 +172,7 @@ VariantFile.prototype.print = function(index, showDelete, backgroundColor) {
     }
     str += "</td></tr>";
     return str
-}
+};
 
 function LocalVariantFile(file) {
     this.base = LoadedFile;
@@ -189,7 +192,7 @@ LocalVariantFile.prototype.get = function(sessionInstance) {
 function RemoteVariantFile(file) {
     this.base = LoadedFile;
     this.base(file, getName(file) + " [Remote]");
-}
+};
 
 RemoteVariantFile.prototype = new VariantFile;
 
@@ -205,6 +208,7 @@ RemoteVariantFile.prototype.get = function(sessionInstance, dallianceBrowser) {
 
 module.exports = {
     RemoteBAM: RemoteBAM,
+    SSHBAM: SSHBAM,
     RemoteBAI: RemoteBAI,
     LocalBAM: LocalBAM,
     LocalBAI: LocalBAI

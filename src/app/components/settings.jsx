@@ -1,3 +1,5 @@
+"use strict";
+
 var merge = require('merge');
 var React = require('react');
 var rb = require('react-bootstrap');
@@ -20,18 +22,43 @@ var httpExists = utils.httpExists;
 
 var styles = require('../styles.js');
 
+function getPrefix(settings, connection) {
+  switch (connection) {
+    case 'remoteHTTP':
+      return settings.servers.remoteHTTP.location + '/';
+    case 'localHTTP':
+      return settings.servers.localHTTP.location + '/';
+    case 'SSHBridge':
+      var sb = settings.servers.SSHBridge;
+      return sb.localHTTPServer + '/' + '?user=' + sb.username + '&server=' + sb.remoteSSHServer + '&path=';
+  }
+}
+
+function getRequiresCredentials(settings, connection) {
+  switch (connection) {
+    case 'remoteHTTP':
+      return settings.servers.remoteHTTP.requiresCredentials;
+    case 'localHTTP':
+    case 'SSHBridge':
+      return false;
+  }
+}
+
 function init(cb) {
   console.log('in init');
   var settings = {
     servers: {
        remoteHTTP: {
+          type: 'HTTP',
           location: '',
           requiresCredentials: true
         },
        localHTTP: {
+          type: 'HTTP',
           location: ''
         },
        SSHBridge: {
+          type: 'SSHBridge',
           localHTTPServer: '',
           remoteSSHServer: '',
           username: ''
@@ -303,5 +330,7 @@ var SettingsModal = React.createClass({
 
 module.exports = {
   SettingsModal: SettingsModal,
-  init: init
+  init: init,
+  getPrefix: getPrefix,
+  getRequiresCredentials: getRequiresCredentials
 };

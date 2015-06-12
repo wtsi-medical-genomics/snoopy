@@ -199,9 +199,17 @@ table.color-code tr.a td {
   border-color: #4F4F7F;
 }
 
-.navbar-default {
+.QCToolbar {
   background-color: #8DA2CE;
   border-color: #8DA2CE;
+}
+
+.navbar-inverse .navbar-nav>li>a {
+  color: #E2E2E2;
+}
+
+.navbar-inverse .navbar-brand {
+  color: #FFFFFF;
 }
 
 .toolbar .navbar-nav > li > a:hover, .nav > li > a:focus {

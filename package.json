@@ -1,6 +1,6 @@
 {
   "name": "snoopy-bootstrap-react",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Variant QC webtool built with Dalliance",
   "repository": {
     "type": "git",
@@ -33,8 +33,10 @@
     "watchify": "^2.2.1"
   },
   "dependencies": {
-    "react-bootstrap": ">=0.23",
+    "react-bootstrap": "~=0.23",
     "react": ">=0.13",
-    "merge": ">=1.2"
+    "merge": ">=1.2",
+    "jszip": "^2.5",
+    "filesaver.js": "^0.1"
   }
 }
