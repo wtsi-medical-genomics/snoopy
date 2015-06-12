@@ -8,8 +8,8 @@
 .QCToolbar .navbar-nav>li>a {
    padding-top: 7.5px !important; 
    padding-bottom: 7.5px !important;
-   padding-left: 5px !important;
-   padding-right: 5px !important;
+   padding-left: 4px !important;
+   padding-right: 4px !important;
 }
 
 
@@ -193,6 +193,16 @@ table.color-code tr.a td {
     width: 100%;
     z-index: 1030; 
 }*/
+
+.navbar-inverse {
+  background-color: #4F4F7F;
+  border-color: #4F4F7F;
+}
+
+.navbar-default {
+  background-color: #8DA2CE;
+  border-color: #8DA2CE;
+}
 
 .toolbar .navbar-nav > li > a:hover, .nav > li > a:focus {
     text-decoration: none;
@@ -483,13 +493,27 @@ dt.smallTopMargin {
     display: none;
 }
 
-.qc-variant {
-    background-color: limegreen !important;
+
+.qc-badge {
+    min-width: 27px;
+}
+
+.green {
+    background-color: green !important;
+}
+
+.red {
+    background-color: red !important;
+}
+
+.amber {
+    background-color: orange !important;
 }
 
 .qc-variant {
     background-color: limegreen !important;
 }
+
 
 .slider {
   float: none !important;
