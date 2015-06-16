@@ -1,6 +1,5 @@
 "use strict";
 
-var merge = require('merge');
 var React = require('react');
 var rb = require('react-bootstrap');
 var Col = rb.Col;
@@ -71,6 +70,10 @@ function init(cb) {
     styles: styles,
     snapshots: true
   };
+  
+  // Use immutable data structure
+  settings = fromJS(settings);
+
   // Check for settings at the location from which snoopy is served
   var request = new XMLHttpRequest();
   request.open('GET', './settings.json', true);
@@ -79,14 +82,13 @@ function init(cb) {
     if (request.status >= 200 && request.status < 400) {
       // Success!
       console.log('settings.json exist');
-      var serverSettings = JSON.parse(request.responseText);
-      console.log(serverSettings);
-      settings = merge.recursive(true, settings, serverSettings);
-      console.log(settings);
-      cb(settings)
+      var serverSettings = fromJS(JSON.parse(request.responseText));
+      settings = settings.mergeDeep(serverSettings);
+      cb(settings);
     } else {
       // We reached our target server, but it returned an error
       console.log('oops');
+      cb(settings);
     };
   }
   request.send();
@@ -147,24 +149,23 @@ var SettingsModal = React.createClass({
       snapshots: this.refs.snapshots.getChecked()
     };
 
-    var settings = merge.recursive(true, this.props.settings, newSettings);
-    settings.styles.raw.styles[2].style.__INSERTIONS = this.refs.rawShowInsertions.getChecked();
-    settings.styles.raw.styles[2].style.__disableQuals = !this.refs.rawEnableQuals.getChecked();
+    var settings = this.props.settings;
+    settings = settings.mergeDeep(newSettings);
+    settings = settings.setIn(['styles','raw','styles',2,'style','__INSERTIONS'], this.refs.rawShowInsertions.getChecked());
+    settings = settings.setIn(['styles','raw','styles',2,'style','__disableQuals'], !this.refs.rawEnableQuals.getChecked());
 
-    settings.styles.mismatch.styles[2].style._minusColor = this.refs.mismatchPlusStrandColor.getDOMNode().value;
-    settings.styles.mismatch.styles[2].style._plusColor = this.refs.mismatchMinusStrandColor.getDOMNode().value;
-    settings.styles.mismatch.styles[2].style.__INSERTIONS = this.refs.mismatchShowInsertions.getChecked();
-    settings.styles.mismatch.styles[2].style.__disableQuals = !this.refs.mismatchEnableQuals.getChecked();
+    settings = settings.setIn(['styles','mismatch','styles',2,'style','_minusColor'], this.refs.mismatchPlusStrandColor.getDOMNode().value);
+    settings = settings.setIn(['styles','mismatch','styles',2,'style','_plusColor'], this.refs.mismatchMinusStrandColor.getDOMNode().value); 
+    settings = settings.setIn(['styles','mismatch','styles',2,'style','__INSERTIONS'], this.refs.mismatchShowInsertions.getChecked()); 
+    settings = settings.setIn(['styles','mismatch','styles',2,'style','__disableQuals'], !this.refs.mismatchEnableQuals.getChecked()); 
     
-    settings.styles.coverage.styles[2].style.HEIGHT = coverageHeight;
+    settings = settings.setIn(['styles','coverage','styles',2,'style','HEIGHT'],  coverageHeight); 
 
-    settings.styles.condensed.styles[2].style._minusColor = this.refs.condensedMatchColor.getDOMNode().value;
-    settings.styles.condensed.styles[2].style._plusColor = this.refs.condensedMatchColor.getDOMNode().value;
-    settings.styles.condensed.styles[2].style.__disableQuals = !this.refs.condensedEnableQuals.getChecked();
+    settings = settings.setIn(['styles','condensed','styles',2,'style','_minusColor'], this.refs.condensedMatchColor.getDOMNode().value); 
+    settings = settings.setIn(['styles','condensed','styles',2,'style','_plusColor'], this.refs.condensedMatchColor.getDOMNode().value); 
+    settings = settings.setIn(['styles','condensed','styles',2,'style','__disableQuals'], !this.refs.condensedEnableQuals.getChecked()); 
 
-    console.log(settings);
-
-    this.props.handleSettings(fromJS(settings));
+    this.props.handleSettings(settings);
     this.props.onRequestHide();
   },
 
@@ -186,17 +187,17 @@ var SettingsModal = React.createClass({
                 <dd>
                   <Input type="text" 
                     ref="remoteHTTP"
-                    defaultValue={this.props.settings.servers.remoteHTTP.location}/>
+                    defaultValue={this.props.settings.getIn(['servers','remoteHTTP','location'])}/>
                   <Input type="checkbox"
                     ref="remoteHTTPCredentials"
-                    defaultChecked={this.props.settings.servers.remoteHTTP.requiresCredentials}
+                    defaultChecked={this.props.settings.getIn(['servers','remoteHTTP','requiresCredentials'])}
                     label="Requires credentials" />
                 </dd>
                 <dt>Default Local HTTP</dt>
                 <dd>
                   <Input type="text"
                     ref="localHTTP"
-                    defaultValue={this.props.settings.servers.localHTTP.location} />
+                    defaultValue={this.props.settings.getIn(['servers','localHTTP','location'])} />
                 </dd>
                 <dt>Default SSH Bridge</dt>
                 <dd>
@@ -207,21 +208,21 @@ var SettingsModal = React.createClass({
                       wrapperClassName="col-md-8" 
                       placeholder="The local server that bridges to the remote server"
                       ref="SSHBridge_localHTTPServer"
-                      defaultValue={this.props.settings.servers.SSHBridge.localHTTPServer} />
+                      defaultValue={this.props.settings.getIn(['servers','SSHBridge','localHTTPServer'])} />
                     <Input type="text" 
                       label="Remote SSH Server"
                       labelClassName="col-md-4" 
                       wrapperClassName="col-md-8" 
                       placeholder="The remote SSH server that stores your files"
                       ref="SSHBridge_remoteSSHServer" 
-                      defaultValue={this.props.settings.servers.SSHBridge.remoteSSHServer} />
+                      defaultValue={this.props.settings.getIn(['servers','SSHBridge','remoteSSHServer'])} />
                     <Input type="text" 
                       label="Local HTTP Server"
                       labelClassName="col-md-4" 
                       wrapperClassName="col-md-8" 
                       placeholder="our username to login to the remote SSH server"
                       ref="SSHBridge_username"
-                      defaultValue={this.props.settings.servers.SSHBridge.username} />
+                      defaultValue={this.props.settings.getIn(['servers','SSHBridge','username'])} />
                   </div>
                 </dd>
                 <dt>Dalliance zoom level</dt>
@@ -230,27 +231,27 @@ var SettingsModal = React.createClass({
                     ref="unitBase"
                     name="defaultZoomLevel"
                     label="Unit base"
-                    defaultChecked={this.props.settings.defaultZoomLevel === 'unit'} />
+                    defaultChecked={this.props.settings.get('defaultZoomLevel') === 'unit'} />
                   <Input type="radio"
                     ref="currentLevel"
                     name="defaultZoomLevel"
                     label={currentZoomNode}
-                    defaultChecked={typeof(this.props.settings.defaultZoomLevel) === 'number'} />
+                    defaultChecked={typeof(this.props.settings.get('defaultZoomLevel')) === 'number'} />
                 </dd>
                 <dd>
                   <Input type="checkbox"
                     ref="autoZoom"
                     label="Automatically zoom to default level when visiting new candidate variant"
-                    defaultChecked={this.props.settings.autoZoom} />
+                    defaultChecked={this.props.settings.get('autoZoom')} />
                 </dd>
                 <dt>Color settings</dt>
                 <dd>
-                  <input type="color" ref="A" defaultValue={this.props.settings.colors.A} /> A<br/>
-                  <input type="color" ref="C" defaultValue={this.props.settings.colors.C} /> C<br/>
-                  <input type="color" ref="G" defaultValue={this.props.settings.colors.G} /> G<br/>
-                  <input type="color" ref="T" defaultValue={this.props.settings.colors.T} /> T<br/>
-                  <input type="color" ref="D" defaultValue={this.props.settings.colors['-']} /> Deletion<br/>
-                  <input type="color" ref="I" defaultValue={this.props.settings.colors.I} /> Insertion<br/>
+                  <input type="color" ref="A" defaultValue={this.props.settings.getIn(['colors','A'])} /> A<br/>
+                  <input type="color" ref="C" defaultValue={this.props.settings.getIn(['colors','C'])} /> C<br/>
+                  <input type="color" ref="G" defaultValue={this.props.settings.getIn(['colors','G'])} /> G<br/>
+                  <input type="color" ref="T" defaultValue={this.props.settings.getIn(['colors','T'])} /> T<br/>
+                  <input type="color" ref="D" defaultValue={this.props.settings.getIn(['colors', '-'])} /> Deletion<br/>
+                  <input type="color" ref="I" defaultValue={this.props.settings.getIn(['colors','I'])} /> Insertion<br/>
                   
                 </dd>
                 <dt>Raw style</dt>
@@ -258,38 +259,38 @@ var SettingsModal = React.createClass({
                   <Input type="checkbox"
                     ref="rawShowInsertions"
                     label="Show insertions"
-                    defaultChecked={this.props.settings.styles.raw.styles[2].style.__INSERTIONS} />
+                    defaultChecked={this.props.settings.getIn(['styles','raw','styles', 2, 'style','__INSERTIONS'])} />
                   <Input type="checkbox"
                     ref="rawEnableQuals"
                     label="Reflect base quality with transparency"
-                    defaultChecked={!this.props.settings.styles.raw.styles[2].style.__disableQuals} />
+                    defaultChecked={!this.props.settings.getIn(['styles','raw','styles',2,'style','__disableQuals'])} />
                 </dd>
                 <dt>Mismatch style</dt>
                 <dd>
                   <input type="color" 
                     ref="mismatchPlusStrandColor"
-                    defaultValue={this.props.settings.styles.mismatch.styles[2].style._plusColor} /> Plus strand color <br/>
+                    defaultValue={this.props.settings.getIn(['styles','mismatch','styles',2,'style','_plusColor'])} /> Plus strand color <br/>
                   <input type="color" 
                     ref="mismatchMinusStrandColor"
-                    defaultValue={this.props.settings.styles.mismatch.styles[2].style._minusColor} /> Minus strand color <br/>
+                    defaultValue={this.props.settings.getIn(['styles','mismatch','styles',2,'style','_minusColor'])} /> Minus strand color <br/>
                   <Input type="checkbox"
                     ref="mismatchShowInsertions"
                     label="Show insertions" 
-                    defaultChecked={this.props.settings.styles.mismatch.styles[2].style.__INSERTIONS} />
+                    defaultChecked={this.props.settings.getIn(['styles','mismatch','styles',2,'style','.__INSERTIONS'])} />
                   <Input type="checkbox" 
                     ref="mismatchEnableQuals"
                     label="Reflect base quality with transparency"
-                    defaultChecked={!this.props.settings.styles.mismatch.styles[2].style.__disableQuals} />
+                    defaultChecked={!this.props.settings.getIn(['styles','mismatch','styles', 2, 'style','__disableQuals'])} />
                 </dd>
                 <dt>Condensed style</dt>
                 <dd>
                   <input type="color" 
                     ref="condensedMatchColor"
-                    defaultValue={this.props.settings.styles.condensed.styles[2].style._minusColor} /> Match color<br/>
+                    defaultValue={this.props.settings.getIn(['styles','condensed','styles',2,'style','_minusColor'])} /> Match color<br/>
                   <Input type="checkbox" 
                     ref="condensedEnableQuals" 
                     label="Reflect base quality with transparency" 
-                    defaultChecked={!this.props.settings.styles.condensed.styles[2].style.__disableQuals} />
+                    defaultChecked={!this.props.settings.getIn(['styles','condensed','styles',2,'style','__disableQuals'])} />
                 </dd>
                 <dt>Coverage histogram style</dt>
                 <dd>
@@ -300,14 +301,14 @@ var SettingsModal = React.createClass({
                   <Input type="text"
                     ref="coverageHeight"
                     label="Height"
-                    defaultValue={this.props.settings.styles.coverage.styles[2].style.HEIGHT} />
+                    defaultValue={this.props.settings.getIn(['styles','coverage','styles',2,'style','HEIGHT'])} />
                 </dd>
                 <dt>Snapshots</dt>
                 <dd>
                   <Input type="checkbox" 
                     ref="snapshots"
                     label="Automatically take snapshots at each variant"
-                    defaultChecked={this.props.settings.snapshots} />
+                    defaultChecked={this.props.settings.get('snapshots')} />
                 </dd>
               </dl>
             </form>

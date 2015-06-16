@@ -88,7 +88,7 @@ var QC = React.createClass({
         // this.props.sessions[this.index].index = 0;
         // this.sessions[this.state.sessionIndex].browser = this.browser;
         
-        var style = this.props.settings.styles.condensed.styles;
+        var style = this.props.settings.getIn(['styles','condensed','styles']);
         this.props.sessions.init(browser, style);
         this.props.sessions.gotoCurrentVariant(browser);
 
@@ -214,7 +214,7 @@ var QCToolbar = React.createClass({
   },
 
   handleView(view) {
-    var style = this.props.settings.styles[view].styles;
+    var style = this.props.settings.getIn(['styles',view,'styles']);
     this.setState({view: view});
   },
 
@@ -239,8 +239,8 @@ var QCToolbar = React.createClass({
   },
 
   render() {
-    if (browser && this.props.sessions.style !== this.props.settings.styles[this.state.view].styles) {
-      this.props.sessions.updateStyle(browser, this.props.settings.styles[this.state.view]);
+    if (browser && this.props.sessions.style !== this.props.settings.getIn(['styles',this.state.view,'styles'])) {
+      this.props.sessions.updateStyle(browser, this.props.settings.getIn(['styles',this.state.view]));
     }
 
     var scoreBadge

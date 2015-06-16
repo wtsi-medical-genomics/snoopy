@@ -39,13 +39,13 @@ function combineServerPath(server, path) {
 }
 
 function getPrefix(connection) {
-  switch (connection.type) {
+  switch (connection.get('type')) {
     case 'HTTP':
-      return connection.location + '/';
+      return connection.get('location') + '/';
     case 'SSHBridge':
-      return connection.localHTTPServer + '/' + '?user=' + connection.username + '&server=' + connection.remoteSSHServer + '&path=';
+      return connection.get('localHTTPServer') + '/' + '?user=' + connection.get('username') + '&server=' + connection.get('remoteSSHServer') + '&path=';
     default:
-      throw 'Connection type not recognized: ' + connection.type;
+      throw 'Connection type not recognized: ' + connection.get('type');
   }
 }
 
@@ -55,15 +55,15 @@ function getURL(path, connection) {
   return getPrefix(connection) + path;
 }
 
-function getRequiresCredentials(settings, connection) {
-  switch (connection) {
-    case 'remoteHTTP':
-      return settings.servers.remoteHTTP.requiresCredentials;
-    case 'localHTTP':
-    case 'SSHBridge':
-      return false;
-  }
-}
+// function getRequiresCredentials(settings, connection) {
+//   switch (connection) {
+//     case 'remoteHTTP':
+//       return settings.servers.remoteHTTP.requiresCredentials;
+//     case 'localHTTP':
+//     case 'SSHBridge':
+//       return false;
+//   }
+// }
 
 function httpGet(path, connection) {
 
@@ -163,7 +163,7 @@ module.exports = {
   combineServerPath: combineServerPath,
   httpExists: httpExists,
   getURL: getURL,
-  getRequiresCredentials: getRequiresCredentials,
+  // getRequiresCredentials: getRequiresCredentials,
   httpGet: httpGet,
   localTextGet: localTextGet
 }

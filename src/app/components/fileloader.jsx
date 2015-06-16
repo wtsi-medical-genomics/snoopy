@@ -169,7 +169,7 @@ var HTTPTab = React.createClass({
             ref="server"
             label="HTTP Server Location"
             placeholder="The URL of the server"
-            defaultValue={this.props.settings.servers.remoteHTTP.location} />
+            defaultValue={this.props.settings.getIn(['servers','remoteHTTP','location'])} />
           <Input type="text"
             ref="path"
             label="Path to file on server"
@@ -177,7 +177,7 @@ var HTTPTab = React.createClass({
           <Input type="checkbox"
             ref="credentials"
             label="Requires credentials"
-            defaultChecked={this.props.settings.servers.remoteHTTP.requiresCredentials} />
+            defaultChecked={this.props.settings.getIn(['servers','remoteHTTP','requiresCredentials'])} />
         </form>
       </div>
     );
@@ -245,19 +245,19 @@ var SSHTab = React.createClass({
             labelClassName="col-md-4"
             wrapperClassName="col-md-8"
             placeholder="The local server that bridges to the remote server"
-            defaultValue={this.props.settings.servers.SSHBridge.localHTTPServer} />
+            defaultValue={this.props.settings.getIn(['servers','SSHBridge','localHTTPServer'])} />
           <Input type="text"
             label="Remote SSH Server"
             labelClassName="col-md-4"
             wrapperClassName="col-md-8"
             placeholder="The remote SSH server that stores your files" 
-            defaultValue={this.props.settings.servers.SSHBridge.remoteSSHServer} />
+            defaultValue={this.props.settings.getIn(['servers','SSHBridge','remoteSSHServer'])} />
           <Input type="text"
             label="Username @ SSH Server"
             labelClassName="col-md-4"
             wrapperClassName="col-md-8"
             placeholder="Your username to login to the remote SSH server" 
-            defaultValue={this.props.settings.servers.SSHBridge.username} />
+            defaultValue={this.props.settings.getIn(['servers','SSHBridge','username'])} />
         </form>
         <form role="form" onSubmit={this.handleSubmit}>
           <Input type="text" ref="path" label="Path to file on server" placeholder="path to file" onChange={this.handleInputChange}/>

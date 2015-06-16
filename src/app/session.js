@@ -82,9 +82,9 @@ Session.prototype.addBam = function(file, connection) {
   if (typeof(file) === 'string') { // a URL
     switch (getExtension(file)) {
       case "bam":
-        switch (connection.type) {
+        switch (connection.get('type')) {
           case 'HTTP':
-            var requiresCredentials = connection.requiresCredentials || false;
+            var requiresCredentials = connection.get('requiresCredentials') || false;
             var newBam = new RemoteBAM(file, requiresCredentials);
             break;
           case 'SSHBridge':
@@ -227,7 +227,7 @@ Session.prototype.init = function(b, style) {
   console.log(style);
   this.bamFiles.forEach((bamFile) => {
     // var style = styleSheets['raw'].style;
-    b.addTier(bamFile.getTier(style));
+    b.addTier(bamFile.getTier(style.toJS()));
   });
   this.index = 0;
 
@@ -249,7 +249,7 @@ Session.prototype.goto = function(b, style, vi) {
   //this.browser.baseColors = app.settings.colors;
   b.addTier(referenceGenome);
   this.bamFiles.forEach((bamFile) => {
-    b.addTier(bamFile.getTier(style));
+    b.addTier(bamFile.getTier(style.toJS()));
   });
   this.index = vi;
   return this.gotoCurrentVariant(b);
@@ -373,7 +373,7 @@ Session.prototype.updateStyle = function(b, style) {
   // get styles and update each tier
   // app.browser.baseColors = app.settings.colors;
   for (var i=1; i<b.tiers.length; ++i) {
-    b.tiers[i].setStylesheet(style);
+    b.tiers[i].setStylesheet(style.toJS());
   }
   b.refresh();
 }

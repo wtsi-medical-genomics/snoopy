@@ -35,7 +35,7 @@ var RemoteBAM = lft.RemoteBAM;
 var RemoteBAI = lft.RemoteBAI;
 
 var Settings = require('./settings.jsx');
-var getRequiresCredentials = Settings.getRequiresCredentials;
+//var getRequiresCredentials = Settings.getRequiresCredentials;
 
 var Promise = require('es6-promise').Promise;
 var Loader = require('react-loader');
@@ -128,8 +128,8 @@ var LoadFilePanel = React.createClass({
     console.log(filename);
     console.log(jso);
     // var prefix = getPrefix(this.props.settings, this.props.connection);
-    var connection = this.props.settings.servers[this.props.connection];
-    var sessions = jso["sessions"];    
+    var connection = this.props.settings.getIn(['servers', this.props.connection]);
+    var sessions = jso["sessions"];
     var ss = new Sessions();
     var re_dna_location = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
 
@@ -191,12 +191,13 @@ var LoadFilePanel = React.createClass({
     var ext = getExtension(file)
     if (ext === 'json') {
       localTextGet(file).then((result) => {
-        this.parseJSON(JSON.parse(result), file.name);
+        var jso = JSON.parse(result);
+        this.parseJSON(jso, file.name);
       }).catch((error) => {
         this.setState({error: error});
       }).then(() => {
         console.log('FINISHED EVERYTHING');
-        // this.setState({ loaded: true });
+        this.setState({ loaded: true });
       });
     } else {
       this.setState({loaded: false,
@@ -269,18 +270,25 @@ var SelectConnectionPanel = React.createClass({
   },
 
   render() {
+    var opt1 = 'Remote HTTP - ' + this.props.settings.getIn(['servers', 'remoteHTTP', 'location']);
+    var opt2 = 'Local HTTP - ' + this.props.settings.getIn(['servers','localHTTP','location']);
+    var opt3 = 'SSH-Bridge - ' + this.props.settings.getIn(['servers','SSHBridge','username']) + '@' + this.props.settings.getIn(['servers','SSHBridge','remoteSSHServer']);
     return (
+      <div>
       <Panel>
         <h4>Select Connection Type</h4>
         <p>
           In the batch mode, a JSON file lists the variants/variant files and sequencing data located either on a remote server or through a local server (see help for more info). Please select the a means of accessing the files listed in your JSON file.
         </p>
-        <Input type="select" ref="connection" label="Select connection" placeholder="select" onChange={this.handleChange}>
-          <option value="remoteHTTP">Remote HTTP : &nbsp; {this.props.settings.servers.remoteHTTP.location}</option>
-          <option value="localHTTP">Local HTTP : &nbsp; {this.props.settings.servers.localHTTP.location}</option>
-          <option value="SSHBridge">SSH-Bridge : &nbsp; {this.props.settings.servers.SSHBridge.username}@{this.props.settings.servers.SSHBridge.remoteSSHServer}</option>
-        </Input>
+        <form>
+          <Input type="select" ref="connection" label="Select connection" placeholder="select" onChange={this.handleChange}>
+            <option value="remoteHTTP">{opt1}</option>
+            <option value="localHTTP">{opt2}</option>
+            <option value="SSHBridge">{opt3}</option>
+          </Input>
+        </form>
       </Panel>
+      </div>
     );
   }
 });

@@ -33,8 +33,7 @@ var Main = React.createClass({
   componentDidMount() {
     Settings.init((settings) => {
       this.setState({settings: settings});
-    })
-    
+    });
   },
 
   handleSettings(settings) {
