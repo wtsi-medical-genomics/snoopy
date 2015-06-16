@@ -35,10 +35,6 @@ var SessionListGroup = React.createClass({
     );
 
     var variantItems = this.props.session.variants.map((variant, variantIndex) => {
-      console.log(variantIndex);
-      console.log(this.props.currentVariantIndex);
-      console.log(this.props.sessionIndex);
-      console.log(this.props.currentSessionIndex);
       var scoreBadge;
       switch (variant.score) {
         case 'variant':
@@ -93,8 +89,6 @@ var SessionsModal = React.createClass({
   },
 
   handleClick(si, vi) {
-    console.log(si + ' ' + vi);
-    console.log(this.props);
     this.props.onRequestHide();
     this.props.handleVariantSelect(si, vi);
   },

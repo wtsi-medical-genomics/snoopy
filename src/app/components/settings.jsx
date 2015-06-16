@@ -22,27 +22,20 @@ var httpExists = utils.httpExists;
 
 var styles = require('../styles.js');
 
-function getPrefix(settings, connection) {
-  switch (connection) {
-    case 'remoteHTTP':
-      return settings.servers.remoteHTTP.location + '/';
-    case 'localHTTP':
-      return settings.servers.localHTTP.location + '/';
-    case 'SSHBridge':
-      var sb = settings.servers.SSHBridge;
-      return sb.localHTTPServer + '/' + '?user=' + sb.username + '&server=' + sb.remoteSSHServer + '&path=';
-  }
-}
+var fromJS = require('immutable').fromJS;
 
-function getRequiresCredentials(settings, connection) {
-  switch (connection) {
-    case 'remoteHTTP':
-      return settings.servers.remoteHTTP.requiresCredentials;
-    case 'localHTTP':
-    case 'SSHBridge':
-      return false;
-  }
-}
+// function getPrefix(settings, connection) {
+//   switch (connection) {
+//     case 'remoteHTTP':
+//       return settings.servers.remoteHTTP.location + '/';
+//     case 'localHTTP':
+//       return settings.servers.localHTTP.location + '/';
+//     case 'SSHBridge':
+//       var sb = settings.servers.SSHBridge;
+//       return sb.localHTTPServer + '/' + '?user=' + sb.username + '&server=' + sb.remoteSSHServer + '&path=';
+//   }
+// }
+
 
 function init(cb) {
   console.log('in init');
@@ -170,7 +163,8 @@ var SettingsModal = React.createClass({
     settings.styles.condensed.styles[2].style.__disableQuals = !this.refs.condensedEnableQuals.getChecked();
 
     console.log(settings);
-    this.props.handleSettings(settings)
+
+    this.props.handleSettings(fromJS(settings));
     this.props.onRequestHide();
   },
 
@@ -320,7 +314,7 @@ var SettingsModal = React.createClass({
           </div>
           <div className='modal-footer'>
             <Button bsStyle="primary" onClick={this.handleSubmit}>Save</Button>
-            <Button onClick={this.props.onRequestHide}>Cancel</Button>
+            <Button bsStyle="primary" onClick={this.props.onRequestHide}>Cancel</Button>
           </div>
         </Modal>
       </div>
@@ -330,7 +324,5 @@ var SettingsModal = React.createClass({
 
 module.exports = {
   SettingsModal: SettingsModal,
-  init: init,
-  getPrefix: getPrefix,
-  getRequiresCredentials: getRequiresCredentials
+  init: init
 };

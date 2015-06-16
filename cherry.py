@@ -51,7 +51,7 @@ class SSHBridge(object):
         for line in string:
             d = {}
             parts = line.split('\t')
-            d['pos'] = int(parts[self.SAM_KEYS['POS']]) - 1
+            d['pos'] = int(parts[self.SAM_KEYS['POS']])
             d['len'] = len(parts[self.SAM_KEYS['SEQ']])
             d['segment'] = parts[self.SAM_KEYS['RNAME']]
             d['readName'] = parts[self.SAM_KEYS['QNAME']]

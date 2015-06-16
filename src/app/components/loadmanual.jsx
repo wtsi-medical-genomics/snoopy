@@ -44,7 +44,7 @@ var LoadManual = React.createClass({
 
   handleDataFile(files) {
     var s = this.state.session;
-    s.addFile(files);
+    s.addBam(files);
     this.setState({session: s});
     console.log(s);
   },
@@ -200,7 +200,7 @@ var IndexMessage = React.createClass({
         return (<div><Glyphicon glyph='thumbs-up' /> Local Index Loaded</div>);
       }
       else {
-        return (<div><Glyphicon glyph='warning-sign' /> Needs Local Index</div>);
+        return (<div><Glyphicon glyph='exclamation-sign' /> Needs Local Index</div>);
       }
     } else {
       return null

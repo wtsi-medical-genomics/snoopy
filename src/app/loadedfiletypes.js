@@ -206,6 +206,18 @@ RemoteVariantFile.prototype.get = function(sessionInstance, dallianceBrowser) {
     });
 };
 
+function SSHFile(connection) {
+    //unpack connection elements here
+    //create a get tier
+}
+
+
+
+SSHFile.prototype = new LoadedFile;
+
+
+
+
 module.exports = {
     RemoteBAM: RemoteBAM,
     SSHBAM: SSHBAM,

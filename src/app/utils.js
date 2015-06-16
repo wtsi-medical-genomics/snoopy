@@ -1,5 +1,7 @@
 "use strict;"
 
+var Promise = require('es6-promise').Promise;
+
 var RE_EXT = /^.*\.(.*)$/;
 var RE_LEFT_SLASH = /^\/+/;
 var RE_RIGHT_SLASH = /\/+$/;
@@ -36,6 +38,79 @@ function combineServerPath(server, path) {
   return server + '/' + path;
 }
 
+function getPrefix(connection) {
+  switch (connection.type) {
+    case 'HTTP':
+      return connection.location + '/';
+    case 'SSHBridge':
+      return connection.localHTTPServer + '/' + '?user=' + connection.username + '&server=' + connection.remoteSSHServer + '&path=';
+    default:
+      throw 'Connection type not recognized: ' + connection.type;
+  }
+}
+
+function getURL(path, connection) {
+  // console.log(connection)
+  // console.log(path)
+  return getPrefix(connection) + path;
+}
+
+function getRequiresCredentials(settings, connection) {
+  switch (connection) {
+    case 'remoteHTTP':
+      return settings.servers.remoteHTTP.requiresCredentials;
+    case 'localHTTP':
+    case 'SSHBridge':
+      return false;
+  }
+}
+
+function httpGet(path, connection) {
+
+  return new Promise((resolve, reject) => {
+    console.log(path);
+    console.log(connection);
+    if (typeof(path) === 'undefined')
+      reject('No path provided');
+    if (typeof(connection) === 'undefined')
+      reject('Invalid remote connection parameters provided');
+    var url = getURL(path, connection);
+    var request = new XMLHttpRequest();
+    request.open('GET', url);
+    request.withCredentials = connection.requiresCredentials || false;
+    
+    request.onload = () => {
+      if (request.status >= 200 && request.status < 400) {
+        resolve(request.responseText);
+      } else {
+        // We reached our target server, but it returned an error
+        reject('The path: ' + path + ' does not match with connection: ' + JSON.stringify(connection))
+      }
+    }
+
+    // Handle network errors
+    request.onerror = () => {
+      reject("Network Error");
+    };
+
+    request.send();
+  });
+}
+
+function localTextGet(file) {
+  return new Promise((resolve, reject) => {
+    var reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = () => {
+      resolve(reader.result);
+    }
+    reader.onerror = () => {
+      reject(reader.error);
+    }
+  });
+}
+
+
 function httpExists(url, credentials) {
   if (typeof(credentials) === 'undefined')
     credentials = false;
@@ -59,8 +134,6 @@ function httpExists(url, credentials) {
   return exists;
 }
 
-
-
 // class UID {
 //   constructor() {
 //     this.ID = 0
@@ -79,7 +152,6 @@ function UID() {
 
 UID.prototype.next = function() {
     this.ID++;
-    console.log(this.ID);
     return this.ID;
 }
 
@@ -89,5 +161,9 @@ module.exports = {
   UID: UID,
   arrayStringContains: arrayStringContains,
   combineServerPath: combineServerPath,
-  httpExists: httpExists
+  httpExists: httpExists,
+  getURL: getURL,
+  getRequiresCredentials: getRequiresCredentials,
+  httpGet: httpGet,
+  localTextGet: localTextGet
 }

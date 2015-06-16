@@ -48,6 +48,7 @@ var FileLoader = React.createClass({
     var errors = [];
     var file;
     var credentials;
+    var connection;
     switch (this.state.key) { //['HTTP/S', 'Local', 'Local Server', 'SSH Bridge'];
       //HTTP/S
       case 0:
@@ -66,6 +67,11 @@ var FileLoader = React.createClass({
           if (!httpExists(file, credentials)) {
             errors.push('Unable to access: ' + file);
           }
+          connection = {
+            type: 'HTTP',
+            location: 'input.server',
+            requiresCredentials: credentials
+          }; 
         }
         break;
       case 1:
@@ -81,7 +87,7 @@ var FileLoader = React.createClass({
     }
 
     if (errors.length === 0) {
-      this.props.handleFileLoad(file, credentials);
+      this.props.handleFileLoad(file, connection);
       this.props.onRequestHide();
     } else{
       console.log(input);
@@ -171,7 +177,7 @@ var HTTPTab = React.createClass({
           <Input type="checkbox"
             ref="credentials"
             label="Requires credentials"
-            defaultChecked={this.props.settings.servers.remoteHTTP.requiresCredentials}/>
+            defaultChecked={this.props.settings.servers.remoteHTTP.requiresCredentials} />
         </form>
       </div>
     );

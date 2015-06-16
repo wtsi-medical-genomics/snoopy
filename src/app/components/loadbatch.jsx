@@ -19,6 +19,9 @@ var FileLoader = require('./fileloader.jsx');
 var utils = require('../utils.js');
 var getExtension = utils.getExtension;
 var getName = utils.getName;
+var httpGet = utils.httpGet;
+var localTextGet = utils.localTextGet;
+var getURL = utils.getURL;
 
 var session = require('../session.js');
 var Session = session.Session;
@@ -32,8 +35,10 @@ var RemoteBAM = lft.RemoteBAM;
 var RemoteBAI = lft.RemoteBAI;
 
 var Settings = require('./settings.jsx');
-var getPrefix = Settings.getPrefix;
 var getRequiresCredentials = Settings.getRequiresCredentials;
+
+var Promise = require('es6-promise').Promise;
+var Loader = require('react-loader');
 
 
 var LoadBatch = React.createClass({
@@ -101,12 +106,28 @@ var TitlePanel = React.createClass({
 
 var LoadFilePanel = React.createClass({
   
+  getInitialState() {
+    return {loaded: false,
+            loading: false,
+            error: '',
+            nSessions: 0,
+            nVariants: 0 };
+  },
+
+  handleSessions(sessions) {
+    this.setState({nSessions: sessions.getNumSessions(),
+                   nVariants: sessions.getNumVariants(),
+                   loaded: true});
+    console.log(this.state);
+    this.props.handleSessions(sessions);
+  },
+
   parseJSON(jso, filename) {
     // There are two different types of JSON formats ( see docs) so
     // need to figure out which one is being used.
     console.log(filename);
     console.log(jso);
-    var prefix = getPrefix(this.props.settings, this.props.connection);
+    // var prefix = getPrefix(this.props.settings, this.props.connection);
     var connection = this.props.settings.servers[this.props.connection];
     var sessions = jso["sessions"];    
     var ss = new Sessions();
@@ -119,60 +140,109 @@ var LoadFilePanel = React.createClass({
       }
       var s = new Session();
       var v = sessions[i]["variants"];
-      if (typeof(v) === 'string') {
-        if (v.match(re_dna_location)) {
-          // A single dna location
-          s.parseVariants(v);
-        } else {
-          // A file path
-          var request = new XMLHttpRequest();
-          var url = prefix + v;
-          console.log(url);
-          request.open('GET', url, true);
-          // request.setRequestHeader('Range', 'bytes=0-1');
-          request.withCredentials = connection.requiresCredentials || false;
-          request.onload = () => {
-            if (request.status >= 200 && request.status < 400) {
-              s.parseVariants(request.responseText);
-            } else {
-              // We reached our target server, but it returned an error
-              console.log('it does not exist');
-            }
-          }
-          request.send();
-        }
-      } else if (typeof(v) === 'object') {
-        // An array of single dna locations
-        s.parseVariants(v);
-      } else {
-        console.log('Unrecognized variant list/file');
-        console.log(typeof(v));
-      }
+      s.addVariants(v);
       //s.variantFile = new RemoteVariantFile(this.settings.serverLocation + );
       for (var bi=0; bi<sessions[i]["bams"].length; bi++) {
         // Add prefix to the file then create the RemoteBAM
-        var file = prefix + sessions[i]["bams"][bi];
-        s.addFile(file, connection);
+        var file = getURL(sessions[i]["bams"][bi], connection);
+        console.log(file);
+        s.addBam(file, connection);
       }
       ss.sessions.push(s);
     }
-    this.props.handleSessions(ss);
+    this.handleSessions(ss);
+    
   },
 
+  // digestFile(file) {
+  //   var file = React.findDOMNode(this.refs.file).files[0];
+  //   console.log(file);
+  //   console.log('here');
+  //   if (getExtension(file) === 'json') {
+  //     textGet(file).then((result) => {
+  //       this.parseJSON(JSON.parse(result), file.name);
+  //     }).catch((error) => {
+  //       console.log(error);
+  //     }).then(() => {
+  //       console.log('FINISHED EVERYTHING');
+  //     });
+      
+  //     // var reader = new FileReader();
+  //     // reader.readAsText(file);
+  //     // reader.onload = () => {
+  //     //   this.parseJSON(JSON.parse(reader.result), file.name);
+  //     // }
+  //   }
+  // },
+
+  // loadFilePromise() {
+  //   return new Promise((fulfill, reject) => {
+  //     this.digestFile(file).done(() => {
+  //       fulfill()
+  //     })
+  //   }
+  // }
   handleFileLoad(file) {
+
+    this.setState({ loading: true });
     var file = React.findDOMNode(this.refs.file).files[0];
     console.log(file);
     console.log('here');
-    if (getExtension(file) === 'json') {
-      var reader = new FileReader();
-      reader.readAsText(file);
-      reader.onload = () => {
-        this.parseJSON(JSON.parse(reader.result), file.name);
-      }
+    var ext = getExtension(file)
+    if (ext === 'json') {
+      localTextGet(file).then((result) => {
+        this.parseJSON(JSON.parse(result), file.name);
+      }).catch((error) => {
+        this.setState({error: error});
+      }).then(() => {
+        console.log('FINISHED EVERYTHING');
+        // this.setState({ loaded: true });
+      });
+    } else {
+      this.setState({loaded: false,
+                     error: 'Batch file must have json extension, found the following instead: ' + ext});
     }
   },
 
   render() {
+    var options = {
+      lines: 13,
+      length: 5,
+      width: 3,
+      radius: 6,
+      corners: 1,
+      rotate: 0,
+      direction: 1,
+      color: '#000',
+      speed: 1,
+      trail: 60,
+      shadow: false,
+      hwaccel: false,
+      zIndex: 2e9,
+      top: '50%',
+      left: '50%',
+      scale: 1.00
+    };
+
+    if (this.state.loading) {
+      var child;
+      if (this.state.error) {
+        child = (<b>{this.state.error}</b>);
+      } else {
+        child = (<b>Found {this.state.nSessions} sessions with a total of {this.state.nVariants} variants</b>);
+      }
+      var panelStyle = {
+        backgroundColor: '#EEFFEB'
+      };
+      var loadNode = (
+        <Loader loaded={this.state.loaded} options={options}>
+          <Panel className="someTopMargin" style={panelStyle} >
+            {child}
+          </Panel>
+        </Loader>
+      );
+    }
+
     return (
       <Panel>
         <h4>Select Batch File</h4>
@@ -180,6 +250,7 @@ var LoadFilePanel = React.createClass({
           Select a local JSON file containing a list of sessions. Consult the help for a detailed description of the expected format.
         </p>
         <input type="file" ref="file" onChange={this.handleFileLoad} />
+        {loadNode}
       </Panel>
     );
   }
@@ -214,60 +285,6 @@ var SelectConnectionPanel = React.createClass({
   }
 });
 
-// var SessionPanel = React.createClass({
-//   return (
-//     <Table>
-//       <thead>
-//         <tr>
-//           <th>#</th>
-//           <th>Table heading</th>
-//           <th>Table heading</th>
-//           <th>Table heading</th>
-//           <th>Table heading</th>
-//           <th>Table heading</th>
-//           <th>Table heading</th>
-//         </tr>
-//       </thead>
-//       <tbody>
-//         <tr>
-//           <td>1</td>
-//           <td>Table cell</td>
-//           <td>Table cell</td>
-//           <td>Table cell</td>
-//           <td>Table cell</td>
-//           <td>Table cell</td>
-//           <td>Table cell</td>
-//         </tr>
-//         <tr>
-//           <td>2</td>
-//           <td>Table cell</td>
-//           <td>Table cell</td>
-//           <td>Table cell</td>
-//           <td>Table cell</td>
-//           <td>Table cell</td>
-//           <td>Table cell</td>
-//         </tr>
-//         <tr>
-//           <td>3</td>
-//           <td>Table cell</td>
-//           <td>Table cell</td>
-//           <td>Table cell</td>
-//           <td>Table cell</td>
-//           <td>Table cell</td>
-//           <td>Table cell</td>
-//         </tr>
-//       </tbody>
-//     </Table>
-//   );
 
-// });
-
-// var SessionsPanel = React.createClass({
-//   render () {
-//     return (
-      
-//     );
-//   }
-// });
 
 module.exports = LoadBatch;

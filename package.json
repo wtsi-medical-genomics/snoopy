@@ -33,10 +33,13 @@
     "watchify": "^2.2.1"
   },
   "dependencies": {
-    "react-bootstrap": "~=0.23",
-    "react": ">=0.13",
-    "merge": ">=1.2",
+    "react-bootstrap": "^=0.23",
+    "react": "^=0.13",
+    "merge": "^=1.2",
     "jszip": "^2.5",
-    "filesaver.js": "^0.1"
+    "filesaver.js": "^0.1",
+    "es6-promise": "^=2.3",
+    "react-loader": "^=1.2",
+    "immutable": "^3.7"
   }
 }
