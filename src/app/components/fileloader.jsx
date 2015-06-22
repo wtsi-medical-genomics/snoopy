@@ -13,14 +13,22 @@ var Alert = rb.Alert;
 
 var utils = require('../utils.js');
 var getExtension = utils.getExtension;
+var getURL = utils.getURL;
 var arrayStringContains = utils.arrayStringContains;
 var combineServerPath = utils.combineServerPath;
 var httpExists = utils.httpExists;
+
+var Map = require('immutable').Map;
 
 var settings = require('./settings.jsx').settings;
 
 
 var FileLoader = React.createClass({  
+  
+  HTTP_KEY: 0,
+  LOCAL_KEY: 1,
+  SSH_KEY: 2,
+
   getInitialState() {
     return {
       key: 0,
@@ -51,7 +59,7 @@ var FileLoader = React.createClass({
     var connection;
     switch (this.state.key) { //['HTTP/S', 'Local', 'Local Server', 'SSH Bridge'];
       //HTTP/S
-      case 0:
+      case this.HTTP_KEY:
         if (input.server === '') {
           errors.push('Please enter a server location.');
         }
@@ -62,19 +70,18 @@ var FileLoader = React.createClass({
           errors.push('File must have extension: ' + this.props.allowedExtensions.join(', '));
         }
         if (errors.length === 0) {
-          file = combineServerPath(input.server, input.path);
-          credentials = input.credentials;
-          if (!httpExists(file, credentials)) {
+          connection = Map({
+            type: 'HTTP',
+            location: input.server,
+            requiresCredentials: input.credentials
+          });
+          file = getURL(input.path, connection);
+          if (!httpExists(file, connection)) {
             errors.push('Unable to access: ' + file);
           }
-          connection = {
-            type: 'HTTP',
-            location: 'input.server',
-            requiresCredentials: credentials
-          }; 
         }
         break;
-      case 1:
+      case this.LOCAL_KEY:
         for (var i=0; i<input.files.length; ++i) {
           var f = input.files[i];
           if (!arrayStringContains(getExtension(f.name), this.props.allowedExtensions)) {
@@ -84,6 +91,40 @@ var FileLoader = React.createClass({
         if (errors.length === 0) {
           file = input.files;
         }
+        break;
+      case this.SSH_KEY:
+       //  localHTTPServer: this.refs.localHTTPServer.getValue().trim(),
+       // remoteSSHServer: this.refs.remoteSSHServer.getValue().trim(),
+       // username: this.refs.username.getValue().trim()
+       // path
+        if (input.localHTTPServer === '') {
+          errors.push('Please enter a local HTTP server.');
+        }
+        if (input.remoteSSHServer === '') {
+          errors.push('Please enter a remote SSH server.');
+        }
+        if (input.path === '') {
+          errors.push('Please enter a path to your file.');
+        }
+        if (input.username === '') {
+          errors.push('Please enter your username at the remote SSH server.');
+        }
+        if (!arrayStringContains(getExtension(input.path), this.props.allowedExtensions)) {
+          errors.push('File must have extension: ' + this.props.allowedExtensions.join(', '));
+        }
+        if (errors.length === 0) {
+          connection = Map({
+            type: 'SSHBridge',
+            localHTTPServer: input.localHTTPServer,
+            remoteSSHServer: input.remoteSSHServer,
+            username: input.username
+          });
+          file = getURL(input.path, connection);
+          if (!httpExists(file, connection)) {
+            errors.push('Unable to access: ' + file);
+          }
+        }
+        break;
     }
 
     if (errors.length === 0) {
@@ -101,7 +142,7 @@ var FileLoader = React.createClass({
 
   render() {
     console.log(settings);
-    var labels = ['HTTP/S', 'Local', 'Local Server', 'SSH Bridge'];
+    var labels = ['HTTP/S', 'Local', 'SSH Bridge'];
     var loadButtonText = 'Load ' + labels[this.state.key] + ' File';
     var alertInstance;
     console.log(this.state.errors.length);
@@ -122,13 +163,13 @@ var FileLoader = React.createClass({
           <div className='modal-body'>
             <p>{this.props.text}</p>
             <TabbedArea activeKey={this.state.key} animation={false} onSelect={this.handleSelect}>
-              <TabPane eventKey={0} tab='HTTP/S'>
+              <TabPane eventKey={this.HTTP_KEY} tab='HTTP/S'>
                 <HTTPTab handleInputChange={this.handleInputChange} handleSubmit={this.handleSubmit} settings={this.props.settings}/>
               </TabPane>
-              <TabPane eventKey={1} tab='Local File'>
+              <TabPane eventKey={this.LOCAL_KEY} tab='Local File'>
                 <LocalFileTab multiple={this.props.multiple} handleInputChange={this.handleInputChange} settings={this.props.settings}/>
               </TabPane>
-              <TabPane eventKey={3} tab='SSH Bridge'>
+              <TabPane eventKey={this.SSH_KEY} tab='SSH Bridge'>
                 <SSHTab handleInputChange={this.handleInputChange} handleSubmit={this.handleSubmit} settings={this.props.settings}/>
               </TabPane>
             </TabbedArea>
@@ -220,7 +261,7 @@ var LocalServerTab = React.createClass({
         <p>Load a file that exists on a local server that you have started.</p>
         <form role="form" onSubmit={this.handleSubmit}>
           <Input type="text" label="Local HTTP Server" placeholder="The local server that bridges to the remote server" />
-          <Input type="text" ref="path" label="Path to file on server" placeholder="path to file" onChange={this.handleInputChange}/>
+          <Input type="text" ref="path" label="Path to file on server" placeholder="path to file" onChange={this.handleInputChange} />
         </form>
       </div>
     );
@@ -229,7 +270,12 @@ var LocalServerTab = React.createClass({
 
 var SSHTab = React.createClass({
   handleInputChange() {
-    this.props.handleInputChange(this.refs.path.getValue());
+    this.props.handleInputChange(
+      {localHTTPServer: this.refs.localHTTPServer.getValue().trim(),
+       remoteSSHServer: this.refs.remoteSSHServer.getValue().trim(),
+       username: this.refs.username.getValue().trim(),
+       path: this.refs.path.getValue().trim()
+      });
   },
   handleSubmit(e) {
     e.preventDefault();
@@ -241,18 +287,21 @@ var SSHTab = React.createClass({
         <p>Load a file that exists on a local server that cannot be accessed via HTTP/S but can be accessed via SSH. To use this option, an ssh-bridge server must have been started on your local machine.</p>
         <form className="form-horizontal">
           <Input type="text"
+            ref="localHTTPServer"
             label="Local HTTP Server"
             labelClassName="col-md-4"
             wrapperClassName="col-md-8"
             placeholder="The local server that bridges to the remote server"
             defaultValue={this.props.settings.getIn(['servers','SSHBridge','localHTTPServer'])} />
           <Input type="text"
+            ref="remoteSSHServer"
             label="Remote SSH Server"
             labelClassName="col-md-4"
             wrapperClassName="col-md-8"
             placeholder="The remote SSH server that stores your files" 
             defaultValue={this.props.settings.getIn(['servers','SSHBridge','remoteSSHServer'])} />
           <Input type="text"
+            ref="username"
             label="Username @ SSH Server"
             labelClassName="col-md-4"
             wrapperClassName="col-md-8"

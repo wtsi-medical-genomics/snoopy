@@ -1,8 +1,11 @@
+#!/usr/bin/env python
+
 import os, os.path
 import cherrypy
 import paramiko
 import getpass
 import json
+import webbrowser
 
 class SSHBridge(object):
 
@@ -14,9 +17,6 @@ class SSHBridge(object):
             'POS':3, 
             'MAPQ':4, 
             'CIGAR':5, 
-            'MRNM':6, 
-            'MPOS':7, 
-            'TLEN':8, 
             'SEQ':9, 
             'QUAL':10
         }
@@ -38,7 +38,7 @@ class SSHBridge(object):
             c = 'samtools view {} {}:{}-{}'.format(path, lchr, lmin, lmax)
             print c
             ssh_stdin, ssh_stdout, ssh_stderr = ssh_connection.exec_command(c)
-
+            
             for error in ssh_stderr:
                 if error.find('fail to open') >= 0:
                     return False
@@ -52,7 +52,7 @@ class SSHBridge(object):
             d = {}
             parts = line.split('\t')
             d['pos'] = int(parts[self.SAM_KEYS['POS']])
-            d['len'] = len(parts[self.SAM_KEYS['SEQ']])
+            # d['len'] = len(parts[self.SAM_KEYS['SEQ']])
             d['segment'] = parts[self.SAM_KEYS['RNAME']]
             d['readName'] = parts[self.SAM_KEYS['QNAME']]
             d['mq'] = int(parts[self.SAM_KEYS['MAPQ']])
@@ -102,4 +102,6 @@ if __name__ == '__main__':
             'tools.staticdir.dir': '.'
         }
     }
+    webbrowser.open_new_tab('http://127.0.0.1:8080/app/index.html')
     cherrypy.quickstart(Snoopy(), '/', conf)
+    

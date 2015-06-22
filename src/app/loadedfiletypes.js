@@ -1,6 +1,5 @@
 "use strict";
 
-
 var utils = require('./utils.js');
 var getName = utils.getName;
 var UID = utils.UID;

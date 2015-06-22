@@ -110,8 +110,16 @@ var Intro = React.createClass({
 
 var MainToolbar = React.createClass({
 
+  handleGitHub(e) {
+    e.preventDefault();
+    var newTab = window.open('https://github.com/wtsi-medical-genomics/snoopy', '_blank');
+    if(newTab)
+        newTab.focus();
+    else
+        alert('Please allow popups for this site.');
+  },
+
   render() {
-    
       return (
         <Navbar brand='Snoopy' inverse toggleNavKey={0}>
           <Nav right eventKey={0}> {/* This is the eventKey referenced */}
@@ -119,8 +127,7 @@ var MainToolbar = React.createClass({
               <NavItem eventKey={1} href='#'>Settings</NavItem>
             </ModalTrigger>
             <NavItem eventKey={2} href='#'>Help</NavItem>
-            <NavItem eventKey={2} href='#'>About</NavItem>
-            <NavItem eventKey={2} href='#'>GitHub</NavItem>
+            <NavItem eventKey={3} href='#' onClick={this.handleGitHub}>GitHub</NavItem>
           </Nav>
         </Navbar>      
       );

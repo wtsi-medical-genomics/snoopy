@@ -76,8 +76,8 @@ function httpGet(path, connection) {
       reject('Invalid remote connection parameters provided');
     var url = getURL(path, connection);
     var request = new XMLHttpRequest();
-    request.open('GET', url);
-    request.withCredentials = connection.requiresCredentials || false;
+    request.open('GET', url, false);
+    request.withCredentials = connection.get('requiresCredentials') || false;
     
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
@@ -111,14 +111,37 @@ function localTextGet(file) {
 }
 
 
-function httpExists(url, credentials) {
-  if (typeof(credentials) === 'undefined')
-    credentials = false;
+function httpExists(path, connection) {
+  // if (typeof(credentials) === 'undefined')
+  //   credentials = false;
   var exists;
   var request = new XMLHttpRequest();
-  request.open('GET', url, false);
+  // var url = getURL(path, connection);
+  request.open('GET', path, false);
   request.setRequestHeader('Range', 'bytes=0-1');
-  request.withCredentials = credentials;
+  request.withCredentials = connection.get('requiresCredentials') || false;
+  request.onload = () => {
+    if (request.status >= 200 && request.status < 400) {
+      // Success!
+      console.log('it exists');
+      exists = true;
+    } else {
+      // We reached our target server, but it returned an error
+      console.log('it does not exist');
+      exists = false;
+    }
+  }
+  request.send();
+  return exists;
+}
+
+function sshExists(path, connection) {
+  // if (typeof(credentials) === 'undefined')
+  //   credentials = false;
+  var exists;
+  var request = new XMLHttpRequest();
+  path += '&lchr=1&lmin=2&lmax=3';
+  request.open('GET', path);
   request.onload = () => {
     if (request.status >= 200 && request.status < 400) {
       // Success!

@@ -65,14 +65,7 @@ var QC = React.createClass({
       noHelp : true,
       noPersistView : true,
       noClearHighlightsButton: true,
-      baseColors: {
-        A: 'green', 
-        C: 'blue', 
-        G: 'orange', 
-        T: 'red',
-        '-' : 'black', // deletion
-        I : 'mediumpurple' // insertion
-      },
+      baseColors: this.props.settings.getIn(['colors']).toJS(),
       sources: [
         {
           name: 'Genome',
@@ -87,7 +80,7 @@ var QC = React.createClass({
         // this.index = 0;
         // this.props.sessions[this.index].index = 0;
         // this.sessions[this.state.sessionIndex].browser = this.browser;
-        
+        console.log('this.props.sessions', this.props.sessions);
         var style = this.props.settings.getIn(['styles','condensed','styles']);
         this.props.sessions.init(browser, style);
         this.props.sessions.gotoCurrentVariant(browser);
@@ -239,7 +232,14 @@ var QCToolbar = React.createClass({
   },
 
   render() {
-    if (browser && this.props.sessions.style !== this.props.settings.getIn(['styles',this.state.view,'styles'])) {
+
+    if (browser &&
+        browser.baseColors !== this.props.settings.getIn(['colors'])) {
+      browser.baseColors = this.props.settings.getIn(['colors']).toJS();
+    }
+
+    if (browser && 
+        this.props.sessions.style !== this.props.settings.getIn(['styles',this.state.view,'styles'])) {
       this.props.sessions.updateStyle(browser, this.props.settings.getIn(['styles',this.state.view]));
     }
 

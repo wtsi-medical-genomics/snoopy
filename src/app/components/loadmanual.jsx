@@ -42,9 +42,9 @@ var LoadManual = React.createClass({
     this.setState({session: s});
   },
 
-  handleDataFile(files) {
+  handleDataFile(files, connection) {
     var s = this.state.session;
-    s.addBam(files);
+    s.addBam(files, connection);
     this.setState({session: s});
     console.log(s);
   },
@@ -241,7 +241,7 @@ var DataFileRow = React.createClass({
 });
 
 var LoadDataPanel = React.createClass({
-  handleFileLoad(files, credentials) {
+  handleFileLoad(files, connection) {
     // console.log(this.props);
     // if (typeof(files) === 'string') {
     //   // we have a URL so test if the file exists before adding it to a session
@@ -275,7 +275,7 @@ var LoadDataPanel = React.createClass({
     //       // sessionInstance.load(reader.result);
     //   };
     // } else {
-    this.props.handleDataFile(files, credentials);
+    this.props.handleDataFile(files, connection);
     // console.log(files);
     // console.log(credentials);
   },
@@ -345,7 +345,7 @@ var LoadDataPanel = React.createClass({
               multiple={true}
               text='Using one of the following menas of file access, select the BAMs you wish to view. Note that for local BAM files, BAIs will also need to be loaded.'
               handleFileLoad={this.handleFileLoad}
-              allowedExtensions={['bam', 'bam.bai', 'bai']}
+              allowedExtensions={['bam', 'bam.bai', 'bai', 'cram', 'crai']}
               settings={this.props.settings}
             />
           }>

@@ -154,8 +154,8 @@ var SettingsModal = React.createClass({
     settings = settings.setIn(['styles','raw','styles',2,'style','__INSERTIONS'], this.refs.rawShowInsertions.getChecked());
     settings = settings.setIn(['styles','raw','styles',2,'style','__disableQuals'], !this.refs.rawEnableQuals.getChecked());
 
-    settings = settings.setIn(['styles','mismatch','styles',2,'style','_minusColor'], this.refs.mismatchPlusStrandColor.getDOMNode().value);
-    settings = settings.setIn(['styles','mismatch','styles',2,'style','_plusColor'], this.refs.mismatchMinusStrandColor.getDOMNode().value); 
+    settings = settings.setIn(['styles','mismatch','styles',2,'style','_minusColor'], this.refs.mismatchMinusStrandColor.getDOMNode().value);
+    settings = settings.setIn(['styles','mismatch','styles',2,'style','_plusColor'], this.refs.mismatchPlusStrandColor.getDOMNode().value); 
     settings = settings.setIn(['styles','mismatch','styles',2,'style','__INSERTIONS'], this.refs.mismatchShowInsertions.getChecked()); 
     settings = settings.setIn(['styles','mismatch','styles',2,'style','__disableQuals'], !this.refs.mismatchEnableQuals.getChecked()); 
     
@@ -276,7 +276,7 @@ var SettingsModal = React.createClass({
                   <Input type="checkbox"
                     ref="mismatchShowInsertions"
                     label="Show insertions" 
-                    defaultChecked={this.props.settings.getIn(['styles','mismatch','styles',2,'style','.__INSERTIONS'])} />
+                    defaultChecked={this.props.settings.getIn(['styles','mismatch','styles',2,'style','__INSERTIONS'])} />
                   <Input type="checkbox" 
                     ref="mismatchEnableQuals"
                     label="Reflect base quality with transparency"

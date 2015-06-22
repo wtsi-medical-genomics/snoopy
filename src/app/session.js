@@ -82,6 +82,7 @@ Session.prototype.addBam = function(file, connection) {
   if (typeof(file) === 'string') { // a URL
     switch (getExtension(file)) {
       case "bam":
+      case "cram":
         switch (connection.get('type')) {
           case 'HTTP':
             var requiresCredentials = connection.get('requiresCredentials') || false;
@@ -362,7 +363,6 @@ Sessions.prototype.generateQCreport = function() {
     });
     return str;
 };
-
 
 Sessions.prototype.updateStyle = function(b, style) {
   this.style = style;
