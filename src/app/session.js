@@ -37,30 +37,35 @@ function Session(bamFiles, variantFile) {
 }
 
 Session.prototype.addVariants = function(variants, connection) {
-  var re_dna_location = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
-  switch (typeof(variants)) {
-    case 'string':
-      if (variants.match(re_dna_location)) {
-        // A single dna location
+  return new Promise((resolve, reject) => {
+    var re_dna_location = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
+    switch (typeof(variants)) {
+      case 'string':
+        if (variants.match(re_dna_location)) {
+          // A single dna location
+          this.parseVariants(variants);
+        } else {
+          // A path to a file at a remote location
+          httpGet(variants, connection).then((response) => {
+            console.log(response);
+            this.parseVariants(response);
+          }).then(() => {
+            resolve(true);
+          }).catch((error) => {
+            console.log(error);
+            reject(error);
+          });
+        }
+        break;
+      case 'object':
+        // An array of single dna locations
         this.parseVariants(variants);
-      } else {
-        // A path to a file at a remote location
-        httpGet(variants, connection).then((response) => {
-          console.log(response);
-          this.parseVariants(response);
-        }).catch((error) => {
-          console.log('Failed!', error);
-          throw error;
-        });
-      }
-      break;
-    case 'object':
-      // An array of single dna locations
-      this.parseVariants(variants);
-      break;
-    default:
-      throw 'Unrecognized type for: ' + variants;
-  }
+        resolve(true);
+        break;
+      default:
+        reject('Unrecognized type for: ' + variants);
+    }
+  });
 };
 
 Session.prototype.generateQCreport = function() {    
@@ -75,8 +80,6 @@ Session.prototype.generateQCreport = function() {
   }
   return str;
 };
-
-
 
 Session.prototype.addBam = function(file, connection) {
   if (typeof(file) === 'string') { // a URL
@@ -216,6 +219,7 @@ Session.prototype.parseVariants = function(variants) {
           console.log(variant);
           throw 'Unrecognized variant: ' + variant;
       }
+      console.log(this);
       this.variants.push(v);
   }
 };

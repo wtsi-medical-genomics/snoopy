@@ -7,6 +7,34 @@ var UID = utils.UID;
 var uid = new UID();
 var BAI_RE = /^(.*)\.bai$/i;
 
+function createLoadedFileObject(file, connection) {
+  if (typeof(file) === 'string') { // a URL
+    switch (getExtension(file)) {
+      case "bam":
+      case "cram":
+        switch (connection.get('type')) {
+          case 'HTTP':
+            var requiresCredentials = connection.get('requiresCredentials') || false;
+            return new RemoteBAM(file, requiresCredentials);
+          case 'SSHBridge':
+            return new SSHBAM(file);
+        }
+        break;
+      case "bai":
+        return new RemoteBAI(file);
+    }
+  } else { // a file object
+    var f = file[0];
+    switch (getExtension(f)) {
+      case "bam":
+        return new LocalBAM(f);
+      case "bai":
+        return new LocalBAI(f);
+    }
+  }
+}
+
+
 function LoadedFile(file, name) {
     this.file = file || null;
     this.name = name || null;

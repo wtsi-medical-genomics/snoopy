@@ -188,13 +188,89 @@ var LoadFilePanel = React.createClass({
     var file = React.findDOMNode(this.refs.file).files[0];
     console.log(file);
     console.log('here');
-    var ext = getExtension(file)
+    var ext = getExtension(file);
+    if (ext === 'json') {
+      localTextGet(file).then((result) => {
+        console.log(result);
+        try {
+          return JSON.parse(result)
+        } catch(e) {
+          throw 'Provided JSON file is ill-formed. To valdate your JSON files use http://jsonlint.com';
+        }
+      }).then(jso => {
+        console.log(jso);    
+        if (!jso.sessions) {
+          throw 'Provided JSON file does not have a "sessions" listing. Consult help for instructions and examples of valid JSON batch files.';
+        }
+        return Promise.all(
+          jso.sessions.map(sjso => {
+            console.log(sjso);
+            return this.getSession(sjso);
+          })
+        );
+      }).then(sessions => {
+        var ss = new Sessions();
+        ss.sessions = sessions;
+        this.handleSessions(ss);
+      }).then(sessions => {
+        this.setState({loaded: true,
+                       error: ''});
+      }).catch(error => {
+        console.log(error);
+        this.setState({loaded: true,
+                       error: error});
+      });
+    } else {
+      this.setState({loaded: false,
+                     error: 'Batch file must have json extension, found the following instead: ' + ext});
+    }
+  },
+
+  getSession(jso) {
+    return new Promise((resolve, reject) => {
+      var connection = this.props.settings.getIn(['servers', this.props.connection]);
+      var re_dna_location = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
+      var s = new Session();
+      if (jso.variants && jso.variants.length > 0) {
+        var v = jso.variants;
+      } else {
+        throw 'Provided JSON contains a session which does not list any variants. Consult help for instructions and examples of valid JSON batch files.'
+      }
+
+      // s.addVariants(v, connection).catch(e => {
+      //   console.log('ERRORRRRRRRRRRRRRRR!')
+      //   console.log(e);
+      // });
+
+      s.addVariants(v, connection).then(() => {
+        return Promise.all(jso.bams.map(bam => {
+          var file = getURL(bam, connection); 
+          s.addBam(file, connection);
+          console.log(file);
+          console.log(s);
+        }));
+      }).then(() => {
+        console.log(s);
+        resolve(s);
+      }).catch((e) => {
+        reject(e);
+      });
+    });
+  },
+
+  handleFileLoad2(file) {
+
+    this.setState({ loading: true });
+    var file = React.findDOMNode(this.refs.file).files[0];
+    console.log(file);
+    console.log('here');
+    var ext = getExtension(file);
     if (ext === 'json') {
       localTextGet(file).then((result) => {
         var jso = JSON.parse(result);
         this.parseJSON(jso, file.name);
       }).catch((error) => {
-        this.setState({error: error});
+        this.setState({loaded: false, error: error});
       }).then(() => {
         console.log('FINISHED EVERYTHING');
         this.setState({ loaded: true });
@@ -270,7 +346,7 @@ var SelectConnectionPanel = React.createClass({
   },
 
   render() {
-    var opt1 = 'Remote HTTP - ' + this.props.settings.getIn(['servers', 'remoteHTTP', 'location']);
+    var opt1 = 'Remote HTTP - ' + this.props.settings.getIn(['servers','remoteHTTP','location']);
     var opt2 = 'Local HTTP - ' + this.props.settings.getIn(['servers','localHTTP','location']);
     var opt3 = 'SSH-Bridge - ' + this.props.settings.getIn(['servers','SSHBridge','username']) + '@' + this.props.settings.getIn(['servers','SSHBridge','remoteSSHServer']);
     return (

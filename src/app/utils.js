@@ -76,7 +76,7 @@ function httpGet(path, connection) {
       reject('Invalid remote connection parameters provided');
     var url = getURL(path, connection);
     var request = new XMLHttpRequest();
-    request.open('GET', url, false);
+    request.open('GET', url);
     request.withCredentials = connection.get('requiresCredentials') || false;
     
     request.onload = () => {
@@ -84,7 +84,8 @@ function httpGet(path, connection) {
         resolve(request.responseText);
       } else {
         // We reached our target server, but it returned an error
-        reject('The path: ' + path + ' does not match with connection: ' + JSON.stringify(connection))
+        console.log('The path: ' + path + ' does not match with connection: ' + JSON.stringify(connection));
+        reject('The path: ' + path + ' does not match with connection: ' + JSON.stringify(connection));
       }
     }
 

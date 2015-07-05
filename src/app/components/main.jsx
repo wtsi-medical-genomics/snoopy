@@ -57,7 +57,7 @@ var Main = React.createClass({
   },
 
   render() {
-    var Child;
+    var child;
     switch (this.state.view) {
       case 'intro':
         child = <Intro handleGoManual={this.handleGoManual}  handleGoBatch={this.handleGoBatch} />;
