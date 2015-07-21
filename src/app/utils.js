@@ -65,27 +65,32 @@ function getURL(path, connection) {
 //   }
 // }
 
-function httpGet(path, connection) {
+function httpGet(path, connection, opts) {
 
   return new Promise((resolve, reject) => {
     console.log(path);
     console.log(connection);
-    if (typeof(path) === 'undefined')
+    if (path === undefined)
       reject('No path provided');
-    if (typeof(connection) === 'undefined')
+    if (connection === undefined)
       reject('Invalid remote connection parameters provided');
-    var url = getURL(path, connection);
+    var url = connection.get('type') ? getURL(path, connection) : path;
     var request = new XMLHttpRequest();
     request.open('GET', url);
     request.withCredentials = connection.get('requiresCredentials') || false;
     
+    if (opts && opts.range) {
+      request.setRequestHeader('Range', 'bytes=' + opts.range.min + '-' + opts.range.max);
+    }
+
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
+        console.log('found somethign at path: ' + path);
         resolve(request.responseText);
       } else {
         // We reached our target server, but it returned an error
-        console.log('The path: ' + path + ' does not match with connection: ' + JSON.stringify(connection));
-        reject('The path: ' + path + ' does not match with connection: ' + JSON.stringify(connection));
+        console.log('The path: ' + path + ' does not exist with connection: ' + JSON.stringify(connection));
+        reject('The path: ' + path + ' does not exist with connection: ' + JSON.stringify(connection));
       }
     }
 
@@ -100,41 +105,43 @@ function httpGet(path, connection) {
 
 function localTextGet(file) {
   return new Promise((resolve, reject) => {
+    console.log('in localTextGet: ');
+    console.log(file);
     var reader = new FileReader();
     reader.readAsText(file);
     reader.onload = () => {
       resolve(reader.result);
-    }
+    };
     reader.onerror = () => {
       reject(reader.error);
-    }
+    };
   });
 }
 
 
-function httpExists(path, connection) {
-  // if (typeof(credentials) === 'undefined')
-  //   credentials = false;
-  var exists;
-  var request = new XMLHttpRequest();
-  // var url = getURL(path, connection);
-  request.open('GET', path, false);
-  request.setRequestHeader('Range', 'bytes=0-1');
-  request.withCredentials = connection.get('requiresCredentials') || false;
-  request.onload = () => {
-    if (request.status >= 200 && request.status < 400) {
-      // Success!
-      console.log('it exists');
-      exists = true;
-    } else {
-      // We reached our target server, but it returned an error
-      console.log('it does not exist');
-      exists = false;
-    }
-  }
-  request.send();
-  return exists;
-}
+// function httpExists(path, connection) {
+//   // if (typeof(credentials) === 'undefined')
+//   //   credentials = false;
+//   var exists;
+//   var request = new XMLHttpRequest();
+//   // var url = getURL(path, connection);
+//   request.open('GET', path, false);
+//   request.setRequestHeader('Range', 'bytes=0-1');
+//   request.withCredentials = connection.get('requiresCredentials') || false;
+//   request.onload = () => {
+//     if (request.status >= 200 && request.status < 400) {
+//       // Success!
+//       console.log('it exists');
+//       exists = true;
+//     } else {
+//       // We reached our target server, but it returned an error
+//       console.log('it does not exist');
+//       exists = false;
+//     }
+//   }
+//   request.send();
+//   return exists;
+// }
 
 function sshExists(path, connection) {
   // if (typeof(credentials) === 'undefined')
@@ -185,7 +192,7 @@ module.exports = {
   UID: UID,
   arrayStringContains: arrayStringContains,
   combineServerPath: combineServerPath,
-  httpExists: httpExists,
+  // httpExists: httpExists,
   getURL: getURL,
   // getRequiresCredentials: getRequiresCredentials,
   httpGet: httpGet,

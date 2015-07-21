@@ -6,6 +6,7 @@ var CNV = variants.CNV;
 var utils = require('./utils.js');
 var getExtension = utils.getExtension;
 var httpGet = utils.httpGet;
+var localTextGet = utils.localTextGet;
 var styleSheets = require('./styles.js');
 var loadedfiletypes = require('./loadedfiletypes.js');
 var RemoteBAM = loadedfiletypes.RemoteBAM;
@@ -16,8 +17,10 @@ var LocalBAI = loadedfiletypes.LocalBAI;
 var Settings = require('./components/settings.jsx');
 var getPrefix = Settings.getPath;
 
-var BAI_RE = /^(.*)\.bai$/i;
-var BAM_RE = /^(.*)\.bam$/i;
+const BAI_RE = /^(.*)\.bai$/i;
+const BAM_RE = /^(.*)\.bam$/i;
+const SNP_RE = /^\s*(chr)?([0-9,m,x,y]+)[-:,\s](\d+)\s*$/i;
+const CNV_RE = /^\s*(chr)?([0-9,m,x,y]+)[-:,\s](\d+)[-:,\s](\d+)\s*$/i;
 
 var referenceGenome = {
   name: 'Genome',
@@ -38,10 +41,10 @@ function Session(bamFiles, variantFile) {
 
 Session.prototype.addVariants = function(variants, connection) {
   return new Promise((resolve, reject) => {
-    var re_dna_location = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
+    // var re_dna_location = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
     switch (typeof(variants)) {
       case 'string':
-        if (variants.match(re_dna_location)) {
+        if (variants.match(SNP_RE) || variants.match(CNV_RE)) {
           // A single dna location
           this.parseVariants(variants);
         } else {
@@ -50,7 +53,7 @@ Session.prototype.addVariants = function(variants, connection) {
             console.log(response);
             this.parseVariants(response);
           }).then(() => {
-            resolve(true);
+            resolve();
           }).catch((error) => {
             console.log(error);
             reject(error);
@@ -58,9 +61,20 @@ Session.prototype.addVariants = function(variants, connection) {
         }
         break;
       case 'object':
-        // An array of single dna locations
-        this.parseVariants(variants);
-        resolve(true);
+        if (connection.get('type') === 'local') {
+          console.log('local file');
+          console.log(variants[0]);
+          localTextGet(variants[0]).then(result => {
+            console.log(result);
+            this.parseVariants(result);
+            console.log('finished parsing variants');
+            resolve();
+          });
+        } else {
+          // An array of single dna locations
+          this.parseVariants(variants);
+          resolve();
+        }
         break;
       default:
         reject('Unrecognized type for: ' + variants);
@@ -81,43 +95,53 @@ Session.prototype.generateQCreport = function() {
   return str;
 };
 
-Session.prototype.addBam = function(file, connection) {
-  if (typeof(file) === 'string') { // a URL
-    switch (getExtension(file)) {
-      case "bam":
-      case "cram":
-        switch (connection.get('type')) {
-          case 'HTTP':
-            var requiresCredentials = connection.get('requiresCredentials') || false;
-            var newBam = new RemoteBAM(file, requiresCredentials);
-            break;
-          case 'SSHBridge':
-            var newBam = new SSHBAM(file);
-            break;
-        }
-        this.bamFiles.push(newBam);
-        break;
-      case "bai":
-        var newBai = new RemoteBAI(file);
-        this.baiFiles.push(newBai);
-        break;
-    }
-  } else { // a file object
-    for (var i=0; i < file.length; ++i) {
-      var f = file[i];
-      switch (getExtension(f)) {
+Session.prototype.addSequenceFile = function(file, connection) {
+  return new Promise((resolve, reject) => {
+    if (typeof(file) === 'string') { // a URL
+      switch (getExtension(file)) {
         case "bam":
-          var newBam = new LocalBAM(f);
-          this.bamFiles.push(newBam);
+        case "cram":
+          switch (connection.get('type')) {
+            case 'HTTP':
+              var requiresCredentials = connection.get('requiresCredentials') || false;
+              var newBam = new RemoteBAM(file, requiresCredentials);
+              break;
+            case 'SSHBridge':
+              var newBam = new SSHBAM(file);
+              break;
+          }
+          newBam.exists().then(result => {
+            console.log(result);
+            console.log('it exists');
+            this.bamFiles.push(newBam);
+            resolve();
+          }).catch((e) => {
+            console.log('error in the addSequenceFile ' +  e); 
+            reject(e);
+          });
           break;
         case "bai":
-          var newBai = new LocalBAI(f);
+          var newBai = new RemoteBAI(file);
           this.baiFiles.push(newBai);
           break;
       }
+    } else { // a file object
+      for (var i=0; i < file.length; ++i) {
+        var f = file[i];
+        switch (getExtension(f)) {
+          case "bam":
+            var newBam = new LocalBAM(f);
+            this.bamFiles.push(newBam);
+            break;
+          case "bai":
+            var newBai = new LocalBAI(f);
+            this.baiFiles.push(newBai);
+            break;
+        }
+      }
     }
-  }
-  this.matchMaker();
+  });
+  // this.matchMaker();
 };
 
 /** Determines if any unmatched LocalBAM's have a matching LocalBAI. It is not necessary for
@@ -195,33 +219,47 @@ Session.prototype.parseVariants = function(variants) {
   // the variants have not been loaded so process the contents of the variant file text
   this.variants = [];
 
-  if (typeof(variants) == 'string') {
+  if (typeof(variants) === 'string') {
     variants = variants.trim();
     variants = variants.split("\n");
   }
-  var pattern = /\s*[-:,\s]+\s*/;
-  for (var i = 0; i < variants.length; i++) {
-    var variant = variants[i].trim();
-    var parts = variant.split(pattern);
-    var chr = parts[0];
-      switch (parts.length) {
-        case 2: // SNP
-          var loc = parseInt(parts[1]);
-          var v = new SNP(chr, loc);
-          break;
-        case 3: // CNV
-          var start = parseInt(parts[1]);
-          var end = parseInt(parts[2]);
-          var v = new CNV(chr, start, end);
-          break;
-        default:
-          console.log("Unrecognized variant");
-          console.log(variant);
-          throw 'Unrecognized variant: ' + variant;
-      }
-      console.log(this);
-      this.variants.push(v);
-  }
+  //var pattern = /\s*[-:,\s]+\s*/;
+  variants.map(variant => {
+    var snp = variant.match(SNP_RE);
+    var cnv = variant.match(CNV_RE);
+    if (snp) {
+      var [, , chr, loc] = snp;
+      var v = new SNP(chr, loc);
+    } else if (cnv) {
+      var [, , chr, start, end] = cnv;
+      var v = new CNV(chr, start, end);
+    } else {
+      throw 'Unrecognized variant: ' + variant;
+    }
+    this.variants.push(v);
+  });
+  // for (var i = 0; i < variants.length; i++) {
+  //   var variant = variants[i].trim();
+  //   var parts = variant.split(pattern);
+  //   var chr = parts[0];
+  //     switch (parts.length) {
+  //       case 2: // SNP
+  //         var loc = parseInt(parts[1]);
+  //         var v = new SNP(chr, loc);
+  //         break;
+  //       case 3: // CNV
+  //         var start = parseInt(parts[1]);
+  //         var end = parseInt(parts[2]);
+  //         var v = new CNV(chr, start, end);
+  //         break;
+  //       default:
+  //         console.log("Unrecognized variant");
+  //         console.log(variant);
+  //         throw 'Unrecognized variant: ' + variant;
+  //     }
+  //     console.log(this);
+  //     this.variants.push(v);
+  // }
 };
 
 Session.prototype.init = function(b, style) {
@@ -361,7 +399,7 @@ Sessions.prototype.stringCurrentSession = function() {
 
 
 Sessions.prototype.generateQCreport = function() {
-    var str = Date();    
+    var str = Date();
     this.sessions.forEach((session) => {
       str += session.generateQCreport();
     });

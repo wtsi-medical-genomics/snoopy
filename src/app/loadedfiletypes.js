@@ -2,37 +2,40 @@
 
 var utils = require('./utils.js');
 var getName = utils.getName;
+var httpGet = utils.httpGet;
 var UID = utils.UID;
+
+var Map = require('immutable').Map;
 
 var uid = new UID();
 var BAI_RE = /^(.*)\.bai$/i;
 
-function createLoadedFileObject(file, connection) {
-  if (typeof(file) === 'string') { // a URL
-    switch (getExtension(file)) {
-      case "bam":
-      case "cram":
-        switch (connection.get('type')) {
-          case 'HTTP':
-            var requiresCredentials = connection.get('requiresCredentials') || false;
-            return new RemoteBAM(file, requiresCredentials);
-          case 'SSHBridge':
-            return new SSHBAM(file);
-        }
-        break;
-      case "bai":
-        return new RemoteBAI(file);
-    }
-  } else { // a file object
-    var f = file[0];
-    switch (getExtension(f)) {
-      case "bam":
-        return new LocalBAM(f);
-      case "bai":
-        return new LocalBAI(f);
-    }
-  }
-}
+// function createLoadedFileObject(file, connection) {
+//   if (typeof(file) === 'string') { // a URL
+//     switch (getExtension(file)) {
+//       case "bam":
+//       case "cram":
+//         switch (connection.get('type')) {
+//           case 'HTTP':
+//             var requiresCredentials = connection.get('requiresCredentials') || false;
+//             return new RemoteBAM(file, requiresCredentials);
+//           case 'SSHBridge':
+//             return new SSHBAM(file);
+//         }
+//         break;
+//       case "bai":
+//         return new RemoteBAI(file);
+//     }
+//   } else { // a file object
+//     var f = file[0];
+//     switch (getExtension(f)) {
+//       case "bam":
+//         return new LocalBAM(f);
+//       case "bai":
+//         return new LocalBAI(f);
+//     }
+//   }
+// }
 
 
 function LoadedFile(file, name) {
@@ -136,6 +139,14 @@ RemoteBAM.prototype.getTier = function(style) {
     return this.tier;
 };
 
+RemoteBAM.prototype.exists = function() {
+  // return new Promise((resolve, reject) => {
+    var path = this.file;
+    var connection = Map({requiresCredentials: this.requiresCredentials});
+    var opts = {range: {min: 0, max:1}};
+    return httpGet(path, connection, opts);
+}
+
 function SSHBAM(file) {
     this.base = BAM;
     this.base(file, getName(file));
@@ -154,6 +165,13 @@ SSHBAM.prototype.getTier = function(style) {
     return this.tier;
 };
 
+SSHBAM.prototype.exists = function() {
+  // Need to add to the path url for chr1, 0-1
+  var path = this.file + '&lchr=1&lmin=1&lmax=2';
+  // var connection = Map({requiresCredentials: this.requiresCredentials});
+  // var opts = {range: {min: 0, max:1}};
+  return httpGet(path, null, opts);
+}
 
 function LocalBAI(file) {
     this.base = BAI;

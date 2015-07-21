@@ -16,18 +16,19 @@ var getExtension = utils.getExtension;
 var getURL = utils.getURL;
 var arrayStringContains = utils.arrayStringContains;
 var combineServerPath = utils.combineServerPath;
-var httpExists = utils.httpExists;
+// var httpExists = utils.httpExists;
 
 var Map = require('immutable').Map;
 
 var settings = require('./settings.jsx').settings;
 
+const HTTP_KEY = 0;
+const LOCAL_KEY = 1;
+const SSH_KEY = 2;
 
 var FileLoader = React.createClass({  
   
-  HTTP_KEY: 0,
-  LOCAL_KEY: 1,
-  SSH_KEY: 2,
+
 
   getInitialState() {
     return {
@@ -49,9 +50,7 @@ var FileLoader = React.createClass({
   },
 
   handleSubmit() {
-    console.log('here!');
-    //make sure that the current tabs input has all been loaded.
-    
+    //make sure that the current tabs input has all been loaded.   
     var input = this.state.inputs[this.state.key];
     var errors = [];
     var file;
@@ -59,7 +58,7 @@ var FileLoader = React.createClass({
     var connection;
     switch (this.state.key) { //['HTTP/S', 'Local', 'Local Server', 'SSH Bridge'];
       //HTTP/S
-      case this.HTTP_KEY:
+      case HTTP_KEY:
         if (input.server === '') {
           errors.push('Please enter a server location.');
         }
@@ -75,13 +74,14 @@ var FileLoader = React.createClass({
             location: input.server,
             requiresCredentials: input.credentials
           });
-          file = getURL(input.path, connection);
-          if (!httpExists(file, connection)) {
-            errors.push('Unable to access: ' + file);
-          }
+          file = input.path;
+          // file = getURL(input.path, connection);
+          // if (!httpExists(file, connection)) {
+          //   errors.push('Unable to access: ' + file);
+          // }
         }
         break;
-      case this.LOCAL_KEY:
+      case LOCAL_KEY:
         for (var i=0; i<input.files.length; ++i) {
           var f = input.files[i];
           if (!arrayStringContains(getExtension(f.name), this.props.allowedExtensions)) {
@@ -91,8 +91,9 @@ var FileLoader = React.createClass({
         if (errors.length === 0) {
           file = input.files;
         }
+        connection = Map({type: 'local'});
         break;
-      case this.SSH_KEY:
+      case SSH_KEY:
        //  localHTTPServer: this.refs.localHTTPServer.getValue().trim(),
        // remoteSSHServer: this.refs.remoteSSHServer.getValue().trim(),
        // username: this.refs.username.getValue().trim()
@@ -119,10 +120,11 @@ var FileLoader = React.createClass({
             remoteSSHServer: input.remoteSSHServer,
             username: input.username
           });
-          file = getURL(input.path, connection);
-          if (!httpExists(file, connection)) {
-            errors.push('Unable to access: ' + file);
-          }
+          file = input.path;
+          //file = getURL(input.path, connection);
+          // if (!httpExists(file, connection)) {
+          //   errors.push('Unable to access: ' + file);
+          // }
         }
         break;
     }
@@ -163,13 +165,13 @@ var FileLoader = React.createClass({
           <div className='modal-body'>
             <p>{this.props.text}</p>
             <TabbedArea activeKey={this.state.key} animation={false} onSelect={this.handleSelect}>
-              <TabPane eventKey={this.HTTP_KEY} tab='HTTP/S'>
+              <TabPane eventKey={HTTP_KEY} tab='HTTP/S'>
                 <HTTPTab handleInputChange={this.handleInputChange} handleSubmit={this.handleSubmit} settings={this.props.settings}/>
               </TabPane>
-              <TabPane eventKey={this.LOCAL_KEY} tab='Local File'>
+              <TabPane eventKey={LOCAL_KEY} tab='Local File'>
                 <LocalFileTab multiple={this.props.multiple} handleInputChange={this.handleInputChange} settings={this.props.settings}/>
               </TabPane>
-              <TabPane eventKey={this.SSH_KEY} tab='SSH Bridge'>
+              <TabPane eventKey={SSH_KEY} tab='SSH Bridge'>
                 <SSHTab handleInputChange={this.handleInputChange} handleSubmit={this.handleSubmit} settings={this.props.settings}/>
               </TabPane>
             </TabbedArea>

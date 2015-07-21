@@ -46,7 +46,7 @@ var LoadBatch = React.createClass({
   getInitialState() {
     return {
       connection: '',
-      sessions: '',
+      sessions: ''  ,
     };
   },
 
@@ -69,20 +69,28 @@ var LoadBatch = React.createClass({
   },
 
   render() {
-    console.log('handleGoBatch');
+    if (this.state.sessions) {
+      var proceedNode = (
+        <Pager>
+          <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
+        </Pager>
+      );
+    } else {
+      proceedNode = null;
+    }
     return (
       <div>
         <Grid>
           <Row className='show-grid'>
             <Col md={3}></Col>
             <Col md={6}>
+              <Pager>
+                <PageItem previous href='#' onClick={this.handleGoBack}>&larr; Cancel, Return To Main Menu</PageItem>
+              </Pager>
               <TitlePanel />
               <SelectConnectionPanel settings={this.props.settings} handleConnection={this.handleConnection} />
               <LoadFilePanel settings={this.props.settings} connection={this.state.connection} handleSessions={this.handleSessions}/>
-              <Pager>
-                <PageItem previous href='#' onClick={this.handleGoBack}>&larr; Cancel, Return To Main Menu</PageItem>
-                <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
-              </Pager>
+              {proceedNode}
             </Col>
             <Col md={3}></Col>
           </Row>
@@ -115,44 +123,54 @@ var LoadFilePanel = React.createClass({
   },
 
   handleSessions(sessions) {
-    this.setState({nSessions: sessions.getNumSessions(),
-                   nVariants: sessions.getNumVariants(),
-                   loaded: true});
-    console.log(this.state);
+    console.log(sessions);
+    if (sessions) {
+      this.setState({
+        nSessions: sessions.getNumSessions(),
+        nVariants: sessions.getNumVariants(),
+        loaded: true
+      });
+    } else {
+      this.setState({
+        nSessions: 0,
+        nVariants: 0,
+        loaded: true
+      });
+    }
     this.props.handleSessions(sessions);
   },
 
-  parseJSON(jso, filename) {
-    // There are two different types of JSON formats ( see docs) so
-    // need to figure out which one is being used.
-    console.log(filename);
-    console.log(jso);
-    // var prefix = getPrefix(this.props.settings, this.props.connection);
-    var connection = this.props.settings.getIn(['servers', this.props.connection]);
-    var sessions = jso["sessions"];
-    var ss = new Sessions();
-    var re_dna_location = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
+  // parseJSON(jso, filename) {
+  //   // There are two different types of JSON formats ( see docs) so
+  //   // need to figure out which one is being used.
+  //   console.log(filename);
+  //   console.log(jso);
+  //   // var prefix = getPrefix(this.props.settings, this.props.connection);
+  //   var connection = this.props.settings.getIn(['servers', this.props.connection]);
+  //   var sessions = jso["sessions"];
+  //   var ss = new Sessions();
+  //   var re_dna_location = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
 
-    for (var i=0; i<sessions.length; i++) {
-      if (!sessions[i]['variants'] || !sessions[i]['bams']) {
-        // this.renderFileLoadingErrorList('<strong>Error</strong>: ill-formed JSON in ' + filename + '. Check file syntax at <a href="http://jsonlint.com/">http://jsonlint.com/</a>');
-        continue;
-      }
-      var s = new Session();
-      var v = sessions[i]["variants"];
-      s.addVariants(v);
-      //s.variantFile = new RemoteVariantFile(this.settings.serverLocation + );
-      for (var bi=0; bi<sessions[i]["bams"].length; bi++) {
-        // Add prefix to the file then create the RemoteBAM
-        var file = getURL(sessions[i]["bams"][bi], connection);
-        console.log(file);
-        s.addBam(file, connection);
-      }
-      ss.sessions.push(s);
-    }
-    this.handleSessions(ss);
+  //   for (var i=0; i<sessions.length; i++) {
+  //     if (!sessions[i]['variants'] || !sessions[i]['bams']) {
+  //       // this.renderFileLoadingErrorList('<strong>Error</strong>: ill-formed JSON in ' + filename + '. Check file syntax at <a href="http://jsonlint.com/">http://jsonlint.com/</a>');
+  //       continue;
+  //     }
+  //     var s = new Session();
+  //     var v = sessions[i]["variants"];
+  //     s.addVariants(v);
+  //     //s.variantFile = new RemoteVariantFile(this.settings.serverLocation + );
+  //     for (var bi=0; bi<sessions[i]["bams"].length; bi++) {
+  //       // Add prefix to the file then create the RemoteBAM
+  //       var file = getURL(sessions[i]["bams"][bi], connection);
+  //       console.log(file);
+  //       s.addSequenceFile(file, connection);
+  //     }
+  //     ss.sessions.push(s);
+  //   }
+  //   this.handleSessions(ss);
     
-  },
+  // },
 
   // digestFile(file) {
   //   var file = React.findDOMNode(this.refs.file).files[0];
@@ -182,10 +200,15 @@ var LoadFilePanel = React.createClass({
   //     })
   //   }
   // }
-  handleFileLoad(file) {
+  handleFileLoad() {
+
+    var file = React.findDOMNode(this.refs.file).files[0];
+
+    // User clicked cancel
+    if (file === undefined)
+      return;
 
     this.setState({ loading: true });
-    var file = React.findDOMNode(this.refs.file).files[0];
     console.log(file);
     console.log('here');
     var ext = getExtension(file);
@@ -212,17 +235,23 @@ var LoadFilePanel = React.createClass({
         var ss = new Sessions();
         ss.sessions = sessions;
         this.handleSessions(ss);
-      }).then(sessions => {
-        this.setState({loaded: true,
-                       error: ''});
+        this.setState({
+          loaded: true,
+          error: ''
+        });
       }).catch(error => {
         console.log(error);
-        this.setState({loaded: true,
-                       error: error});
+        this.handleSessions(null);
+        this.setState({
+          loaded: true,
+          error: error
+        });
       });
     } else {
-      this.setState({loaded: false,
-                     error: 'Batch file must have json extension, found the following instead: ' + ext});
+      this.setState({
+        loaded: false,
+        error: 'Batch file must have json extension, found the following instead: ' + ext
+      });
     }
   },
 
@@ -236,6 +265,12 @@ var LoadFilePanel = React.createClass({
       } else {
         throw 'Provided JSON contains a session which does not list any variants. Consult help for instructions and examples of valid JSON batch files.'
       }
+      if (jso.bams && jso.bams.length > 0) {
+        var bams = jso.bams;
+      } else {
+        throw 'Provided JSON contains a session which does not list any BAMs or CRAMs. Consult help for instructions and examples of valid JSON batch files.'
+      }
+
 
       // s.addVariants(v, connection).catch(e => {
       //   console.log('ERRORRRRRRRRRRRRRRR!')
@@ -243,43 +278,41 @@ var LoadFilePanel = React.createClass({
       // });
 
       s.addVariants(v, connection).then(() => {
-        return Promise.all(jso.bams.map(bam => {
+        return Promise.all(bams.map(bam => {
           var file = getURL(bam, connection); 
-          s.addBam(file, connection);
-          console.log(file);
-          console.log(s);
+          return s.addSequenceFile(file, connection);
         }));
       }).then(() => {
-        console.log(s);
         resolve(s);
-      }).catch((e) => {
-        reject(e);
+      }).catch(error => {
+        console.log(error);
+        reject(error);
       });
     });
   },
 
-  handleFileLoad2(file) {
+  // handleFileLoad2(file) {
 
-    this.setState({ loading: true });
-    var file = React.findDOMNode(this.refs.file).files[0];
-    console.log(file);
-    console.log('here');
-    var ext = getExtension(file);
-    if (ext === 'json') {
-      localTextGet(file).then((result) => {
-        var jso = JSON.parse(result);
-        this.parseJSON(jso, file.name);
-      }).catch((error) => {
-        this.setState({loaded: false, error: error});
-      }).then(() => {
-        console.log('FINISHED EVERYTHING');
-        this.setState({ loaded: true });
-      });
-    } else {
-      this.setState({loaded: false,
-                     error: 'Batch file must have json extension, found the following instead: ' + ext});
-    }
-  },
+  //   this.setState({ loading: true });
+  //   var file = React.findDOMNode(this.refs.file).files[0];
+  //   console.log(file);
+  //   console.log('here');
+  //   var ext = getExtension(file);
+  //   if (ext === 'json') {
+  //     localTextGet(file).then((result) => {
+  //       var jso = JSON.parse(result);
+  //       this.parseJSON(jso, file.name);
+  //     }).catch((error) => {
+  //       this.setState({loaded: false, error: error});
+  //     }).then(() => {
+  //       console.log('FINISHED EVERYTHING');
+  //       this.setState({ loaded: true });
+  //     });
+  //   } else {
+  //     this.setState({loaded: false,
+  //                    error: 'Batch file must have json extension, found the following instead: ' + ext});
+  //   }
+  // },
 
   render() {
     var options = {

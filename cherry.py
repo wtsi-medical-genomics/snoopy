@@ -6,6 +6,7 @@ import paramiko
 import getpass
 import json
 import webbrowser
+import pdb
 
 class SSHBridge(object):
 
@@ -31,8 +32,8 @@ class SSHBridge(object):
             for error in ssh_stderr:
                 if error.find('fail to open') >= 0:
                     return False
-            
-            return ssh_stdout
+
+            return [line for line in ssh_stdout]
 
         else:
             c = 'samtools view {} {}:{}-{}'.format(path, lchr, lmin, lmax)

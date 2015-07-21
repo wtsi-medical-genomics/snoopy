@@ -35,18 +35,23 @@ var LoadManual = React.createClass({
     return {session: new Session()};
   },
 
-  handleVariantText(ftext, fpath) {
+  handleVariantFile(file, connection) {
     var s = this.state.session;
-    s.variantFile = fpath;
-    s.parseVariants(ftext);
-    this.setState({session: s});
+    s.addVariants(file, connection).then(() => {
+      console.log(s);
+      this.setState({session: s});
+    }).catch((error) => {
+      console.log(error);
+    });
   },
 
   handleDataFile(files, connection) {
-    var s = this.state.session;
-    s.addBam(files, connection);
-    this.setState({session: s});
-    console.log(s);
+    console.log(files);
+    console.log(connection);
+    // var s = this.state.session;
+    // s.addSequenceFile(files, connection).then();
+    // this.setState({session: s});
+    // console.log(s);
   },
 
   handleRemoveDataFile(id) {
@@ -68,15 +73,27 @@ var LoadManual = React.createClass({
   },
 
   render() {
+    if (this.state.sessions) {
+      var proceedNode = (
+        <Pager>
+          <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
+        </Pager>
+      );
+    } else {
+      proceedNode = null;
+    }
     return (
       <div>
         <Grid>
           <Row className='show-grid'>
             <Col md={3}></Col>
             <Col md={6}>
+              <Pager>
+                <PageItem previous href='#' onClick={this.handleGoBack}>&larr; Cancel, Return To Main Menu</PageItem>
+              </Pager>
               <TitlePanel />
               <LoadVariantsPanel
-                handleVariantText={this.handleVariantText}
+                handleVariantFile={this.handleVariantFile}
                 session={this.state.session}
                 settings={this.props.settings}
               />
@@ -86,10 +103,7 @@ var LoadManual = React.createClass({
                 handleRemoveDataFile={this.handleRemoveDataFile}
                 settings={this.props.settings}
               />
-              <Pager>
-                <PageItem previous href='#' onClick={this.handleGoBack}>&larr; Cancel, Return To Main Menu</PageItem>
-                 <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
-              </Pager>
+              {proceedNode}
             </Col>
             <Col md={3}></Col>
           </Row>
@@ -115,37 +129,46 @@ var TitlePanel = React.createClass({
 });
 
 var LoadVariantsPanel = React.createClass({
-  handleFileLoad(file, credentials) {
+  handleFileLoad(file, connection) {
     console.log(typeof(file));
-    if (typeof(file) === 'object') {
-      // a file object has been loaded
-      file = file[0];
-      var reader = new FileReader();
-      reader.readAsText(file);
-      reader.onload = () => {
-        this.props.handleVariantText(reader.result, '(local) ' + file.name);
-          // sessionInstance.load(reader.result);
-      };
-    } else {
+    this.props.handleVariantFile(file, connection);
+
+    // switch (connection.get('type')) {
+    //   case 'local':
+    //     // a file object has been loaded
+    //     file = file[0];
+    //     var reader = new FileReader();
+    //     reader.readAsText(file);
+    //     reader.onload = () => {
+    //       this.props.handleVariantText(reader.result, '(local) ' + file.name);
+    //         // sessionInstance.load(reader.result);
+    //     };
+    //   case 'SSHBridge':
+    //   case 'HTTP':
+    //     console.log('hi');
+    // } 
+      // let credentials = 
+      // httpGet(file, )
       // a URL has been loaded
-      var request = new XMLHttpRequest();
-      request.open('GET', file, true);
-      request.setRequestHeader('Content-Type', 'text/plain');
-      request.withCredentials = true;
-      request.onload = () => {
-        if (request.status >= 200 && request.status < 400) {
-          // Success!
-          console.log('in the request onload');
-          console.log(request.responseText);
-          this.props.handleVariantText(request.responseText, file);
-        } else {
-          // We reached our target server, but it returned an error
-          console.log('oops');
-        }
-      };
-      request.send('');
-    }
+      // var request = new XMLHttpRequest();
+      // request.open('GET', file, true);
+      // request.setRequestHeader('Content-Type', 'text/plain');
+      // request.withCredentials = true;
+      // request.onload = () => {
+      //   if (request.status >= 200 && request.status < 400) {
+      //     // Success!
+      //     console.log('in the request onload');
+      //     console.log(request.responseText);
+      //     this.props.handleVariantText(request.responseText, file);
+      //   } else {
+      //     // We reached our target server, but it returned an error
+      //     console.log('oops');
+      //   }
+      // };
+      // request.send('');
+
   },
+
   render: function() {
     var tableStyle = {
       'width': '100%'
