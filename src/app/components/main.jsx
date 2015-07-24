@@ -19,9 +19,7 @@ var QC = require('./qc.jsx');
 var Settings = require('./settings.jsx');
 var SettingsModal = Settings.SettingsModal;
 
-var Main = React.createClass({
-  
-  
+var Main = React.createClass({  
 
   getInitialState() {
     return {

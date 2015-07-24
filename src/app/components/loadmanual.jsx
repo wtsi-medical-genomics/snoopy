@@ -1,3 +1,17 @@
+// import React from 'react';
+// import { Alert, Panel, Col, Row, Grid, Button, Glyphicon, Pager, PageItem, ModalTrigger, ListGroup, ListGroupItem, Popover, Tooltip, Modal, OverlayTrigger } from 'react-bootstrap';
+// import { FileLoader } from './fileloader.jsx';
+// import { Session, Sessions } from '../session.js';
+// import { LocalBAM, LocalBAI, RemoteBAM, RemoteBAI } from '../loadedfiletypes.js';
+// import { getURL, getName } from '../utils.js';
+
+// import React from 'react';
+// import { Alert, Panel, Col, Row, Grid, Button, Glyphicon, Pager, PageItem, ModalTrigger, ListGroup, ListGroupItem, Popover, Tooltip, Modal, OverlayTrigger } from 'react-bootstrap';
+// import { FileLoader } from './fileloader.jsx';
+// import { Session, Sessions } from '../session.js';
+// import { LocalBAM, LocalBAI, RemoteBAM, RemoteBAI } from '../loadedfiletypes.js';
+// import { getURL, getName } from '../utils.js';
+
 var React = require('react');
 
 var rb = require('react-bootstrap');
@@ -15,7 +29,6 @@ var ListGroup = rb.ListGroup;
 var ListGroupItem = rb.ListGroupItem;
 
 var FileLoader = require('./fileloader.jsx');
-var getName = require('../utils.js').getName;
 
 var session = require('../session.js');
 var Session = session.Session;
@@ -27,9 +40,11 @@ var LocalBAI = lft.LocalBAI;
 var RemoteBAM = lft.RemoteBAM;
 var RemoteBAI = lft.RemoteBAI;
 
+var utils = require('../utils.js');
+var getName = utils.getName;
+var getURL = utils.getURL;
 
-
-var LoadManual = React.createClass({
+const LoadManual = React.createClass({
 
   getInitialState() {
     return {session: new Session()};
@@ -47,7 +62,17 @@ var LoadManual = React.createClass({
 
   handleDataFile(files, connection) {
     console.log(files);
-    console.log(connection);
+    console.log(connection.toJS());
+    
+    if (connection.get('type') !== 'local')
+      files = getURL(files, connection);
+    let s = this.state.session;
+    s.addSequenceFile(files, connection).then(s.matchMaker()).then(() => {
+      console.log(s);
+      this.setState({session: s});
+    }).catch((error) => {
+      console.log(error);
+    });
     // var s = this.state.session;
     // s.addSequenceFile(files, connection).then();
     // this.setState({session: s});
@@ -64,6 +89,20 @@ var LoadManual = React.createClass({
     e.preventDefault();
     var s = new Sessions();
     s.sessions[0] = this.state.session;
+    
+    // If there are unmatched files, let the user know and give them a choice
+    
+    
+    let uf = s.unmatchedSequenceFiles();
+    let ui = s.unmatchedIndexFiles();
+    
+    if (len(uf) + len(ui) > 0) {
+      console.log(uf);
+      console.log(ui);
+    }
+  },
+
+  handleReallyGoQC() {
     this.props.handleGoQC(s);
   },
 
@@ -73,8 +112,8 @@ var LoadManual = React.createClass({
   },
 
   render() {
-    if (this.state.sessions) {
-      var proceedNode = (
+    if (this.state.session.isReady()) {
+      var proceedNode = ( 
         <Pager>
           <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
         </Pager>
@@ -116,7 +155,7 @@ var LoadManual = React.createClass({
 
 
 
-var TitlePanel = React.createClass({
+const TitlePanel = React.createClass({
 
   render: function() {
     return (
@@ -128,7 +167,7 @@ var TitlePanel = React.createClass({
 
 });
 
-var LoadVariantsPanel = React.createClass({
+const LoadVariantsPanel = React.createClass({
   handleFileLoad(file, connection) {
     console.log(typeof(file));
     this.props.handleVariantFile(file, connection);
@@ -215,7 +254,7 @@ var LoadVariantsPanel = React.createClass({
 
 });
 
-var IndexMessage = React.createClass({
+const IndexMessage = React.createClass({
   
   render() {
     if (this.props.file instanceof LocalBAM) {
@@ -231,7 +270,7 @@ var IndexMessage = React.createClass({
   }
 });
 
-var DataFileRow = React.createClass({
+const DataFileRow = React.createClass({
   
   handleRemove(e) {
     e.preventDefault();
@@ -263,7 +302,7 @@ var DataFileRow = React.createClass({
   }
 });
 
-var LoadDataPanel = React.createClass({
+const LoadDataPanel = React.createClass({
   handleFileLoad(files, connection) {
     // console.log(this.props);
     // if (typeof(files) === 'string') {
@@ -380,5 +419,22 @@ var LoadDataPanel = React.createClass({
   }
 
 });
+
+var FixMissingIndexModal = React.createClass({
+
+  render() {
+    return (
+      <Modal {...this.props} title="Missing index files" animation={false}>
+        <div className='modal-body'>
+          The following files are missing their index files. Please load the index file or remove the sequence file.
+        </div>
+        <div className='modal-footer'>
+          {<Button bsStyle='primary' onClick={this.props.onRequestHide}>Cancel</Button>}
+        </div>
+      </Modal>
+    );
+  }
+});
+
 
 module.exports = LoadManual;

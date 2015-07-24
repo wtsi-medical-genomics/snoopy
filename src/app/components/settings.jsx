@@ -169,6 +169,18 @@ var SettingsModal = React.createClass({
     this.props.onRequestHide();
   },
 
+  getInitialState(){
+    return { showModal: this.props.show || false };
+  },
+
+  close(){
+    this.setState({ showModal: false });
+  },
+
+  open(){
+    this.setState({ showModal: true });
+  },
+
   render() {
     var currentZoomNode = (
       <div>

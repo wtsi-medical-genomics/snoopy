@@ -1,6 +1,10 @@
 "use strict;"
 
-var Promise = require('es6-promise').Promise;
+// import { Promise } from 'es6-promise';
+// import { Map } from 'immutable';
+
+let Promise = require('es6-promise');
+let Map = require('immutable').Map;
 
 var RE_EXT = /^.*\.(.*)$/;
 var RE_LEFT_SLASH = /^\/+/;
@@ -65,11 +69,10 @@ function getURL(path, connection) {
 //   }
 // }
 
-function httpGet(path, connection, opts) {
-
+function httpGet(path, connection=Map(), opts) {
   return new Promise((resolve, reject) => {
     console.log(path);
-    console.log(connection);
+    // console.log(connection.toJS());
     if (path === undefined)
       reject('No path provided');
     if (connection === undefined)

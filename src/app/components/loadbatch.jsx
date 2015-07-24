@@ -40,6 +40,7 @@ var Settings = require('./settings.jsx');
 var Promise = require('es6-promise').Promise;
 var Loader = require('react-loader');
 
+// const RE_DNA_LOCATION = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
 
 var LoadBatch = React.createClass({
 
@@ -258,7 +259,7 @@ var LoadFilePanel = React.createClass({
   getSession(jso) {
     return new Promise((resolve, reject) => {
       var connection = this.props.settings.getIn(['servers', this.props.connection]);
-      var re_dna_location = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
+      
       var s = new Session();
       if (jso.variants && jso.variants.length > 0) {
         var v = jso.variants;

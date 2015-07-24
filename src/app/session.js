@@ -30,277 +30,324 @@ var referenceGenome = {
   pinned: true
 };
 
-function Session(bamFiles, variantFile) {
-   this.bamFiles = bamFiles || [];
-   this.baiFiles = [];
-   this.variantFile = variantFile || [];
-   this.variants = [];
-   this.index = 0;
-   //this.ID = utils.getNextUID();
-}
-
-Session.prototype.addVariants = function(variants, connection) {
-  return new Promise((resolve, reject) => {
-    // var re_dna_location = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
-    switch (typeof(variants)) {
-      case 'string':
-        if (variants.match(SNP_RE) || variants.match(CNV_RE)) {
-          // A single dna location
-          this.parseVariants(variants);
-        } else {
-          // A path to a file at a remote location
-          httpGet(variants, connection).then((response) => {
-            console.log(response);
-            this.parseVariants(response);
-          }).then(() => {
-            resolve();
-          }).catch((error) => {
-            console.log(error);
-            reject(error);
-          });
-        }
-        break;
-      case 'object':
-        if (connection.get('type') === 'local') {
-          console.log('local file');
-          console.log(variants[0]);
-          localTextGet(variants[0]).then(result => {
-            console.log(result);
-            this.parseVariants(result);
-            console.log('finished parsing variants');
-            resolve();
-          });
-        } else {
-          // An array of single dna locations
-          this.parseVariants(variants);
-          resolve();
-        }
-        break;
-      default:
-        reject('Unrecognized type for: ' + variants);
-    }
-  });
-};
-
-Session.prototype.generateQCreport = function() {    
-  var str = "\n\nVariant File\n" + this.variantFile.name;
-  str += "\n\nBAM Files\n";
-  for (var i = 0; i < this.bamFiles.length; i++) {
-    str += this.bamFiles[i].name + "\n";
+class Session {
+  constructor(bamFiles, variantFile) {
+    this.bamFiles = bamFiles || [];
+    this.baiFiles = [];
+    this.variantFile = variantFile || [];
+    this.variants = [];
+    this.index = 0;
+    //this.ID = utils.getNextUID();
   }
-  str += "\n";
-  for (var i = 0; i < this.variants.length; i++) {
-    str += this.variants[i].string() + "\n"; 
-  }
-  return str;
-};
 
-Session.prototype.addSequenceFile = function(file, connection) {
-  return new Promise((resolve, reject) => {
-    if (typeof(file) === 'string') { // a URL
-      switch (getExtension(file)) {
-        case "bam":
-        case "cram":
-          switch (connection.get('type')) {
-            case 'HTTP':
-              var requiresCredentials = connection.get('requiresCredentials') || false;
-              var newBam = new RemoteBAM(file, requiresCredentials);
-              break;
-            case 'SSHBridge':
-              var newBam = new SSHBAM(file);
-              break;
+  addVariants(variants, connection) {
+    return new Promise((resolve, reject) => {
+      // var re_dna_location = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
+      switch (typeof(variants)) {
+        case 'string':
+          if (variants.match(SNP_RE) || variants.match(CNV_RE)) {
+            // A single dna location
+            this.parseVariants(variants);
+          } else {
+            // A path to a file at a remote location
+            httpGet(variants, connection).then(response => {
+              console.log(response);
+              this.parseVariants(response);
+            }).then(() => {
+              this.variantFile = variants;
+              resolve();
+            }).catch((error) => {
+              console.log(error);
+              reject(error);
+            });
           }
-          newBam.exists().then(result => {
-            console.log(result);
-            console.log('it exists');
-            this.bamFiles.push(newBam);
+          break;
+        case 'object':
+          if (connection.get('type') === 'local') {
+            console.log('local file');
+            console.log(variants[0]);
+            this.variantFile = variants[0].name;
+            localTextGet(variants[0]).then(result => {
+              console.log(result);
+              this.parseVariants(result);
+              console.log('finished parsing variants');
+              resolve();
+            });
+          } else {
+            // An array of single dna locations
+            this.parseVariants(variants);
             resolve();
-          }).catch((e) => {
-            console.log('error in the addSequenceFile ' +  e); 
-            reject(e);
-          });
+          }
           break;
-        case "bai":
-          var newBai = new RemoteBAI(file);
-          this.baiFiles.push(newBai);
-          break;
+        default:
+          reject('Unrecognized type for: ' + variants);
       }
-    } else { // a file object
-      for (var i=0; i < file.length; ++i) {
-        var f = file[i];
-        switch (getExtension(f)) {
+    });
+  }
+
+  generateQCreport() {
+    // Create an object which will be exported as JSON
+    let files = this.bamFiles.reduce((accum, file)  => {
+      return accum.concat(file.name)
+    }, []);
+
+    let variants = this.variants.reduce((accum, variant)  => {
+      return accum.concat(variant.toObject())
+    }, []);
+
+
+    return {
+      files: files,
+      variants: variants
+    };
+
+    // var str = "\n\nVariant File\n" + this.variantFile.name;
+    // str += "\n\nBAM Files\n";
+    // for (var i = 0; i < this.bamFiles.length; i++) {
+    //   str += this.bamFiles[i].name + "\n";
+    // }
+    // str += "\n";
+    // for (var i = 0; i < this.variants.length; i++) {
+    //   str += this.variants[i].string() + "\n"; 
+    // }
+    // return str;
+  }
+
+  addSequenceFile(file, connection) {
+    return new Promise((resolve, reject) => {
+      if (typeof(file) === 'string') { // a URL
+        switch (getExtension(file)) {
           case "bam":
-            var newBam = new LocalBAM(f);
-            this.bamFiles.push(newBam);
+          case "cram":
+            switch (connection.get('type')) {
+              case 'HTTP':
+                var requiresCredentials = connection.get('requiresCredentials') || false;
+                var newBam = new RemoteBAM(file, requiresCredentials);
+                break;
+              case 'SSHBridge':
+                var newBam = new SSHBAM(file);
+                break;
+            }
+            newBam.exists().then(result => {
+              console.log(result);
+              console.log('it exists');
+              this.bamFiles.push(newBam);
+              resolve();
+            }).catch((e) => {
+              console.log('error in the addSequenceFile ' +  e); 
+              reject(e);
+            });
             break;
           case "bai":
-            var newBai = new LocalBAI(f);
+            var newBai = new RemoteBAI(file);
             this.baiFiles.push(newBai);
             break;
         }
+      } else { // a file object
+        for (let i=0; i < file.length; ++i) {
+          let f = file[i];
+          console.log(f);
+          switch (getExtension(f)) {
+            case "bam":
+              var newBam = new LocalBAM(f);
+              this.bamFiles.push(newBam);
+              resolve();
+              break;
+            case "bai":
+              var newBai = new LocalBAI(f);
+              this.baiFiles.push(newBai);
+              resolve();
+              break;
+          }
+        }
       }
-    }
-  });
-  // this.matchMaker();
-};
+    });
+  }
 
-/** Determines if any unmatched LocalBAM's have a matching LocalBAI. It is not necessary for
-a RemoteBAM to have a RemoteBAI, as it assumed to be in the same location, but if any RemoteBAI's 
-have been provided marry these to a RemoteBAM.*/
-Session.prototype.matchMaker = function() {
-  var toRemove = [];
-  for (var i=0; i<this.bamFiles.length; ++i) {
-    var bamFile = this.bamFiles[i];
-    if (!bamFile.index) {
-      for (var j=0; j<this.baiFiles.length; ++j) {
-        var baiFile = this.baiFiles[j];
-        var stripBai = baiFile.name.match(BAI_RE);
-        var stripBam = bamFile.name.match(BAM_RE);
-        if ((stripBai[1] === bamFile.name) || (stripBai[1] === stripBam[1]) &&
-          (bamFile.file.type === baiFile.file.type)) {
-          this.bamFiles[i].index = baiFile;
-          toRemove.push(baiFile.id);
+  /** Determines if any unmatched LocalBAM's have a matching LocalBAI. It is not necessary for
+  a RemoteBAM to have a RemoteBAI, as it assumed to be in the same location, but if any RemoteBAI's 
+  have been provided marry these to a RemoteBAM.*/
+  matchMaker() {
+    var toRemove = [];
+    for (var i=0; i<this.bamFiles.length; ++i) {
+      var bamFile = this.bamFiles[i];
+      if (!bamFile.index) {
+        for (var j=0; j<this.baiFiles.length; ++j) {
+          var baiFile = this.baiFiles[j];
+          var stripBai = baiFile.name.match(BAI_RE);
+          var stripBam = bamFile.name.match(BAM_RE);
+          if ((stripBai[1] === bamFile.name) || (stripBai[1] === stripBam[1]) &&
+            (bamFile.file.type === baiFile.file.type)) {
+            this.bamFiles[i].index = baiFile;
+            toRemove.push(baiFile.id);
+          }
         }
       }
     }
+    toRemove.forEach(id => {this.remove(id)});
   }
-  toRemove.forEach((id) => {this.remove(id)});
-};
 
-Session.prototype.remove = function(id) {
-  this.bamFiles = this.bamFiles.filter(function(bamFile) {
-    return bamFile.id !== id;
-  })
-  this.baiFiles = this.baiFiles.filter(function(baiFile) {
-    return baiFile.id !== id;
-  })
-};
-
-Session.prototype.setQC = function(decision) {
-  this.variants[this.index].score = decision;
-};
-
-
-Session.prototype.next = function(b) {
-  if (this.index < this.variants.length - 1) {
-    return {variant: this.variants[++this.index].visit(b), done: false};
-  } else { // at the end now
-    return {variant: this.variants[this.index].visit(b), done: true};
+  remove(id) {
+    this.bamFiles = this.bamFiles.filter(function(bamFile) {
+      return bamFile.id !== id;
+    })
+    this.baiFiles = this.baiFiles.filter(function(baiFile) {
+      return baiFile.id !== id;
+    })
   }
-};
 
-Session.prototype.gotoCurrentVariant = function(b) {
-  this.variants[this.index].visit(b);
-  return this.variants[this.index];
-};
-
-Session.prototype.getCurrentVariant = function() {
-  return this.variants[this.index];
-};
-
-Session.prototype.previous = function(b) {
-  if (this.index > 0) {
-    this.index--;
-    return this.gotoCurrentVariant(b);
-    // return this.getCurrentVariant();
-  } else {
-    return false;
+  setQC(decision) {
+    this.variants[this.index].score = decision;
   }
-}
 
-Session.prototype.getNumVariantsReviewed = function() {
-  var reviewed = this.variants.filter((variant) => {
-     return variant.score !== 'not reviewed';
-  });
-  return reviewed.length;
-}
 
-Session.prototype.parseVariants = function(variants) {
-  // the variants have not been loaded so process the contents of the variant file text
-  this.variants = [];
-
-  if (typeof(variants) === 'string') {
-    variants = variants.trim();
-    variants = variants.split("\n");
-  }
-  //var pattern = /\s*[-:,\s]+\s*/;
-  variants.map(variant => {
-    var snp = variant.match(SNP_RE);
-    var cnv = variant.match(CNV_RE);
-    if (snp) {
-      var [, , chr, loc] = snp;
-      var v = new SNP(chr, loc);
-    } else if (cnv) {
-      var [, , chr, start, end] = cnv;
-      var v = new CNV(chr, start, end);
-    } else {
-      throw 'Unrecognized variant: ' + variant;
+  next(b) {
+    if (this.index < this.variants.length - 1) {
+      return {variant: this.variants[++this.index].visit(b), done: false};
+    } else { // at the end now
+      return {variant: this.variants[this.index].visit(b), done: true};
     }
-    this.variants.push(v);
-  });
-  // for (var i = 0; i < variants.length; i++) {
-  //   var variant = variants[i].trim();
-  //   var parts = variant.split(pattern);
-  //   var chr = parts[0];
-  //     switch (parts.length) {
-  //       case 2: // SNP
-  //         var loc = parseInt(parts[1]);
-  //         var v = new SNP(chr, loc);
-  //         break;
-  //       case 3: // CNV
-  //         var start = parseInt(parts[1]);
-  //         var end = parseInt(parts[2]);
-  //         var v = new CNV(chr, start, end);
-  //         break;
-  //       default:
-  //         console.log("Unrecognized variant");
-  //         console.log(variant);
-  //         throw 'Unrecognized variant: ' + variant;
-  //     }
-  //     console.log(this);
-  //     this.variants.push(v);
-  // }
-};
+  }
 
-Session.prototype.init = function(b, style) {
-  b.removeAllTiers();
-  //this.browser.baseColors = app.settings.colors;
-  b.addTier(referenceGenome);
-  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!werhjaljfklasjdfkljasdklf;jadkls');
-  console.log(style);
-  this.bamFiles.forEach((bamFile) => {
-    // var style = styleSheets['raw'].style;
-    b.addTier(bamFile.getTier(style.toJS()));
-  });
-  this.index = 0;
+  gotoCurrentVariant(b) {
+    this.variants[this.index].visit(b);
+    return this.variants[this.index];
+  }
 
-  // for (var i=0; i < this.bamFiles.length; ++i) {
-  //     var style = styleSheets['raw'].styles;
-  //     var bamTier = this.bamFiles[i].getTier(style);
-  //     // if (app.settings.dallianceView === 'condensed')
-  //     //     bamTier.padding = 0;
-  //     // if (bamTier) { 
-  //     //     app.browser.addTier(bamTier);
-  //     // } 
-  //     b.addTier(bamTier);
-  // }
-  // b.refresh();
+  getCurrentVariant() {
+    return this.variants[this.index];
+  }
+
+  previous(b) {
+    if (this.index > 0) {
+      this.index--;
+      return this.gotoCurrentVariant(b);
+      // return this.getCurrentVariant();
+    } else {
+      return false;
+    }
+  }
+
+  getNumVariantsReviewed() {
+    var reviewed = this.variants.filter((variant) => {
+       return variant.score !== 'not reviewed';
+    });
+    return reviewed.length;
+  }
+
+  parseVariants(variants) {
+    // the variants have not been loaded so process the contents of the variant file text
+    this.variants = [];
+
+    if (typeof(variants) === 'string') {
+      variants = variants.trim();
+      variants = variants.split("\n");
+    }
+    //var pattern = /\s*[-:,\s]+\s*/;
+    variants.map(variant => {
+      var snp = variant.match(SNP_RE);
+      var cnv = variant.match(CNV_RE);
+      if (snp) {
+        var [, , chr, loc] = snp;
+        var v = new SNP(chr, loc);
+      } else if (cnv) {
+        var [, , chr, start, end] = cnv;
+        var v = new CNV(chr, start, end);
+      } else {
+        throw 'Unrecognized variant: ' + variant;
+      }
+      this.variants.push(v);
+    });
+    // for (var i = 0; i < variants.length; i++) {
+    //   var variant = variants[i].trim();
+    //   var parts = variant.split(pattern);
+    //   var chr = parts[0];
+    //     switch (parts.length) {
+    //       case 2: // SNP
+    //         var loc = parseInt(parts[1]);
+    //         var v = new SNP(chr, loc);
+    //         break;
+    //       case 3: // CNV
+    //         var start = parseInt(parts[1]);
+    //         var end = parseInt(parts[2]);
+    //         var v = new CNV(chr, start, end);
+    //         break;
+    //       default:
+    //         console.log("Unrecognized variant");
+    //         console.log(variant);
+    //         throw 'Unrecognized variant: ' + variant;
+    //     }
+    //     console.log(this);
+    //     this.variants.push(v);
+    // }
+  }
+
+  init(b, style) {
+    b.removeAllTiers();
+    //this.browser.baseColors = app.settings.colors;
+    b.addTier(referenceGenome);
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!werhjaljfklasjdfkljasdklf;jadkls');
+    console.log(style);
+    this.bamFiles.forEach((bamFile) => {
+      // var style = styleSheets['raw'].style;
+      b.addTier(bamFile.getTier(style.toJS()));
+    });
+    this.index = 0;
+
+    // for (var i=0; i < this.bamFiles.length; ++i) {
+    //     var style = styleSheets['raw'].styles;
+    //     var bamTier = this.bamFiles[i].getTier(style);
+    //     // if (app.settings.dallianceView === 'condensed')
+    //     //     bamTier.padding = 0;
+    //     // if (bamTier) { 
+    //     //     app.browser.addTier(bamTier);
+    //     // } 
+    //     b.addTier(bamTier);
+    // }
+    // b.refresh();
+  }
+
+  goto(b, style, vi) {
+    b.removeAllTiers();
+    //this.browser.baseColors = app.settings.colors;
+    b.addTier(referenceGenome);
+    this.bamFiles.forEach((bamFile) => {
+      b.addTier(bamFile.getTier(style.toJS()));
+    });
+    this.index = vi;
+    return this.gotoCurrentVariant(b);
+  }
+
+  getCurrentVariantIndex() {
+    return this.index;
+  }
+
+  isReady() {
+    if (this.variants.length === 0)
+      return false;
+    if (this.bamFiles.length === 0)
+      return false;
+    for (let i=0; i<this.bamFiles.length; i++) {
+      if (this.bamFiles[i].index = false)
+        return false;
+    }
+    return true;
+  }
+
+  unmatchedSequenceFiles() {
+    return this.bamFiles.reduce((accum, bamFile)  => {
+      if (bamFile.index === false)
+        return accum.concat(bamFile);
+      else
+        return accum;
+    }, []);
+  }
+
+  unmatchedIndexFiles() {
+    return this.baiFiles;
+  }
+
 }
-
-Session.prototype.goto = function(b, style, vi) {
-  b.removeAllTiers();
-  //this.browser.baseColors = app.settings.colors;
-  b.addTier(referenceGenome);
-  this.bamFiles.forEach((bamFile) => {
-    b.addTier(bamFile.getTier(style.toJS()));
-  });
-  this.index = vi;
-  return this.gotoCurrentVariant(b);
-};
-
-Session.prototype.getCurrentVariantIndex = function() {
-  return this.index;
-};
 
 function Sessions() {
   this.sessions = [];
@@ -311,8 +358,6 @@ Sessions.prototype.next = function(b) {
   var nextVariant = this.sessions[this.index].next(b);
   if (nextVariant.done) {
     if (this.index < this.sessions.length - 1) {
-
-      console.log('???????????????sdgfasdfsdafasdf?????');
       console.log(this.style);
       this.sessions[++this.index].init(b, this.style);
       nextVariant = {variant: this.gotoCurrentVariant(b), done: false};
@@ -399,11 +444,19 @@ Sessions.prototype.stringCurrentSession = function() {
 
 
 Sessions.prototype.generateQCreport = function() {
-    var str = Date();
-    this.sessions.forEach((session) => {
-      str += session.generateQCreport();
-    });
-    return str;
+  let sessions = this.sessions.reduce((accum, session)  => {
+  return accum.concat(session.generateQCreport())
+  }, []);
+  let jso = {
+    date: Date(),
+    sessions: sessions
+  };
+  return JSON.stringify(jso, null, '\t');
+    // var str = Date();
+    // this.sessions.forEach((session) => {
+    //   str += session.generateQCreport();
+    // });
+    // return str;
 };
 
 Sessions.prototype.updateStyle = function(b, style) {

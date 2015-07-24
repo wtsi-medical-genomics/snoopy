@@ -17,7 +17,6 @@
     "gulp-notify": "^2.1.0",
     "gulp-util": "^3.0.1",
     "pretty-hrtime": "^0.2.2",
-    "reactify": "^0.17.1",
     "require-dir": "^0.1.0",
     "underscore": "^1.7.0",
     "vinyl-source-stream": "^1.0.0",
@@ -25,12 +24,12 @@
 
   },
   "dependencies": {
-    "react-bootstrap": "^=0.23",
-    "react": "^=0.13",
+    "react-bootstrap": "^0.23",
+    "react": "^0.13",
     "jszip": "^2.5",
     "filesaver.js": "^0.1",
-    "es6-promise": "^=2.3",
-    "react-loader": "^=1.2",
+    "es6-promise": "^2.3",
+    "react-loader": "^1.2",
     "immutable": "^3.7"
   }
 }

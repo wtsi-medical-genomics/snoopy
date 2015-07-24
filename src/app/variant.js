@@ -35,7 +35,7 @@ SNP.prototype = new Variant;
 function SNP(chr, loc) {
 	this.base = Variant;
 	this.base(chr);
-	this.loc = loc;
+	this.loc = parseInt(loc);
 }
 
 SNP.prototype.visit = function(b) {
@@ -65,6 +65,12 @@ SNP.prototype.html = function() {
     if (this.score !== 'not reviewed')
          html += '<span class="badge" style="background-color:' + this.colorCode[this.score] + '">' + this.score + '</span>';
     return html;
+}
+
+SNP.prototype.toObject = function() {
+    return {chr: this.chr,
+            location: this.loc,
+            qc_decision: this.score};
 }
 
 SNP.prototype.string = function() {
