@@ -1,14 +1,14 @@
 "use strict;"
 
 // import { Promise } from 'es6-promise';
-// import { Map } from 'immutable';
+import { Map } from 'immutable';
 
-let Promise = require('es6-promise');
-let Map = require('immutable').Map;
+// let Promise = require('es6-promise');
+// let Map = require('immutable').Map;
 
-var RE_EXT = /^.*\.(.*)$/;
-var RE_LEFT_SLASH = /^\/+/;
-var RE_RIGHT_SLASH = /\/+$/;
+const RE_EXT = /^.*\.(.*)$/;
+const RE_LEFT_SLASH = /^\/+/;
+const RE_RIGHT_SLASH = /\/+$/;
 
 function getExtension(f) {
     f = typeof(f) === 'string' ? f : f.name;
@@ -30,7 +30,7 @@ function arrayStringContains(el, arr) {
     return false;
   el = el.toLowerCase();
   for (var i=0; i<arr.length; ++i) {
-    console.log(i)
+    // console.log(i)
     if (el === arr[i].toLowerCase())
       return true;
   }
@@ -82,9 +82,10 @@ function httpGet(path, connection=Map(), opts) {
     request.open('GET', url);
     request.withCredentials = connection.get('requiresCredentials') || false;
     
-    if (opts && opts.range) {
+    if (opts && opts.range)
       request.setRequestHeader('Range', 'bytes=' + opts.range.min + '-' + opts.range.max);
-    }
+    if (opts && opts.contentType)
+      request.setRequestHeader('Content-Type', opts.contentType);
 
     request.onload = () => {
       if (request.status >= 200 && request.status < 400) {
@@ -168,6 +169,28 @@ function sshExists(path, connection) {
   return exists;
 }
 
+var deepExtend = function(out) {
+  out = out || {};
+
+  for (var i = 1; i < arguments.length; i++) {
+    var obj = arguments[i];
+
+    if (!obj)
+      continue;
+
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        if (typeof obj[key] === 'object')
+          deepExtend(out[key], obj[key]);
+        else
+          out[key] = obj[key];
+      }
+    }
+  }
+
+  return out;
+};
+
 // class UID {
 //   constructor() {
 //     this.ID = 0
@@ -199,5 +222,6 @@ module.exports = {
   getURL: getURL,
   // getRequiresCredentials: getRequiresCredentials,
   httpGet: httpGet,
-  localTextGet: localTextGet
+  localTextGet: localTextGet,
+  deepExtend: deepExtend
 }

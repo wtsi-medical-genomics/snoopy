@@ -20,7 +20,6 @@ var combineServerPath = utils.combineServerPath;
 var httpExists = utils.httpExists;
 
 var styles = require('../styles.js');
-
 var fromJS = require('immutable').fromJS;
 
 // function getPrefix(settings, connection) {
@@ -35,65 +34,64 @@ var fromJS = require('immutable').fromJS;
 //   }
 // }
 
-
-function init(cb) {
-  console.log('in init');
-  var settings = {
-    servers: {
-       remoteHTTP: {
-          type: 'HTTP',
-          location: '',
-          requiresCredentials: true
-        },
-       localHTTP: {
-          type: 'HTTP',
-          location: ''
-        },
-       SSHBridge: {
-          type: 'SSHBridge',
-          localHTTPServer: '',
-          remoteSSHServer: '',
-          username: ''
-        },
-    },
-    defaultZoomLevel: 'unit',
-    autoZoom: true,
-    defaultView: 'mismatch',
-    colors: {
-        A: '#008000', 
-        C: '#0000FF', 
-        G: '#FFA500', 
-        T: '#FF0000', 
-        '-': '#FF69B4', 
-        I: '#800080'
-    },
-    styles: styles,
-    snapshots: true
-  };
+// function init(cb) {
+//   console.log('in init');
+//   var settings = {
+//     servers: {
+//        remoteHTTP: {
+//           type: 'HTTP',
+//           location: '',
+//           requiresCredentials: true
+//         },
+//        localHTTP: {
+//           type: 'HTTP',
+//           location: ''
+//         },
+//        SSHBridge: {
+//           type: 'SSHBridge',
+//           localHTTPServer: '',
+//           remoteSSHServer: '',
+//           username: ''
+//         },
+//     },
+//     defaultZoomLevel: 'unit',
+//     autoZoom: true,
+//     defaultView: 'mismatch',
+//     colors: {
+//         A: '#008000', 
+//         C: '#0000FF', 
+//         G: '#FFA500', 
+//         T: '#FF0000', 
+//         '-': '#FF69B4', 
+//         I: '#800080'
+//     },
+//     styles: styles,
+//     snapshots: true
+//   };
   
-  // Use immutable data structure
-  settings = fromJS(settings);
+//   // Use immutable data structure
+//   settings = fromJS(settings);
 
-  // Check for settings at the location from which snoopy is served
-  var request = new XMLHttpRequest();
-  request.open('GET', './settings.json', true);
-  request.setRequestHeader('Content-Type', 'application/json');
-  request.onload = () => {
-    if (request.status >= 200 && request.status < 400) {
-      // Success!
-      console.log('settings.json exist');
-      var serverSettings = fromJS(JSON.parse(request.responseText));
-      settings = settings.mergeDeep(serverSettings);
-      cb(settings);
-    } else {
-      // We reached our target server, but it returned an error
-      console.log('oops');
-      cb(settings);
-    };
-  }
-  request.send();
-  // return settings;
-}
+//   // Check for settings at the location from which snoopy is served
+//   var request = new XMLHttpRequest();
+//   request.open('GET', './settings.json');
+//   request.setRequestHeader('Content-Type', 'application/json');
+//   request.onload = () => {
+//     if (request.status >= 200 && request.status < 400) {
+//       // Success!
+//       console.log('settings.json exist');
+//       var serverSettings = fromJS(JSON.parse(request.responseText));
+//       settings = settings.mergeDeep(serverSettings);
+//       cb(settings);
+//     } else {
+//       // We reached our target server, but it returned an error
+//       console.log('oops');
+//       cb(settings);
+//     };
+//   }
+//   request.send();
+//   // return settings;
+// }
 
 var SettingsModal = React.createClass({
 
@@ -166,19 +164,11 @@ var SettingsModal = React.createClass({
     settings = settings.setIn(['styles','condensed','styles',2,'style','__disableQuals'], !this.refs.condensedEnableQuals.getChecked()); 
 
     this.props.handleSettings(settings);
-    this.props.onRequestHide();
-  },
-
-  getInitialState(){
-    return { showModal: this.props.show || false };
+    this.close();
   },
 
   close(){
-    this.setState({ showModal: false });
-  },
-
-  open(){
-    this.setState({ showModal: true });
+    this.props.close();
   },
 
   render() {
@@ -191,8 +181,11 @@ var SettingsModal = React.createClass({
     console.log(this.props.settings);
     return (
       <div>
-        <Modal {...this.props} title="Settings" animation={false} className="Settings">
-          <div className='modal-body'>
+        <Modal show={this.props.show} onHide={this.close} className="Settings">
+          <Modal.Header closeButton>
+            <Modal.Title>Settings</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
             <form>
               <dl>
                 <dt className="smallTopMargin">Default Remote HTTP</dt>
@@ -324,11 +317,11 @@ var SettingsModal = React.createClass({
                 </dd>
               </dl>
             </form>
-          </div>
-          <div className='modal-footer'>
+          </Modal.Body>
+          <Modal.Footer>
             <Button bsStyle="primary" onClick={this.handleSubmit}>Save</Button>
-            <Button bsStyle="primary" onClick={this.props.onRequestHide}>Cancel</Button>
-          </div>
+            <Button bsStyle="primary" onClick={this.close}>Cancel</Button>
+          </Modal.Footer>
         </Modal>
       </div>
     );
@@ -336,6 +329,6 @@ var SettingsModal = React.createClass({
 });
 
 module.exports = {
-  SettingsModal: SettingsModal,
-  init: init
+  SettingsModal: SettingsModal
+  // init: init
 };

@@ -131,7 +131,6 @@ var FileLoader = React.createClass({
 
     if (errors.length === 0) {
       this.props.handleFileLoad(file, connection);
-      this.props.onRequestHide();
     } else{
       console.log(input);
       console.log(errors);
@@ -142,12 +141,16 @@ var FileLoader = React.createClass({
 
   },
 
+  close(){
+    this.props.close();
+  },
+
   render() {
-    console.log(settings);
+    // console.log(settings);
     var labels = ['HTTP/S', 'Local', 'SSH Bridge'];
     var loadButtonText = 'Load ' + labels[this.state.key] + ' File';
     var alertInstance;
-    console.log(this.state.errors.length);
+    // console.log(this.state.errors.length);
     if (this.state.errors.length > 0) {
       var errors = this.state.errors.map((error, index) => {
         return (<li key={index}>{error}</li>);
@@ -161,8 +164,11 @@ var FileLoader = React.createClass({
 
     return (
       <div>
-        <Modal {...this.props} title={this.props.title} animation={false}>
-          <div className='modal-body'>
+        <Modal show={this.props.show} onHide={this.close}>
+          <Modal.Header closeButton>
+            <Modal.Title>{this.props.title}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
             <p>{this.props.text}</p>
             <TabbedArea activeKey={this.state.key} animation={false} onSelect={this.handleSelect}>
               <TabPane eventKey={HTTP_KEY} tab='HTTP/S'>
@@ -176,11 +182,11 @@ var FileLoader = React.createClass({
               </TabPane>
             </TabbedArea>
             {alertInstance}
-          </div>
-          <div className='modal-footer'>
+          </Modal.Body>
+          <Modal.Footer>
             <Button bsStyle="primary" onClick={this.handleSubmit}>{loadButtonText}</Button>
-            <Button onClick={this.props.onRequestHide}>Close</Button>
-          </div>
+            <Button onClick={this.close}>Close</Button>
+          </Modal.Footer>
         </Modal>
       </div>
     );

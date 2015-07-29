@@ -1,38 +1,168 @@
-var React = require('react');
-var rb = require('react-bootstrap');
-var Alert = rb.Alert;
-var Panel = rb.Panel;
-var Nav = rb.Nav;
-var Navbar = rb.Navbar;
-var NavItem = rb.NavItem;
-var MenuItem = rb.MenuItem;
-var DropdownButton = rb.DropdownButton;
-var Col = rb.Col;
-var Row = rb.Row;
-var Grid = rb.Grid;
-var Button = rb.Button;
-var Glyphicon = rb.Glyphicon;
-var ModalTrigger = rb.ModalTrigger;
-var LoadManual = require('./loadmanual.jsx');
-var LoadBatch = require('./loadbatch.jsx');
-var QC = require('./qc.jsx');
-var Settings = require('./settings.jsx');
-var SettingsModal = Settings.SettingsModal;
+"use strict";
+
+import React from 'react';
+import { Alert, Panel, Nav, Navbar, NavItem, MenuItem, DropdownButton, Col, Row, Grid, Button, Glyphicon} from 'react-bootstrap';
+// var rb = require('react-bootstrap');
+// var Alert = rb.Alert;
+// var Panel = rb.Panel;
+// var Nav = rb.Nav;
+// var Navbar = rb.Navbar;
+// var NavItem = rb.NavItem;
+// var MenuItem = rb.MenuItem;
+// var DropdownButton = rb.DropdownButton;
+// var Col = rb.Col;
+// var Row = rb.Row;
+// var Grid = rb.Grid;
+// var Button = rb.Button;
+// var Glyphicon = rb.Glyphicon;
+import LoadManual from './loadmanual.jsx';
+import LoadBatch from './loadbatch.jsx';
+// var LoadManual = require('./loadmanual.jsx');
+// var LoadBatch = require('./loadbatch.jsx');
+
+import { QC } from './qc.jsx';
+// var QC = require('./qc.jsx');
+
+
+// var Settings = require('./settings.jsx');
+// var SettingsModal = Settings.SettingsModal;
+import { SettingsModal } from './settings.jsx';
+
+import { httpGet } from '../utils.js';
+import { fromJS, toJS } from 'immutable';
+import styles from '../styles.js';
+
+
+// var styles = require('../styles.js');
+// let settings = fromJS({
+//   servers: {
+//      remoteHTTP: {
+//         type: 'HTTP',
+//         location: '',
+//         requiresCredentials: true
+//       },
+//      localHTTP: {
+//         type: 'HTTP',
+//         location: ''
+//       },
+//      SSHBridge: {
+//         type: 'SSHBridge',
+//         localHTTPServer: '',
+//         remoteSSHServer: '',
+//         username: ''
+//       },
+//   },
+//   defaultZoomLevel: 'unit',
+//   autoZoom: true,
+//   defaultView: 'mismatch',
+//   colors: {
+//       A: '#008000', 
+//       C: '#0000FF', 
+//       G: '#FFA500', 
+//       T: '#FF0000', 
+//       '-': '#FF69B4', 
+//       I: '#800080'
+//   },
+//   styles: styles,
+//   snapshots: true
+// });
+  
+  // Use immutable data structure
+  // settings = fromJS(settings);
+
+  // Check for settings at the location from which snoopy is served
+  // var request = new XMLHttpRequest();
+  // request.open('GET', './settings.json');
+  // request.setRequestHeader('Content-Type', 'application/json');
+  // request.onload = () => {
+  //   if (request.status >= 200 && request.status < 400) {
+  //     // Success!
+  //     console.log('settings.json exist');
+  //     var serverSettings = fromJS(JSON.parse(request.responseText));
+  //     settings = settings.mergeDeep(serverSettings);
+  //     cb(settings);
+  //   } else {
+  //     // We reached our target server, but it returned an error
+  //     console.log('oops');
+  //     cb(settings);
+  //   };
+  // }
+  // request.send();
 
 var Main = React.createClass({  
 
   getInitialState() {
+    let settings = {
+      servers: {
+         remoteHTTP: {
+            type: 'HTTP',
+            location: '',
+            requiresCredentials: true
+          },
+         localHTTP: {
+            type: 'HTTP',
+            location: ''
+          },
+         SSHBridge: {
+            type: 'SSHBridge',
+            localHTTPServer: '',
+            remoteSSHServer: '',
+            username: ''
+          },
+      },
+      defaultZoomLevel: 'unit',
+      autoZoom: true,
+      defaultView: 'mismatch',
+      colors: {
+          A: '#008000', 
+          C: '#0000FF', 
+          G: '#FFA500', 
+          T: '#FF0000', 
+          '-': '#FF69B4', 
+          I: '#800080'
+      },
+      styles: styles,
+      snapshots: true
+    };
+    settings = fromJS(settings);
     return {
       view: 'intro',  //intro, loadmanual, loadbatch, qc
-      settings: {}
+      settings: settings
     };
   },
 
   componentDidMount() {
-    Settings.init((settings) => {
-      this.setState({settings: settings});
+    // Settings.init((settings) => {
+    //   this.setState({settings: settings});
+    // });
+    httpGet('./settings.json', undefined, {contentType: 'application/json'}).then((result) => {
+      let serverSettings = fromJS(JSON.parse(result));
+      let settings = this.state.settings;
+      settings = settings.mergeDeep(serverSettings);
+      this.setState({ settings: settings });
+      console.log(settings);
+    }).catch(error => {
+      console.log(error);
     });
   },
+  //   var request = new XMLHttpRequest();
+  //   request.open('GET', './settings.json');
+  //   request.setRequestHeader('Content-Type', 'application/json');
+  //   request.onload = () => {
+  //     if (request.status >= 200 && request.status < 400) {
+  //       // Success!
+  //       console.log('settings.json exist');
+  //       var serverSettings = fromJS(JSON.parse(request.responseText));
+  //       settings = settings.mergeDeep(serverSettings);
+  //       cb(settings);
+  //     } else {
+  //       // We reached our target server, but it returned an error
+  //       console.log('oops');
+  //       cb(settings);
+  //     };
+  //   }
+  //   request.send();
+  
 
   handleSettings(settings) {
     this.setState({settings: settings})
@@ -86,6 +216,7 @@ var Main = React.createClass({
 var Intro = React.createClass({
 
   render() {
+    console.log(styles);
     return (
       <div className="innerWrapper">
         <Grid>
@@ -108,6 +239,18 @@ var Intro = React.createClass({
 
 var MainToolbar = React.createClass({
 
+  getInitialState(){
+    return { showSettings: false };
+  },
+
+  openSettings() {
+    this.setState({ showSettings: true });
+  },
+
+  closeSettings() {
+    this.setState({ showSettings: false });
+  },
+
   handleGitHub(e) {
     e.preventDefault();
     var newTab = window.open('https://github.com/wtsi-medical-genomics/snoopy', '_blank');
@@ -119,15 +262,22 @@ var MainToolbar = React.createClass({
 
   render() {
       return (
-        <Navbar brand='Snoopy' inverse toggleNavKey={0}>
-          <Nav right eventKey={0}> {/* This is the eventKey referenced */}
-            <ModalTrigger modal={<SettingsModal settings={this.props.settings} handleSettings={this.props.handleSettings}/>}>
-              <NavItem eventKey={1} href='#'>Settings</NavItem>
-            </ModalTrigger>
-            <NavItem eventKey={2} href='#'>Help</NavItem>
-            <NavItem eventKey={3} href='#' onClick={this.handleGitHub}>GitHub</NavItem>
-          </Nav>
-        </Navbar>      
+        <div>
+          <Navbar brand='Snoopy' inverse toggleNavKey={0}>
+            <Nav right eventKey={0}> {/* This is the eventKey referenced */}
+              <NavItem eventKey={1} href='#' onClick={this.openSettings}>Settings</NavItem>
+              <NavItem eventKey={2} href='#'>Help</NavItem>
+              <NavItem eventKey={3} href='#' onClick={this.handleGitHub}>GitHub</NavItem>
+            </Nav>
+          </Navbar>
+
+          <SettingsModal
+            settings={this.props.settings}
+            handleSettings={this.props.handleSettings}
+            show={this.state.showSettings}
+            close={this.closeSettings}
+          />
+        </div>
       );
     
   }

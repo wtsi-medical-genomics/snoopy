@@ -48,6 +48,7 @@ class Session {
           if (variants.match(SNP_RE) || variants.match(CNV_RE)) {
             // A single dna location
             this.parseVariants(variants);
+            resolve();
           } else {
             // A path to a file at a remote location
             httpGet(variants, connection).then(response => {
@@ -129,8 +130,8 @@ class Session {
                 break;
             }
             newBam.exists().then(result => {
-              console.log(result);
-              console.log('it exists');
+              // console.log(result);
+              // console.log('it exists');
               this.bamFiles.push(newBam);
               resolve();
             }).catch((e) => {
@@ -146,7 +147,7 @@ class Session {
       } else { // a file object
         for (let i=0; i < file.length; ++i) {
           let f = file[i];
-          console.log(f);
+          // console.log(f);
           switch (getExtension(f)) {
             case "bam":
               var newBam = new LocalBAM(f);
@@ -166,16 +167,16 @@ class Session {
 
   /** Determines if any unmatched LocalBAM's have a matching LocalBAI. It is not necessary for
   a RemoteBAM to have a RemoteBAI, as it assumed to be in the same location, but if any RemoteBAI's 
-  have been provided marry these to a RemoteBAM.*/
+  have been provided marry these to a RemoteBAM. */
   matchMaker() {
     var toRemove = [];
     for (var i=0; i<this.bamFiles.length; ++i) {
       var bamFile = this.bamFiles[i];
       if (!bamFile.index) {
+        var stripBam = bamFile.name.match(BAM_RE);
         for (var j=0; j<this.baiFiles.length; ++j) {
           var baiFile = this.baiFiles[j];
           var stripBai = baiFile.name.match(BAI_RE);
-          var stripBam = bamFile.name.match(BAM_RE);
           if ((stripBai[1] === bamFile.name) || (stripBai[1] === stripBam[1]) &&
             (bamFile.file.type === baiFile.file.type)) {
             this.bamFiles[i].index = baiFile;
@@ -286,7 +287,6 @@ class Session {
     b.removeAllTiers();
     //this.browser.baseColors = app.settings.colors;
     b.addTier(referenceGenome);
-    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!werhjaljfklasjdfkljasdklf;jadkls');
     console.log(style);
     this.bamFiles.forEach((bamFile) => {
       // var style = styleSheets['raw'].style;

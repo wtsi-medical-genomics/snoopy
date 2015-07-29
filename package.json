@@ -24,7 +24,7 @@
 
   },
   "dependencies": {
-    "react-bootstrap": "^0.23",
+    "react-bootstrap": "^0.24",
     "react": "^0.13",
     "jszip": "^2.5",
     "filesaver.js": "^0.1",

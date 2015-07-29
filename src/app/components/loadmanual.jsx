@@ -5,154 +5,73 @@
 // import { LocalBAM, LocalBAI, RemoteBAM, RemoteBAI } from '../loadedfiletypes.js';
 // import { getURL, getName } from '../utils.js';
 
-// import React from 'react';
-// import { Alert, Panel, Col, Row, Grid, Button, Glyphicon, Pager, PageItem, ModalTrigger, ListGroup, ListGroupItem, Popover, Tooltip, Modal, OverlayTrigger } from 'react-bootstrap';
-// import { FileLoader } from './fileloader.jsx';
-// import { Session, Sessions } from '../session.js';
-// import { LocalBAM, LocalBAI, RemoteBAM, RemoteBAI } from '../loadedfiletypes.js';
-// import { getURL, getName } from '../utils.js';
+import React from 'react';
+import { Alert, Panel, Col, Row, Grid, Button, Glyphicon, Pager, PageItem, ModalTrigger, ListGroup, ListGroupItem, Popover, Tooltip, Modal, OverlayTrigger } from 'react-bootstrap';
+import FileLoader from './fileloader.jsx';
+import { Session, Sessions } from '../session.js';
+import { LocalBAM, LocalBAI, RemoteBAM, RemoteBAI } from '../loadedfiletypes.js';
+import { getURL, getName, deepExtend } from '../utils.js';
+import { List, Map } from 'immutable';
 
-var React = require('react');
+let session = new Session();
+// var React = require('react');
 
-var rb = require('react-bootstrap');
-var Alert = rb.Alert;
-var Panel = rb.Panel;
-var Col = rb.Col;
-var Row = rb.Row;
-var Grid = rb.Grid;
-var Button = rb.Button;
-var Glyphicon = rb.Glyphicon;
-var Pager = rb.Pager;
-var PageItem = rb.PageItem;
-var ModalTrigger = rb.ModalTrigger;
-var ListGroup = rb.ListGroup;
-var ListGroupItem = rb.ListGroupItem;
+// var rb = require('react-bootstrap');
+// var Alert = rb.Alert;
+// var Panel = rb.Panel;
+// var Col = rb.Col;
+// var Row = rb.Row;
+// var Grid = rb.Grid;
+// var Button = rb.Button;
+// var Glyphicon = rb.Glyphicon;
+// var Pager = rb.Pager;
+// var PageItem = rb.PageItem;
+// var ListGroup = rb.ListGroup;
+// var ListGroupItem = rb.ListGroupItem;
 
-var FileLoader = require('./fileloader.jsx');
+// var FileLoader = require('./fileloader.jsx');
 
-var session = require('../session.js');
-var Session = session.Session;
-var Sessions = session.Sessions;
+// var session = require('../session.js');
+// var Session = session.Session;
+// var Sessions = session.Sessions;
 
-var lft = require('../loadedfiletypes.js');
-var LocalBAM = lft.LocalBAM;
-var LocalBAI = lft.LocalBAI;
-var RemoteBAM = lft.RemoteBAM;
-var RemoteBAI = lft.RemoteBAI;
+// var lft = require('../loadedfiletypes.js');
+// var LocalBAM = lft.LocalBAM;
+// var LocalBAI = lft.LocalBAI;
+// var RemoteBAM = lft.RemoteBAM;
+// var RemoteBAI = lft.RemoteBAI;
 
-var utils = require('../utils.js');
-var getName = utils.getName;
-var getURL = utils.getURL;
+// var utils = require('../utils.js');
+// var getName = utils.getName;
+// var getURL = utils.getURL;
 
-const LoadManual = React.createClass({
+const FixMissingIndexModal = React.createClass({
 
-  getInitialState() {
-    return {session: new Session()};
+  close(){
+    this.props.close();
   },
 
-  handleVariantFile(file, connection) {
-    var s = this.state.session;
-    s.addVariants(file, connection).then(() => {
-      console.log(s);
-      this.setState({session: s});
-    }).catch((error) => {
-      console.log(error);
-    });
-  },
-
-  handleDataFile(files, connection) {
-    console.log(files);
-    console.log(connection.toJS());
-    
-    if (connection.get('type') !== 'local')
-      files = getURL(files, connection);
-    let s = this.state.session;
-    s.addSequenceFile(files, connection).then(s.matchMaker()).then(() => {
-      console.log(s);
-      this.setState({session: s});
-    }).catch((error) => {
-      console.log(error);
-    });
-    // var s = this.state.session;
-    // s.addSequenceFile(files, connection).then();
-    // this.setState({session: s});
-    // console.log(s);
-  },
-
-  handleRemoveDataFile(id) {
-    var s = this.state.session;
-    s.remove(id);
-    this.setState({session: s});
-  },
-
-  handleGoQC(e) {
-    e.preventDefault();
-    var s = new Sessions();
-    s.sessions[0] = this.state.session;
-    
-    // If there are unmatched files, let the user know and give them a choice
-    
-    
-    let uf = s.unmatchedSequenceFiles();
-    let ui = s.unmatchedIndexFiles();
-    
-    if (len(uf) + len(ui) > 0) {
-      console.log(uf);
-      console.log(ui);
-    }
-  },
-
-  handleReallyGoQC() {
-    this.props.handleGoQC(s);
-  },
-
-  handleGoBack(e) {
-    e.preventDefault();
-    this.props.handleGoIntro();
+  getInitialState(){
+    return { showModal: false };
   },
 
   render() {
-    if (this.state.session.isReady()) {
-      var proceedNode = ( 
-        <Pager>
-          <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
-        </Pager>
-      );
-    } else {
-      proceedNode = null;
-    }
     return (
-      <div>
-        <Grid>
-          <Row className='show-grid'>
-            <Col md={3}></Col>
-            <Col md={6}>
-              <Pager>
-                <PageItem previous href='#' onClick={this.handleGoBack}>&larr; Cancel, Return To Main Menu</PageItem>
-              </Pager>
-              <TitlePanel />
-              <LoadVariantsPanel
-                handleVariantFile={this.handleVariantFile}
-                session={this.state.session}
-                settings={this.props.settings}
-              />
-              <LoadDataPanel
-                handleDataFile={this.handleDataFile}
-                session={this.state.session}
-                handleRemoveDataFile={this.handleRemoveDataFile}
-                settings={this.props.settings}
-              />
-              {proceedNode}
-            </Col>
-            <Col md={3}></Col>
-          </Row>
-        </Grid>
-      </div>
+      <Modal show={this.props.show} onHide={this.close} className="Settings">
+        <Modal.Header closeButton>
+          <Modal.Title>Missing index files</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          The following files are missing their index files. Please load the index file or remove the sequence file.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button bsStyle="primary" onClick={this.close}>OK</Button>
+        </Modal.Footer>
+      </Modal>
     );
   }
 
 });
-
 
 
 const TitlePanel = React.createClass({
@@ -168,44 +87,22 @@ const TitlePanel = React.createClass({
 });
 
 const LoadVariantsPanel = React.createClass({
+  getInitialState(){
+    return { showFileLoader: false };
+  },
+
   handleFileLoad(file, connection) {
     console.log(typeof(file));
     this.props.handleVariantFile(file, connection);
+    this.closeFileLoader();
+  },
 
-    // switch (connection.get('type')) {
-    //   case 'local':
-    //     // a file object has been loaded
-    //     file = file[0];
-    //     var reader = new FileReader();
-    //     reader.readAsText(file);
-    //     reader.onload = () => {
-    //       this.props.handleVariantText(reader.result, '(local) ' + file.name);
-    //         // sessionInstance.load(reader.result);
-    //     };
-    //   case 'SSHBridge':
-    //   case 'HTTP':
-    //     console.log('hi');
-    // } 
-      // let credentials = 
-      // httpGet(file, )
-      // a URL has been loaded
-      // var request = new XMLHttpRequest();
-      // request.open('GET', file, true);
-      // request.setRequestHeader('Content-Type', 'text/plain');
-      // request.withCredentials = true;
-      // request.onload = () => {
-      //   if (request.status >= 200 && request.status < 400) {
-      //     // Success!
-      //     console.log('in the request onload');
-      //     console.log(request.responseText);
-      //     this.props.handleVariantText(request.responseText, file);
-      //   } else {
-      //     // We reached our target server, but it returned an error
-      //     console.log('oops');
-      //   }
-      // };
-      // request.send('');
+  openFileLoader() {
+    this.setState({ showFileLoader: true });
+  },
 
+  closeFileLoader() {
+    this.setState({ showFileLoader: false });
   },
 
   render: function() {
@@ -234,19 +131,18 @@ const LoadVariantsPanel = React.createClass({
         <p>
           Select a text file containing a list of variants.
         </p>
-        
-        <ModalTrigger modal={
-            <FileLoader
+
+        <Button bsStyle="primary" onClick={this.openFileLoader}><Glyphicon glyph="floppy-disk"/> Select Variant List</Button>
+        <FileLoader
               title='Select Variant List File'
               multiple={false}
               text='Using one of the following menas of file access, select a single text file containing a list of variants.'
               handleFileLoad={this.handleFileLoad}
               allowedExtensions={['txt']}
               settings={this.props.settings}
-            />
-          }>
-          <Button bsStyle="primary"><Glyphicon glyph="floppy-disk"/> Select Variant List</Button>
-        </ModalTrigger>
+              show={this.state.showFileLoader}
+              close={this.closeFileLoader}
+        />
         {variantNode}
       </Panel>
     );
@@ -303,48 +199,29 @@ const DataFileRow = React.createClass({
 });
 
 const LoadDataPanel = React.createClass({
-  handleFileLoad(files, connection) {
-    // console.log(this.props);
-    // if (typeof(files) === 'string') {
-    //   // we have a URL so test if the file exists before adding it to a session
-    //   var URL = files;
-    //   var request = new XMLHttpRequest();
-    //   request.open('GET', URL, true);
-
-    //   //request.setRequestHeader('Content-Type', 'text/plain');
-    //   //request.withCredentials = true;
-    //   request.onload = () => {
-    //     if (request.status >= 200 && request.status < 400) {
-    //       // Success!
-    //       console.log('in the request onload');
-    //       console.log(request.responseText);
-    //       this.props.handleVariantText(request.responseText, file);
-    //     } else {
-    //       // We reached our target server, but it returned an error
-    //       console.log('oops');
-    //     }
-    //   };
-    //   request.send('');
-    // } 
-
-    //   typeof(file) === 'object') {
-    //   // a file object has been loaded
-    //   file = file[0];
-    //   var reader = new FileReader();
-    //   reader.readAsText(file);
-    //   reader.onload = () => {
-    //     this.props.handleVariantText(reader.result, '(local) ' + file.name);
-    //       // sessionInstance.load(reader.result);
-    //   };
-    // } else {
-    this.props.handleDataFile(files, connection);
-    // console.log(files);
-    // console.log(credentials);
+  
+  getInitialState() {
+    return { showFileLoader: false };
   },
+
+  openFileLoader() {
+    this.setState({ showFileLoader: true });
+  },
+
+  closeFileLoader() {
+    this.setState({ showFileLoader: false });
+  },
+
+  handleFileLoad(files, connection) {
+    this.closeFileLoader();
+    this.props.handleDataFile(files, connection);
+  },
+
   handleRemove(key) {
     console.log(key);
     this.props.handleRemoveDataFile(key);
   },
+
   compare(a,b) {
     if (a.name < b.name)
       return -1;
@@ -352,19 +229,23 @@ const LoadDataPanel = React.createClass({
       return 1;
     return 0;
   },
+
   render() {
     var tableStyle = {
       'width': '100%'
     };
 
-    var fileNodes;
+    console.log('Rendering in LoadDataPanel');
+    console.log(this.state);
+
+    let fileNodes;
     if (this.props.session.bamFiles.length + this.props.session.baiFiles.length) {
-      var files = this.props.session.bamFiles.concat(this.props.session.baiFiles);
-      var files = files.sort(this.compare);
-      var fileRows = files.map((file) => {
+      let files = this.props.session.bamFiles.concat(this.props.session.baiFiles);
+      files = files.sort(this.compare);
+      let fileRows = files.map((file) => {
         return <DataFileRow file={file} key={file.id} handleRemove={this.handleRemove} />
       });
-      console.log(files);
+      // console.log(files);
       fileNodes = (
         <ListGroup className='someTopMargin'>
           <ListGroupItem bsStyle='success'>
@@ -396,45 +277,153 @@ const LoadDataPanel = React.createClass({
     // }
 
     return (
-      <Panel>
-        <h4>Select Sequence Data</h4>
-        <p>
-          Select BAM, BAI file containing a list of variants.
-        </p>
-          <ModalTrigger modal={
-            <FileLoader
-              title='Select Sequence Data'
-              multiple={true}
-              text='Using one of the following menas of file access, select the BAMs you wish to view. Note that for local BAM files, BAIs will also need to be loaded.'
-              handleFileLoad={this.handleFileLoad}
-              allowedExtensions={['bam', 'bam.bai', 'bai', 'cram', 'crai']}
-              settings={this.props.settings}
-            />
-          }>
-          <Button bsStyle="primary"><Glyphicon glyph="floppy-disk"/> Select Sequence Data</Button>
-        </ModalTrigger>
-        {fileNodes}
-      </Panel>
+      <div>
+        <Panel>
+          <h4>Select Sequence Data</h4>
+          <p>
+            Select a sequence file (BAM, BAI, CRAM).
+          </p>
+            <Button bsStyle="primary" onClick={this.openFileLoader}><Glyphicon glyph="floppy-disk"/>Select Sequence File</Button>
+          {fileNodes}
+        </Panel>
+        <FileLoader
+          title='Select Sequence Data'
+          multiple={true}
+          text='Using one of the following menas of file access, select the BAMs you wish to view. Note that for local BAM files, BAIs will also need to be loaded.'
+          handleFileLoad={this.handleFileLoad}
+          allowedExtensions={['bam', 'bam.bai', 'bai', 'cram', 'crai']}
+          settings={this.props.settings}
+          show={this.state.showFileLoader}
+          close={this.closeFileLoader}
+        />
+      </div>
     );
   }
 
 });
 
-var FixMissingIndexModal = React.createClass({
+const LoadManual = React.createClass({
+
+  getInitialState() {
+    return { showFixMissingIndexModal: false };
+  },
+
+  closeFixMissingIndexModal() {
+    setState({ showFixMissingIndexModal: false });
+  },
+
+  handleVariantFile(file, connection) {
+    session.addVariants(file, connection).then(() => {
+      forceUpdate();
+    }).catch((error) => {
+      console.log(error);
+    });
+  },
+
+  handleDataFile(files, connection) {
+    // console.log(files);
+    // console.log(connection.toJS());
+    
+    if (connection.get('type') !== 'local')
+      files = getURL(files, connection);
+        
+    session.addSequenceFile(files, connection).then(() => {
+      session.matchMaker();
+      forceUpdate();
+    }).catch((error) => {
+      console.log(error);
+    });
+    // var s = this.state.session;
+    // s.addSequenceFile(files, connection).then();
+    // this.setState({session: s});
+    // console.log(s);
+  },
+
+  handleRemoveDataFile(id) {
+    session.remove(id);
+    forceUpdate();
+  },
+
+  handleGoQC(e) {
+    e.preventDefault();
+
+    // If there are unmatched files, let the user know and give them a choice    
+    let uf = session.unmatchedSequenceFiles();
+    let ui = session.unmatchedIndexFiles();
+    
+    if (uf.length + ui.length > 0) {
+      console.log(uf);
+      console.log(ui);
+    }
+    let ss = new Sessions();
+    ss.sessions[0] = session;
+  },
+
+  handleReallyGoQC() {
+    this.props.handleGoQC(s);
+  },
+
+  handleGoBack(e) {
+    e.preventDefault();
+    this.props.handleGoIntro();
+  },
+
+  shouldComponentUpdate: function(nextProps, nextState) {
+    console.log('in shouldComponentUpdate');
+    console.log(nextState);
+
+    return true;
+  },
 
   render() {
+    if (session.isReady()) {
+      var proceedNode = ( 
+        <Pager>
+          <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
+        </Pager>
+      );
+    } else {
+      proceedNode = null;
+    }
+    
+    console.log('Rendering in LoadManual');
+    if (session.bamFiles.length > 0)
+      console.log(session.bamFiles[0].index);
+
     return (
-      <Modal {...this.props} title="Missing index files" animation={false}>
-        <div className='modal-body'>
-          The following files are missing their index files. Please load the index file or remove the sequence file.
-        </div>
-        <div className='modal-footer'>
-          {<Button bsStyle='primary' onClick={this.props.onRequestHide}>Cancel</Button>}
-        </div>
-      </Modal>
+      <div>
+        <Grid>
+          <Row className='show-grid'>
+            <Col md={3}></Col>
+            <Col md={6}>
+              <Pager>
+                <PageItem previous href='#' onClick={this.handleGoBack}>&larr; Cancel, Return To Main Menu</PageItem>
+              </Pager>
+              <TitlePanel />
+              <LoadVariantsPanel
+                handleVariantFile={this.handleVariantFile}
+                session={session}
+                settings={this.props.settings}
+              />
+              <LoadDataPanel
+                handleDataFile={this.handleDataFile}
+                session={session}
+                handleRemoveDataFile={this.handleRemoveDataFile}
+                settings={this.props.settings}
+              />
+              {proceedNode}
+            </Col>
+            <Col md={3}></Col>
+          </Row>
+        </Grid>
+        <FixMissingIndexModal
+          show={this.state.showFixMissingIndexModal}
+          close={this.closeFixMissingIndexModal}
+        />
+      </div>
     );
   }
-});
 
+});
 
 module.exports = LoadManual;
