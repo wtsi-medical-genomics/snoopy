@@ -28,7 +28,6 @@
     "react": "^0.13",
     "jszip": "^2.5",
     "filesaver.js": "^0.1",
-    "es6-promise": "^2.3",
     "react-loader": "^1.2",
     "immutable": "^3.7"
   }

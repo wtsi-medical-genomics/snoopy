@@ -1,3 +1,5 @@
+"use strict";
+
 // import React from 'react';
 // import { Alert, Panel, Col, Row, Grid, Button, Glyphicon, Pager, PageItem, ModalTrigger, ListGroup, ListGroupItem, Popover, Tooltip, Modal, OverlayTrigger } from 'react-bootstrap';
 // import { FileLoader } from './fileloader.jsx';
@@ -6,14 +8,15 @@
 // import { getURL, getName } from '../utils.js';
 
 import React from 'react';
-import { Alert, Panel, Col, Row, Grid, Button, Glyphicon, Pager, PageItem, ModalTrigger, ListGroup, ListGroupItem, Popover, Tooltip, Modal, OverlayTrigger } from 'react-bootstrap';
+import { Alert, Panel, Col, Row, Grid, Button, Glyphicon, Pager, PageItem, ListGroup, ListGroupItem, Popover, Tooltip, Modal, OverlayTrigger } from 'react-bootstrap';
 import FileLoader from './fileloader.jsx';
 import { Session, Sessions } from '../session.js';
 import { LocalBAM, LocalBAI, RemoteBAM, RemoteBAI } from '../loadedfiletypes.js';
 import { getURL, getName, deepExtend } from '../utils.js';
 import { List, Map } from 'immutable';
+import Loader from 'react-loader';
 
-let session = new Session();
+// let session = new Session();
 // var React = require('react');
 
 // var rb = require('react-bootstrap');
@@ -45,33 +48,52 @@ let session = new Session();
 // var getName = utils.getName;
 // var getURL = utils.getURL;
 
-const FixMissingIndexModal = React.createClass({
+const LOADER_OPTIONS = {
+  lines: 13,
+  length: 5,
+  width: 3,
+  radius: 6,
+  corners: 1,
+  rotate: 0,
+  direction: 1,
+  color: '#000',
+  speed: 1,
+  trail: 60,
+  shadow: false,
+  hwaccel: false,
+  zIndex: 2e9,
+  top: '50%',
+  left: '50%',
+  scale: 1.00
+};
 
-  close(){
-    this.props.close();
-  },
+// const FixMissingIndexModal = React.createClass({
 
-  getInitialState(){
-    return { showModal: false };
-  },
+//   close() {
+//     this.props.close();
+//   },
 
-  render() {
-    return (
-      <Modal show={this.props.show} onHide={this.close} className="Settings">
-        <Modal.Header closeButton>
-          <Modal.Title>Missing index files</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          The following files are missing their index files. Please load the index file or remove the sequence file.
-        </Modal.Body>
-        <Modal.Footer>
-          <Button bsStyle="primary" onClick={this.close}>OK</Button>
-        </Modal.Footer>
-      </Modal>
-    );
-  }
+//   getInitialState() {
+//     return { showModal: false };
+//   },
 
-});
+//   render() {
+//     return (
+//       <Modal show={this.props.show} onHide={this.close} className="Settings">
+//         <Modal.Header closeButton>
+//           <Modal.Title>Missing index files</Modal.Title>
+//         </Modal.Header>
+//         <Modal.Body>
+//           The following files are missing their index files. Please load the index file or remove the sequence file.
+//         </Modal.Body>
+//         <Modal.Footer>
+//           <Button bsStyle="primary" onClick={this.close}>OK</Button>
+//         </Modal.Footer>
+//       </Modal>
+//     );
+//   }
+
+// });
 
 
 const TitlePanel = React.createClass({
@@ -106,12 +128,32 @@ const LoadVariantsPanel = React.createClass({
   },
 
   render: function() {
-    var tableStyle = {
+    
+    let loadNode;
+    if (this.props.loading) {
+      let child;
+      if (this.props.error) {
+        child = (
+          <Alert bsStyle='danger' className='someTopMargin'>
+            <pre>{this.props.error}</pre>
+          </Alert>
+        );
+      }
+      loadNode = (
+        <Loader loaded={this.props.loaded} options={LOADER_OPTIONS}>
+          {child}
+        </Loader>
+      );
+    }
+
+    let tableStyle = {
       'width': '100%'
     };
 
+
+    let variantNode;
     if (this.props.session.variants.length && this.props.session.variantFile) {
-      var variantNode = (
+      variantNode = (
         <ListGroup className='someTopMargin'>
           <ListGroupItem bsStyle='success'>
             <table style={tableStyle}>
@@ -143,6 +185,7 @@ const LoadVariantsPanel = React.createClass({
               show={this.state.showFileLoader}
               close={this.closeFileLoader}
         />
+        {loadNode}
         {variantNode}
       </Panel>
     );
@@ -161,7 +204,7 @@ const IndexMessage = React.createClass({
         return (<div><Glyphicon glyph='exclamation-sign' /> Needs Local Index</div>);
       }
     } else {
-      return null
+      return null;
     }
   }
 });
@@ -231,12 +274,26 @@ const LoadDataPanel = React.createClass({
   },
 
   render() {
-    var tableStyle = {
+    let loadNode;
+    if (this.props.loading) {
+      let child;
+      if (this.props.error) {
+        child = (
+          <Alert bsStyle='danger' className='someTopMargin'>
+            <pre>{this.props.error}</pre>
+          </Alert>
+        );
+      }
+      loadNode = (
+        <Loader loaded={this.props.loaded} options={LOADER_OPTIONS}>
+          {child}
+        </Loader>
+      );
+    }
+
+    let tableStyle = {
       'width': '100%'
     };
-
-    console.log('Rendering in LoadDataPanel');
-    console.log(this.state);
 
     let fileNodes;
     if (this.props.session.bamFiles.length + this.props.session.baiFiles.length) {
@@ -283,7 +340,8 @@ const LoadDataPanel = React.createClass({
           <p>
             Select a sequence file (BAM, BAI, CRAM).
           </p>
-            <Button bsStyle="primary" onClick={this.openFileLoader}><Glyphicon glyph="floppy-disk"/>Select Sequence File</Button>
+          <Button bsStyle="primary" onClick={this.openFileLoader}><Glyphicon glyph="floppy-disk"/>Select Sequence File</Button>
+          {loadNode}
           {fileNodes}
         </Panel>
         <FileLoader
@@ -305,7 +363,15 @@ const LoadDataPanel = React.createClass({
 const LoadManual = React.createClass({
 
   getInitialState() {
-    return { showFixMissingIndexModal: false };
+    return {
+      session: new Session(),
+      dataLoading: false,
+      dataLoaded: false,
+      dataError: false,
+      variantsLoading: false,
+      variantsLoaded: false,
+      variantsError: false
+    };
   },
 
   closeFixMissingIndexModal() {
@@ -313,25 +379,38 @@ const LoadManual = React.createClass({
   },
 
   handleVariantFile(file, connection) {
+    this.setState({variantsLoading: true});
+    let session = this.state.session;
     session.addVariants(file, connection).then(() => {
-      forceUpdate();
-    }).catch((error) => {
+      this.setState({
+        session: session,
+        variantsError: false,
+        variantsLoaded: true
+      });
+    }).catch(error => {
+      this.setState({
+        variantsError: error,
+        variantsLoaded: true
+      });
       console.log(error);
     });
   },
 
   handleDataFile(files, connection) {
-    // console.log(files);
-    // console.log(connection.toJS());
-    
+    this.setState({ dataLoading: true });
     if (connection.get('type') !== 'local')
       files = getURL(files, connection);
-        
+    let session = this.state.session;
     session.addSequenceFile(files, connection).then(() => {
       session.matchMaker();
-      forceUpdate();
-    }).catch((error) => {
+      this.setState({
+        session: session,
+        dataError: false,
+        dataLoaded: true
+      });
+    }).catch(error => {
       console.log(error);
+      this.setState({dataError: error, dataLoaded: true})
     });
     // var s = this.state.session;
     // s.addSequenceFile(files, connection).then();
@@ -340,44 +419,47 @@ const LoadManual = React.createClass({
   },
 
   handleRemoveDataFile(id) {
+    let session = this.state.session;
     session.remove(id);
-    forceUpdate();
+    this.setState({session: session});
   },
 
   handleGoQC(e) {
     e.preventDefault();
 
-    // If there are unmatched files, let the user know and give them a choice    
-    let uf = session.unmatchedSequenceFiles();
-    let ui = session.unmatchedIndexFiles();
+    let session = this.state.session;
+    // // If there are unmatched files, let the user know and give them a choice    
+    // let uf = session.unmatchedSequenceFiles();
+    // let ui = session.unmatchedIndexFiles();
     
-    if (uf.length + ui.length > 0) {
-      console.log(uf);
-      console.log(ui);
-    }
+    // if (uf.length + ui.length > 0) {
+    //   console.log(uf);
+    //   console.log(ui);
+    // }
     let ss = new Sessions();
     ss.sessions[0] = session;
+    this.props.handleGoQC(ss);
   },
 
-  handleReallyGoQC() {
-    this.props.handleGoQC(s);
-  },
+  // handleReallyGoQC() {
+  //   this.props.handleGoQC(s);
+  // },
 
   handleGoBack(e) {
     e.preventDefault();
     this.props.handleGoIntro();
   },
 
-  shouldComponentUpdate: function(nextProps, nextState) {
-    console.log('in shouldComponentUpdate');
-    console.log(nextState);
-
-    return true;
-  },
+  // shouldComponentUpdate: function(nextProps, nextState) {
+  //   console.log(nextState);
+  //   return true;
+  // },
 
   render() {
-    if (session.isReady()) {
-      var proceedNode = ( 
+    console.log(this.state.session);
+    let proceedNode;
+    if (this.state.session.isReady()) {
+      proceedNode = ( 
         <Pager>
           <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
         </Pager>
@@ -386,10 +468,6 @@ const LoadManual = React.createClass({
       proceedNode = null;
     }
     
-    console.log('Rendering in LoadManual');
-    if (session.bamFiles.length > 0)
-      console.log(session.bamFiles[0].index);
-
     return (
       <div>
         <Grid>
@@ -402,24 +480,26 @@ const LoadManual = React.createClass({
               <TitlePanel />
               <LoadVariantsPanel
                 handleVariantFile={this.handleVariantFile}
-                session={session}
+                session={this.state.session}
                 settings={this.props.settings}
+                loading={this.state.variantsLoading}
+                loaded={this.state.variantsLoaded}
+                error={this.state.variantsError}
               />
               <LoadDataPanel
                 handleDataFile={this.handleDataFile}
-                session={session}
+                session={this.state.session}
                 handleRemoveDataFile={this.handleRemoveDataFile}
                 settings={this.props.settings}
+                loading={this.state.dataLoading}
+                loaded={this.state.dataLoaded}
+                error={this.state.dataError}
               />
               {proceedNode}
             </Col>
             <Col md={3}></Col>
           </Row>
         </Grid>
-        <FixMissingIndexModal
-          show={this.state.showFixMissingIndexModal}
-          close={this.closeFixMissingIndexModal}
-        />
       </div>
     );
   }

@@ -57,8 +57,7 @@ class Session {
             }).then(() => {
               this.variantFile = variants;
               resolve();
-            }).catch((error) => {
-              console.log(error);
+            }).catch(error => {
               reject(error);
             });
           }
@@ -73,6 +72,8 @@ class Session {
               this.parseVariants(result);
               console.log('finished parsing variants');
               resolve();
+            }).catch(error => {
+              reject(error);
             });
           } else {
             // An array of single dna locations
@@ -152,16 +153,16 @@ class Session {
             case "bam":
               var newBam = new LocalBAM(f);
               this.bamFiles.push(newBam);
-              resolve();
               break;
             case "bai":
               var newBai = new LocalBAI(f);
               this.baiFiles.push(newBai);
-              resolve();
               break;
           }
         }
+        resolve();
       }
+      
     });
   }
 
@@ -328,7 +329,7 @@ class Session {
     if (this.bamFiles.length === 0)
       return false;
     for (let i=0; i<this.bamFiles.length; i++) {
-      if (this.bamFiles[i].index = false)
+      if (this.bamFiles[i].index === false)
         return false;
     }
     return true;

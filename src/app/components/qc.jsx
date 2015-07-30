@@ -1,3 +1,21 @@
+"use strict";
+
+// import React from 'react';
+// import {
+//   Nav,
+//   Navbar,
+//   NavItem,
+//   MenuItem,
+//   DropdownButton,
+//   Button,
+//   Input,
+//   Glyphicon,
+//   Modal,
+// } from 'react-bootstrap';
+// import SessionsModal from './sessionsmodal.jsx';
+// import JSZip from 'JSZip';
+// import saveAs from 'filesaver.js';
+
 var React = require('react');
 var rb = require('react-bootstrap');
 var Alert = rb.Alert;
@@ -13,7 +31,6 @@ var Grid = rb.Grid;
 var Button = rb.Button;
 var Input = rb.Input;
 var Glyphicon = rb.Glyphicon;
-var ModalTrigger = rb.ModalTrigger;
 var Modal = rb.Modal;
 
 var SessionsModal = require('./sessionsmodal.jsx');
@@ -25,9 +42,10 @@ var zip = new JSZip();
 var imageFolder = zip.folder('images');
 
 
-var QC = React.createClass({
+const QC = React.createClass({
 
   componentDidMount() {
+    console.log('i made it to here');
     browser = new Browser({
       chr:          '16',
       viewStart:    48000181,
@@ -142,7 +160,10 @@ var QCToolbar = React.createClass({
       currentVariant: this.props.sessions.getCurrentVariant(),
       view: this.props.view,
       numSnapshots: 0,
-      numVariantsReviewed: 0
+      numVariantsReviewed: 0,
+      showSessionsModal: false,
+      showSaveModal: false,
+      showExitModal: false,
     };
   },
 
@@ -231,6 +252,30 @@ var QCToolbar = React.createClass({
     saveAs(content, snapshotFilename + '.zip');
   },
 
+  openSessionsModal() {
+    this.setState({ showSessionsModal: true });
+  },
+
+  closeSessionsModal() {
+    this.setState({ showSessionsModal: false });
+  },
+
+  openSave() {
+    this.setState({ showSaveModal: true });
+  },
+
+  closeSave() {
+    this.setState({ showSaveModal: false });
+  },
+
+  openExit() {
+    this.setState({ showExitModal: true });
+  },
+
+  closeExit() {
+    this.setState({ showExitModal: false });
+  },
+
   render() {
 
     if (browser &&
@@ -256,91 +301,105 @@ var QCToolbar = React.createClass({
         break;
     }
     return (
-      <Navbar toggleNavKey={0} className='QCToolbar'>
-        <Nav navbar>
-          <ModalTrigger modal={
-            <SessionsModal sessions={this.props.sessions} handleVariantSelect={this.handleVariantSelect}/>
-          }>
-            <NavItem eventKey={1} href='#'>
-              <Button>
-                {this.state.currentVariant.locationString()} &nbsp; {scoreBadge}
-              </Button>
-            </NavItem>
-          </ModalTrigger>
-          <NavItem eventKey={2} href='#' onClick={this.handleHome}><Button><Glyphicon glyph='home' /></Button></NavItem>
-          <NavItem eventKey={3} href='#' onClick={this.handlePrevious}><Button><Glyphicon glyph="chevron-left"/>Previous</Button></NavItem>
-          <NavItem eventKey={4} href='#' onClick={this.handleQC.bind(this, 'not variant')}><Button>Not a Variant<Glyphicon glyph="chevron-right"/></Button></NavItem>
-          <NavItem eventKey={5} href='#' onClick={this.handleQC.bind(this, 'uncertain')}><Button>Uncertain<Glyphicon glyph="chevron-right"/></Button></NavItem>
-          <NavItem eventKey={6} href='#' onClick={this.handleQC.bind(this, 'variant')}><Button>Variant<Glyphicon glyph="chevron-right"/></Button></NavItem>
-          <NavItem eventKey={7} href='#' onClick={this.handleSnapshot}><Button><Glyphicon glyph="camera"/></Button></NavItem>
-          <DropdownButton eventKey={9} title={<Button><Glyphicon glyph="eye-open"/></Button>}>
-            <MenuItem eventKey={1} onSelect={this.handleView.bind(this, 'raw')}>Raw</MenuItem>
-            <MenuItem eventKey={2} onSelect={this.handleView.bind(this, 'condensed')}>Condensed</MenuItem>
-            <MenuItem eventKey={3} onSelect={this.handleView.bind(this, 'mismatch')}>Mismatch</MenuItem>
-            <MenuItem eventKey={4} onSelect={this.handleView.bind(this, 'coverage')}>Coverage</MenuItem>
-          </DropdownButton>
-        </Nav>
-        <Nav navbar right>                
-          <SaveModalTrigger eventKey={2} numVariantsReviewed={this.state.numVariantsReviewed} numSnapshots={this.state.numSnapshots} handleDownloadQC={this.handleDownloadQC} handleRestart={this.handleRestart} />
-          <ExitModalTrigger eventKey={3} numVariantsReviewed={this.state.numVariantsReviewed} numSnapshots={this.state.numSnapshots} handleDownloadQC={this.handleDownloadQC} handleRestart={this.handleRestart} />
-        </Nav>
-      </Navbar>
+      <div>
+        <Navbar toggleNavKey={0} className='QCToolbar'>
+          <Nav navbar>
+            <NavItem eventKey={1} href='#' onClick={this.openSessionsModal}><Button>{this.state.currentVariant.locationString()} &nbsp; {scoreBadge}</Button></NavItem>
+            <NavItem eventKey={2} href='#' onClick={this.handleHome}><Button><Glyphicon glyph='home' /></Button></NavItem>
+            <NavItem eventKey={3} href='#' onClick={this.handlePrevious}><Button><Glyphicon glyph="chevron-left"/>Previous</Button></NavItem>
+            <NavItem eventKey={4} href='#' onClick={this.handleQC.bind(this, 'not variant')}><Button>Not a Variant<Glyphicon glyph="chevron-right"/></Button></NavItem>
+            <NavItem eventKey={5} href='#' onClick={this.handleQC.bind(this, 'uncertain')}><Button>Uncertain<Glyphicon glyph="chevron-right"/></Button></NavItem>
+            <NavItem eventKey={6} href='#' onClick={this.handleQC.bind(this, 'variant')}><Button>Variant<Glyphicon glyph="chevron-right"/></Button></NavItem>
+            <NavItem eventKey={7} href='#' onClick={this.handleSnapshot}><Button><Glyphicon glyph="camera"/></Button></NavItem>
+            <DropdownButton eventKey={9} title={<Button><Glyphicon glyph="eye-open"/></Button>}>
+              <MenuItem eventKey={1} onSelect={this.handleView.bind(this, 'raw')}>Raw</MenuItem>
+              <MenuItem eventKey={2} onSelect={this.handleView.bind(this, 'condensed')}>Condensed</MenuItem>
+              <MenuItem eventKey={3} onSelect={this.handleView.bind(this, 'mismatch')}>Mismatch</MenuItem>
+              <MenuItem eventKey={4} onSelect={this.handleView.bind(this, 'coverage')}>Coverage</MenuItem>
+            </DropdownButton>
+          </Nav>
+          <Nav navbar right>
+            <NavItem eventKey={this.props.eventKey} href='#' onClick={this.openSave}><Button><Glyphicon glyph="save-file"/></Button></NavItem>
+            <NavItem eventKey={this.props.eventKey} href='#' onClick={this.openExit}><Button><Glyphicon glyph="eject"/></Button></NavItem>
+          </Nav>
+        </Navbar>
+        <SessionsModal
+          sessions={this.props.sessions}
+          handleVariantSelect={this.handleVariantSelect}
+          close={this.closeSessionsModal}
+          show={this.state.showSessionsModal}
+        />
+        <ExitModal 
+          handleRestart={this.handleRestart}
+          numVariantsReviewed={this.state.numVariantsReviewed}
+          numSnapshots={this.state.numSnapshots}
+          handleDownloadQC={this.handleDownloadQC}
+          close={this.closeSave}
+          show={this.state.showSaveModal}
+          view='save'
+        />
+        <ExitModal 
+          handleRestart={this.handleRestart}
+          numVariantsReviewed={this.state.numVariantsReviewed}
+          numSnapshots={this.state.numSnapshots}
+          handleDownloadQC={this.handleDownloadQC}
+          close={this.closeExit}
+          show={this.state.showExitModal}
+          view='exit'
+        />
+      </div>
     );    
   }
-                    // <button type="button" class="btn btn-default qc-decision" id="buttonQCNotVariant" data-value="not variant">Not a Variant <span class="glyphicon glyphicon-chevron-right"></span></button>
-                    // <button type="button" class="btn btn-default qc-decision" id="buttonQCPotentialVariant" data-value="uncertain">Uncertain <span class="glyphicon glyphicon-chevron-right"></span></button>
-                    // <button type="button" class="btn btn-default qc-decision" id="buttonQCCertainVariant"  data-value="variant">Variant <span class="glyphicon glyphicon-chevron-right"></span></button>
 });
 
 
-var SaveModalTrigger = React.createClass({
-  render() {
-    // numVariantsReviewed={this.props.sessions.getNumVariantsReviewed()}
-    // numSnapshots={Object.keys(imageFolder.files).length-1}
-    
-    // mixins: [OverlayMixin]
+// var SaveModalTrigger = React.createClass({
+//   render() {
+//     return (
+//       <ModalTrigger modal={<ExitModal 
+//                               handleRestart={this.props.handleRestart}
+//                               numVariantsReviewed={this.props.numVariantsReviewed}
+//                               numSnapshots={this.props.numSnapshots}
+//                               handleDownloadQC={this.props.handleDownloadQC} 
+//                               view='save' />
+//                           }>
+//         <NavItem eventKey={this.props.eventKey} href='#'>
+//           <Button><Glyphicon glyph="save-file"/></Button>
+//         </NavItem>
+//       </ModalTrigger>
+//     );
+//   }
 
-    return (
-      <ModalTrigger modal={<ExitModal 
-                              handleRestart={this.props.handleRestart}
-                              numVariantsReviewed={this.props.numVariantsReviewed}
-                              numSnapshots={this.props.numSnapshots}
-                              handleDownloadQC={this.props.handleDownloadQC} 
-                              view='save' />
-                          }>
-        <NavItem eventKey={this.props.eventKey} href='#'>
-          <Button><Glyphicon glyph="save-file"/></Button>
-        </NavItem>
-      </ModalTrigger>
-    );
-  }
+// });
 
-});
+// var ExitModalTrigger = React.createClass({
+//   render() {
+//     // numVariantsReviewed={this.props.sessions.getNumVariantsReviewed()}
+//     // numSnapshots={Object.keys(imageFolder.files).length-1}
+//     return (
+//       <ModalTrigger modal={<ExitModal 
+//                               handleRestart={this.props.handleRestart}
+//                               numVariantsReviewed={this.props.numVariantsReviewed}
+//                               numSnapshots={this.props.numSnapshots}
+//                               handleDownloadQC={this.props.handleDownloadQC} 
+//                               view='exit' />
+//                           }>
+//         <NavItem eventKey={this.props.eventKey} href='#'>
+//           <Button><Glyphicon glyph="eject"/></Button>
+//         </NavItem>
+//       </ModalTrigger>
+//     );
+//   }
+// });
 
-var ExitModalTrigger = React.createClass({
-  render() {
-    // numVariantsReviewed={this.props.sessions.getNumVariantsReviewed()}
-    // numSnapshots={Object.keys(imageFolder.files).length-1}
-    return (
-      <ModalTrigger modal={<ExitModal 
-                              handleRestart={this.props.handleRestart}
-                              numVariantsReviewed={this.props.numVariantsReviewed}
-                              numSnapshots={this.props.numSnapshots}
-                              handleDownloadQC={this.props.handleDownloadQC} 
-                              view='exit' />
-                          }>
-        <NavItem eventKey={this.props.eventKey} href='#'>
-          <Button><Glyphicon glyph="eject"/></Button>
-        </NavItem>
-      </ModalTrigger>
-    );
-  }
-});
-
-var ExitModal = React.createClass({
+const ExitModal = React.createClass({
 
   getInitialState() {
     return {view: this.props.view}
+  },
+
+  close() {
+    this.props.close();
   },
 
   handleRestart() {
@@ -353,13 +412,13 @@ var ExitModal = React.createClass({
 
   handleDownloadQC() {
     console.log('handleDownloadQC');
-    var qcDecisionFilename = this.refs.QCDecisionFilename.getValue().trim();
-    var snapshotFilename = this.refs.screenshotsFilename.getValue().trim();
-    var saveQCDecisions = this.refs.saveQCDecisions.getChecked();
-    var saveScreenshots = this.refs.saveScreenshots.getChecked();
+    let qcDecisionFilename = this.refs.QCDecisionFilename.getValue().trim();
+    let snapshotFilename = this.refs.screenshotsFilename.getValue().trim();
+    let saveQCDecisions = this.refs.saveQCDecisions.getChecked();
+    let saveScreenshots = this.refs.saveScreenshots.getChecked();
 
-    var qc = false;
-    var snapshots = false;
+    let qc = false;
+    let snapshots = false;
 
     if (saveQCDecisions && qcDecisionFilename !== '')
         qc = qcDecisionFilename;
@@ -367,16 +426,16 @@ var ExitModal = React.createClass({
         snapshots = snapshotFilename;
     
     this.props.handleDownloadQC(qc, snapshots);
-    this.props.onRequestHide();
+    this.close();
   },
 
   render() {
-
+    let title, body, footer;
     if (this.state.view === 'save') {
-      var title = 'Save Results';
+      title = 'Save Results';
       var QCDecisionNode = (<Input type="text" ref="QCDecisionFilename" placeholder="filename" addonAfter=".json"/>);
       var SnapshotNode = (<Input type="text" ref="screenshotsFilename" placeholder="zip archive name" addonAfter=".zip"/>);
-      var body = (
+      body = (
         <form>
           <h4>{this.props.numVariantsReviewed} QC decisions made - save these?</h4>
           <Input type="checkbox"
@@ -390,38 +449,38 @@ var ExitModal = React.createClass({
             defaultChecked={true} />
         </form>
       );
-      var footer = (
+      footer = (
           <div>
             <Button bsStyle='primary' onClick={this.handleDownloadQC}>Save Current and Restart</Button>
-            <Button bsStyle='primary' onClick={this.props.onRequestHide}>Cancel</Button>
+            <Button bsStyle='primary' onClick={this.close}>Cancel</Button>
           </div>
         );
     } else {
-      var title = 'Restart';
-      var body = (<div>What do you want to do with your current QC results?</div>);
-      var footer = (
-          <div>
-            <Button bsStyle='primary' onClick={this.handleRestart}>Discard and Restart</Button>
-            <Button bsStyle='primary' onClick={this.handleSave}>Save Current and Restart</Button>
-            <Button bsStyle='primary' onClick={this.props.onRequestHide}>Cancel</Button>
-          </div>
-        );
+      title = 'Restart';
+      body = (<div>What do you want to do with your current QC results?</div>);
+      footer = (
+        <div>
+          <Button bsStyle='primary' onClick={this.handleRestart}>Discard and Restart</Button>
+          <Button bsStyle='primary' onClick={this.handleSave}>Save Current and Restart</Button>
+          <Button bsStyle='primary' onClick={this.close}>Cancel</Button>
+        </div>
+      );
     }
 
     return (
-      <Modal {...this.props} title={title} animation={false}>
-        <div className='modal-body'>
+      <Modal show={this.props.show} onHide={this.close}>
+        <Modal.Header closeButton>
+          <Modal.Title>{title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
           {body}
-        </div>
-        <div className='modal-footer'>
+        </Modal.Body>
+        <Modal.Footer>
           {footer}
-        </div>
+        </Modal.Footer>
       </Modal>
     );
   }
 });
 
-
-
-
-module.exports = QC;
+export default QC;

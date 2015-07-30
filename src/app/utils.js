@@ -93,8 +93,10 @@ function httpGet(path, connection=Map(), opts) {
         resolve(request.responseText);
       } else {
         // We reached our target server, but it returned an error
-        console.log('The path: ' + path + ' does not exist with connection: ' + JSON.stringify(connection));
-        reject('The path: ' + path + ' does not exist with connection: ' + JSON.stringify(connection));
+        if (connection.isEmpty())
+          reject('The path: ' + path + ' does not exist');
+        else
+          reject('The path: ' + path + ' does not exist with connection: ' + JSON.stringify(connection, null, 2));
       }
     }
 

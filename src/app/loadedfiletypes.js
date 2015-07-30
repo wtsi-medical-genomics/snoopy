@@ -170,7 +170,7 @@ SSHBAM.prototype.exists = function() {
   var path = this.file + '&lchr=1&lmin=1&lmax=2';
   // var connection = Map({requiresCredentials: this.requiresCredentials});
   // var opts = {range: {min: 0, max:1}};
-  return httpGet(path, null);
+  return httpGet(path);
 }
 
 function LocalBAI(file) {

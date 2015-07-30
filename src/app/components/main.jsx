@@ -20,7 +20,7 @@ import LoadBatch from './loadbatch.jsx';
 // var LoadManual = require('./loadmanual.jsx');
 // var LoadBatch = require('./loadbatch.jsx');
 
-import { QC } from './qc.jsx';
+import QC from './qc.jsx';
 // var QC = require('./qc.jsx');
 
 

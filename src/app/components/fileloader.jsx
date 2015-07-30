@@ -1,3 +1,5 @@
+"use strict";
+
 var React = require('react');
 var rb = require('react-bootstrap');
 var Col = rb.Col;
@@ -141,7 +143,7 @@ var FileLoader = React.createClass({
 
   },
 
-  close(){
+  close() {
     this.props.close();
   },
 

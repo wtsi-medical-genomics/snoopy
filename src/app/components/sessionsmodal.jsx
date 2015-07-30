@@ -1,5 +1,18 @@
 "use strict";
 
+// import React from 'react';
+// import {
+//   Button,
+//   Glyphicon,
+//   TabbedArea,
+//   TabPane,
+//   Modal,
+//   Input,
+//   Alert,
+//   ListGroup,
+//   ListGroupItem
+// } from 'react-bootstrap';
+
 var React = require('react');
 var rb = require('react-bootstrap');
 var Col = rb.Col;
@@ -84,13 +97,17 @@ var SessionListGroup = React.createClass({
 
 var SessionsModal = React.createClass({
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.state.value !== nextState.value;
-  },
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   return this.state.value !== nextState.value;
+  // },
 
   handleClick(si, vi) {
-    this.props.onRequestHide();
+    this.close();
     this.props.handleVariantSelect(si, vi);
+  },
+
+  close() {
+    this.props.close();
   },
 
   render() {
@@ -114,15 +131,16 @@ var SessionsModal = React.createClass({
     };
 
     return (
-      <div>
-        <Modal {...this.props} title="Select a variant" animation={false} bsSize='small'>
-          <div className='modal-body' style={overflow}>
-            {SessionListGroups}
-          </div>
-        </Modal>
-      </div>
+      <Modal show={this.props.show} onHide={this.close}  bsSize="small">
+        <Modal.Header closeButton>
+          <Modal.Title>Select a variant</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={overflow}>
+          {SessionListGroups}
+        </Modal.Body>
+      </Modal>
     );
   }
 });
 
-module.exports = SessionsModal
+export default SessionsModal;

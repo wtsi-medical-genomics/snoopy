@@ -1,3 +1,5 @@
+"use strict";
+
 var React = require('react');
 
 var rb = require('react-bootstrap');
@@ -10,7 +12,6 @@ var Button = rb.Button;
 var Glyphicon = rb.Glyphicon;
 var Pager = rb.Pager;
 var PageItem = rb.PageItem;
-var ModalTrigger = rb.ModalTrigger;
 var ListGroup = rb.ListGroup;
 var ListGroupItem = rb.ListGroupItem;
 var Input = rb.Input;
@@ -37,7 +38,7 @@ var RemoteBAI = lft.RemoteBAI;
 var Settings = require('./settings.jsx');
 //var getRequiresCredentials = Settings.getRequiresCredentials;
 
-var Promise = require('es6-promise').Promise;
+// var Promise = require('es6-promise').Promise;
 var Loader = require('react-loader');
 
 // const RE_DNA_LOCATION = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
@@ -271,12 +272,6 @@ var LoadFilePanel = React.createClass({
       } else {
         throw 'Provided JSON contains a session which does not list any BAMs or CRAMs. Consult help for instructions and examples of valid JSON batch files.'
       }
-
-
-      // s.addVariants(v, connection).catch(e => {
-      //   console.log('ERRORRRRRRRRRRRRRRR!')
-      //   console.log(e);
-      // });
 
       s.addVariants(v, connection).then(() => {
         return Promise.all(bams.map(bam => {
