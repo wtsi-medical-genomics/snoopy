@@ -42,6 +42,7 @@ var zip = new JSZip();
 var imageFolder = zip.folder('images');
 
 
+
 const QC = React.createClass({
 
   componentDidMount() {
@@ -329,23 +330,19 @@ var QCToolbar = React.createClass({
           close={this.closeSessionsModal}
           show={this.state.showSessionsModal}
         />
-        <ExitModal 
-          handleRestart={this.handleRestart}
-          numVariantsReviewed={this.state.numVariantsReviewed}
-          numSnapshots={this.state.numSnapshots}
-          handleDownloadQC={this.handleDownloadQC}
-          close={this.closeSave}
-          show={this.state.showSaveModal}
-          view='save'
-        />
-        <ExitModal 
-          handleRestart={this.handleRestart}
+        <ExitModal
           numVariantsReviewed={this.state.numVariantsReviewed}
           numSnapshots={this.state.numSnapshots}
           handleDownloadQC={this.handleDownloadQC}
           close={this.closeExit}
           show={this.state.showExitModal}
-          view='exit'
+        />
+        <SaveModal
+          numVariantsReviewed={this.state.numVariantsReviewed}
+          numSnapshots={this.state.numSnapshots}
+          handleDownloadQC={this.handleDownloadQC}
+          close={this.closeSave}
+          show={this.state.showSaveModal}
         />
       </div>
     );    
@@ -392,95 +389,173 @@ var QCToolbar = React.createClass({
 //   }
 // });
 
+const SaveForm = React.createClass({
+  handleInputChange() {
+    let qcDecisionsFilename = this.refs.QCDecisionsFilename.getValue().trim();
+    let screenshotsFilename = this.refs.screenshotsFilename.getValue().trim();
+    let saveQCDecisions = this.refs.saveQCDecisions.getChecked();
+    let saveScreenshots = this.refs.saveScreenshots.getChecked();
+    let qc = saveQCDecisions && qcDecisionsFilename ? qcDecisionsFilename : false;
+    let snapshots = saveScreenshots && screenshotsFilename ? screenshotsFilename : false;
+    this.props.handleInputChange(qc, snapshots);
+  },
+
+  render() {
+    let QCDecisionNode = (
+      <Input
+        type="text"
+        ref="QCDecisionsFilename"
+        placeholder="filename"
+        addonAfter=".json"
+        onChange={this.handleInputChange}
+      />);
+    let SnapshotNode = (
+      <Input
+        type="text"
+        ref="screenshotsFilename"
+        placeholder="zip archive name"
+        addonAfter=".zip"
+        onChange={this.handleInputChange}
+      />);
+    return (
+      <form>
+        <h4>{this.props.numVariantsReviewed} QC decisions made - save these?</h4>
+        <Input type="checkbox"
+          ref="saveQCDecisions"
+          label={QCDecisionNode}
+          defaultChecked={true}
+          onChange={this.handleInputChange}
+        />
+        <h4>{this.props.numSnapshots} snapshots taken - save these?</h4>
+        <Input type="checkbox"
+          ref="saveScreenshots"
+          label={SnapshotNode}
+          defaultChecked={true}
+          onChange={this.handleInputChange}
+        />
+      </form>
+    );
+  }
+});
+
+
 const ExitModal = React.createClass({
 
   getInitialState() {
-    return {view: this.props.view}
+    return {
+      qc: false,
+      snapshots: false,
+    };
   },
 
-  close() {
+  handleSaveData(qc, snapshots) {
+    this.setState({
+      qc: qc,
+      snapshots: snapshots,
+    });
+  },
+
+  handleClose() {
     this.props.close();
+  },
+
+  handleSave() {
+    this.props.handleDownloadQC(this.state.qc, this.state.snapshots);
   },
 
   handleRestart() {
     document.location.reload();
   },
 
-  handleSave() {
-    this.setState({view: 'save'});
-  },
-
-  handleDownloadQC() {
-    console.log('handleDownloadQC');
-    let qcDecisionFilename = this.refs.QCDecisionFilename.getValue().trim();
-    let snapshotFilename = this.refs.screenshotsFilename.getValue().trim();
-    let saveQCDecisions = this.refs.saveQCDecisions.getChecked();
-    let saveScreenshots = this.refs.saveScreenshots.getChecked();
-
-    let qc = false;
-    let snapshots = false;
-
-    if (saveQCDecisions && qcDecisionFilename !== '')
-        qc = qcDecisionFilename;
-    if (saveScreenshots && snapshotFilename !== '')
-        snapshots = snapshotFilename;
-    
-    this.props.handleDownloadQC(qc, snapshots);
-    this.close();
+  styles: {
+    centerButton: {
+      textAlign: 'center' 
+    }
   },
 
   render() {
-    let title, body, footer;
-    if (this.state.view === 'save') {
-      title = 'Save Results';
-      var QCDecisionNode = (<Input type="text" ref="QCDecisionFilename" placeholder="filename" addonAfter=".json"/>);
-      var SnapshotNode = (<Input type="text" ref="screenshotsFilename" placeholder="zip archive name" addonAfter=".zip"/>);
-      body = (
-        <form>
-          <h4>{this.props.numVariantsReviewed} QC decisions made - save these?</h4>
-          <Input type="checkbox"
-            ref="saveQCDecisions"
-            label={QCDecisionNode}
-            defaultChecked={true} />
-          <h4>{this.props.numSnapshots} snapshots taken - save these?</h4>
-          <Input type="checkbox"
-            ref="saveScreenshots"
-            label={SnapshotNode}
-            defaultChecked={true} />
-        </form>
-      );
-      footer = (
-          <div>
-            <Button bsStyle='primary' onClick={this.handleDownloadQC}>Save Current and Restart</Button>
-            <Button bsStyle='primary' onClick={this.close}>Cancel</Button>
-          </div>
-        );
-    } else {
-      title = 'Restart';
-      body = (<div>What do you want to do with your current QC results?</div>);
-      footer = (
-        <div>
-          <Button bsStyle='primary' onClick={this.handleRestart}>Discard and Restart</Button>
-          <Button bsStyle='primary' onClick={this.handleSave}>Save Current and Restart</Button>
-          <Button bsStyle='primary' onClick={this.close}>Cancel</Button>
-        </div>
-      );
-    }
-
     return (
-      <Modal show={this.props.show} onHide={this.close}>
+      <Modal show={this.props.show} onHide={this.handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>{title}</Modal.Title>
+          <Modal.Title>Restart</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {body}
+          Do you want to save your QC decisions before you restart?
+          <SaveForm
+            numVariantsReviewed={this.props.numVariantsReviewed}
+            numSnapshots={this.props.numSnapshots}
+            handleInputChange={this.handleSaveData}
+          />
+          <div className='text-center'>
+            <Button
+              bsStyle='info'
+              onClick={this.handleSave}
+            >
+             Save QC Decisions
+            </Button>
+          </div>
         </Modal.Body>
         <Modal.Footer>
-          {footer}
+          <Button bsStyle='primary' onClick={this.handleRestart}>Restart</Button>
+          <Button bsStyle='primary' onClick={this.handleClose}>Cancel</Button>
         </Modal.Footer>
       </Modal>
     );
   }
 });
+
+
+const SaveModal = React.createClass({
+
+  getInitialState() {
+    return {
+      qc: false,
+      snapshots: false,
+    };
+  },
+
+  handleSaveData(qc, snapshots) {
+    this.setState({
+      qc: qc,
+      snapshots: snapshots,
+    });
+  },
+
+  handleClose() {
+    this.props.close();
+  },
+
+  handleSave() {
+    this.props.handleDownloadQC(this.state.qc, this.state.snapshots);
+    this.handleClose();
+  },
+
+  handleSaveRestart() {
+    this.handleDownloadQC();
+    this.handleRestart();
+  },
+
+  render() {
+    return (
+      <Modal show={this.props.show} onHide={this.handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Save Results</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <SaveForm
+            numVariantsReviewed={this.props.numVariantsReviewed}
+            numSnapshots={this.props.numSnapshots}
+            handleInputChange={this.handleSaveData}
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button bsStyle='primary' onClick={this.handleSave}>Save</Button>
+          <Button bsStyle='primary' onClick={this.handleClose}>Cancel</Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+});
+
 
 export default QC;

@@ -220,6 +220,7 @@ var LoadFilePanel = React.createClass({
         try {
           return JSON.parse(result)
         } catch(e) {
+          console.log('ill formed json');
           throw 'Provided JSON file is ill-formed. To valdate your JSON files use http://jsonlint.com';
         }
       }).then(jso => {
@@ -251,7 +252,7 @@ var LoadFilePanel = React.createClass({
       });
     } else {
       this.setState({
-        loaded: false,
+        loaded: true,
         error: 'Batch file must have json extension, found the following instead: ' + ext
       });
     }
