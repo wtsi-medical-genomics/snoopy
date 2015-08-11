@@ -12,13 +12,13 @@ class SSHBridge(object):
 
     def __init__(self):
         self.SAM_KEYS = {
-            'QNAME':0, 
+            'QNAME':0,
             'FLAG':1,
             'RNAME':2,
-            'POS':3, 
-            'MAPQ':4, 
-            'CIGAR':5, 
-            'SEQ':9, 
+            'POS':3,
+            'MAPQ':4,
+            'CIGAR':5,
+            'SEQ':9,
             'QUAL':10
         }
         paramiko.util.log_to_file('ssh.log') # sets up logging
@@ -39,7 +39,7 @@ class SSHBridge(object):
             c = 'samtools view {} {}:{}-{}'.format(path, lchr, lmin, lmax)
             print c
             ssh_stdin, ssh_stdout, ssh_stderr = ssh_connection.exec_command(c)
-            
+
             for error in ssh_stderr:
                 if error.find('fail to open') >= 0:
                     return False
@@ -105,4 +105,3 @@ if __name__ == '__main__':
     }
     webbrowser.open_new_tab('http://127.0.0.1:8080/app/index.html')
     cherrypy.quickstart(Snoopy(), '/', conf)
-    

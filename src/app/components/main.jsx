@@ -165,6 +165,7 @@ var Main = React.createClass({
   
 
   handleSettings(settings) {
+    console.log(settings.toJS());
     this.setState({settings: settings})
   },
 
@@ -276,6 +277,7 @@ var MainToolbar = React.createClass({
             handleSettings={this.props.handleSettings}
             show={this.state.showSettings}
             close={this.closeSettings}
+            view={this.props.view}
           />
         </div>
       );

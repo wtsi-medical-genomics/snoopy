@@ -1,26 +1,29 @@
 "use strict";
 
-var React = require('react');
-var rb = require('react-bootstrap');
-var Col = rb.Col;
-var Row = rb.Row;
-var Grid = rb.Grid;
-var Button = rb.Button;
-var Glyphicon = rb.Glyphicon;
-var TabbedArea = rb.TabbedArea;
-var TabPane = rb.TabPane;
-var Modal = rb.Modal;
-var Input = rb.Input;
-var Alert = rb.Alert;
+let React = require('react');
+let rb = require('react-bootstrap');
+let Col = rb.Col;
+let Row = rb.Row;
+let Grid = rb.Grid;
+let Button = rb.Button;
+let Glyphicon = rb.Glyphicon;
+let TabbedArea = rb.TabbedArea;
+let TabPane = rb.TabPane;
+let Modal = rb.Modal;
+let Input = rb.Input;
+let Alert = rb.Alert;
 
-var utils = require('../utils.js');
-var getExtension = utils.getExtension;
-var arrayStringContains = utils.arrayStringContains;
-var combineServerPath = utils.combineServerPath;
-var httpExists = utils.httpExists;
+let utils = require('../utils.js');
+let getExtension = utils.getExtension;
+let arrayStringContains = utils.arrayStringContains;
+let combineServerPath = utils.combineServerPath;
+let httpExists = utils.httpExists;
 
-var styles = require('../styles.js');
-var fromJS = require('immutable').fromJS;
+let styles = require('../styles.js');
+//let fromJS = require('immutable').fromJS;
+
+import { fromJS, Map } from 'immutable';
+
 
 // function getPrefix(settings, connection) {
 //   switch (connection) {
@@ -29,14 +32,14 @@ var fromJS = require('immutable').fromJS;
 //     case 'localHTTP':
 //       return settings.servers.localHTTP.location + '/';
 //     case 'SSHBridge':
-//       var sb = settings.servers.SSHBridge;
+//       let sb = settings.servers.SSHBridge;
 //       return sb.localHTTPServer + '/' + '?user=' + sb.username + '&server=' + sb.remoteSSHServer + '&path=';
 //   }
 // }
 
 // function init(cb) {
 //   console.log('in init');
-//   var settings = {
+//   let settings = {
 //     servers: {
 //        remoteHTTP: {
 //           type: 'HTTP',
@@ -73,14 +76,14 @@ var fromJS = require('immutable').fromJS;
 //   settings = fromJS(settings);
 
 //   // Check for settings at the location from which snoopy is served
-//   var request = new XMLHttpRequest();
+//   let request = new XMLHttpRequest();
 //   request.open('GET', './settings.json');
 //   request.setRequestHeader('Content-Type', 'application/json');
 //   request.onload = () => {
 //     if (request.status >= 200 && request.status < 400) {
 //       // Success!
 //       console.log('settings.json exist');
-//       var serverSettings = fromJS(JSON.parse(request.responseText));
+//       let serverSettings = fromJS(JSON.parse(request.responseText));
 //       settings = settings.mergeDeep(serverSettings);
 //       cb(settings);
 //     } else {
@@ -93,78 +96,78 @@ var fromJS = require('immutable').fromJS;
 //   // return settings;
 // }
 
-var SettingsModal = React.createClass({
+const SettingsModal = React.createClass({
 
   handleSubmit() {
-
-    var errors = [];
-    console.log(styles);
-    var currentLevel = this.refs.currentLevel.getChecked();
-    if (currentLevel) {
-      var currentZoomLevel = parseInt(this.refs.currentZoomLevel.getValue().trim());
-      if (isNaN(currentZoomLevel) || currentZoomLevel < 0) {
-        errors.push('Please enter a number greater than 0 for current Dalliance zoom level.');
-      }
-    }
+    let errors = [];
     
-    var coverageThreshold = parseFloat(this.refs.coverageThreshold.getValue().trim());
-    var coverageHeight = parseInt(this.refs.coverageHeight.getValue().trim());
-    if (isNaN(coverageThreshold) || coverageThreshold < 0 || coverageThreshold > 1)
-      errors.push('Please enter a number in the range [0,1] for coverage threshold.');
-    if (isNaN(coverageHeight) || coverageHeight < 0)
-      errors.push('Please enter a number greater than 0 for coverage height.'); 
-    
-    if (errors.length > 0) {
-      console.log(errors);
-      return;
-    }
-
-    var newSettings = {
-      servers: {
-       remoteHTTP: {
-          location: this.refs.remoteHTTP.getValue().trim(),
-          requiresCredentials: this.refs.remoteHTTPCredentials.getChecked()
-        },
-       localHTTP: {
-          location: this.refs.localHTTP.getValue().trim()
-        },
-       SSHBridge: {
-          localHTTPServer: this.refs.SSHBridge_localHTTPServer.getValue().trim(),
-          remoteSSHServer: this.refs.SSHBridge_remoteSSHServer.getValue().trim(),
-          username: this.refs.SSHBridge_username.getValue().trim()
-        },
+    let settings = this.props.settings;
+    settings = settings.set('servers', fromJS({
+      remoteHTTP: {
+        location: this.refs.remoteHTTP.getValue().trim(),
+        requiresCredentials: this.refs.remoteHTTPCredentials.getChecked()
       },
-      defaultZoomLevel: this.refs.unitBase.getChecked() ? 'unit' : currentZoomLevel,
-      autoZoom: this.refs.autoZoom.getChecked(),
-      colors: {
+      localHTTP: {
+        location: this.refs.localHTTP.getValue().trim()
+      },
+      SSHBridge: {
+        localHTTPServer: this.refs.SSHBridge_localHTTPServer.getValue().trim(),
+        remoteSSHServer: this.refs.SSHBridge_remoteSSHServer.getValue().trim(),
+        username: this.refs.SSHBridge_username.getValue().trim()
+      }
+    }));
+
+    if (this.props.view === 'qc') {
+      let currentLevel = this.refs.currentLevel.getChecked();
+      if (currentLevel) {
+        let currentZoomLevel = parseInt(this.refs.currentZoomLevel.getValue().trim());
+        if (isNaN(currentZoomLevel) || currentZoomLevel < 0) {
+          errors.push('Please enter a number greater than 0 for current Dalliance zoom level.');
+        }
+      }
+      
+      let coverageThreshold = parseFloat(this.refs.coverageThreshold.getValue().trim());
+      let coverageHeight = parseInt(this.refs.coverageHeight.getValue().trim());
+      if (isNaN(coverageThreshold) || coverageThreshold < 0 || coverageThreshold > 1)
+        errors.push('Please enter a number in the range [0,1] for coverage threshold.');
+      if (isNaN(coverageHeight) || coverageHeight < 0)
+        errors.push('Please enter a number greater than 0 for coverage height.'); 
+      
+      if (errors.length > 0) {
+        console.log(errors);
+        return;
+      }
+    
+      settings = settings.set('colors', Map({
         A: this.refs.A.getDOMNode().value, 
         C: this.refs.C.getDOMNode().value, 
         G: this.refs.G.getDOMNode().value, 
         T: this.refs.T.getDOMNode().value, 
         '-': this.refs.D.getDOMNode().value, 
         I: this.refs.I.getDOMNode().value
-      },
-      snapshots: this.refs.snapshots.getChecked()
-    };
+      }));
+      settings = settings.set('autoZoom', this.refs.autoZoom.getChecked());
+      settings = settings.set('defaultZoomLevel', this.refs.unitBase.getChecked() ? 'unit' : currentZoomLevel);
+      settings = settings.set('snapshots', this.refs.snapshots.getChecked());
+      settings = settings.setIn(['styles','raw','styles',2,'style','__INSERTIONS'], this.refs.rawShowInsertions.getChecked());
+      settings = settings.setIn(['styles','raw','styles',2,'style','__disableQuals'], !this.refs.rawEnableQuals.getChecked());
 
-    var settings = this.props.settings;
-    settings = settings.mergeDeep(newSettings);
-    settings = settings.setIn(['styles','raw','styles',2,'style','__INSERTIONS'], this.refs.rawShowInsertions.getChecked());
-    settings = settings.setIn(['styles','raw','styles',2,'style','__disableQuals'], !this.refs.rawEnableQuals.getChecked());
+      settings = settings.setIn(['styles','mismatch','styles',2,'style','_minusColor'], this.refs.mismatchMinusStrandColor.getDOMNode().value);
+      settings = settings.setIn(['styles','mismatch','styles',2,'style','_plusColor'], this.refs.mismatchPlusStrandColor.getDOMNode().value); 
+      settings = settings.setIn(['styles','mismatch','styles',2,'style','__INSERTIONS'], this.refs.mismatchShowInsertions.getChecked()); 
+      settings = settings.setIn(['styles','mismatch','styles',2,'style','__disableQuals'], !this.refs.mismatchEnableQuals.getChecked()); 
+      
+      settings = settings.setIn(['styles','coverage','styles',2,'style','HEIGHT'],  coverageHeight); 
+      //TODO: store coverage threshold 
 
-    settings = settings.setIn(['styles','mismatch','styles',2,'style','_minusColor'], this.refs.mismatchMinusStrandColor.getDOMNode().value);
-    settings = settings.setIn(['styles','mismatch','styles',2,'style','_plusColor'], this.refs.mismatchPlusStrandColor.getDOMNode().value); 
-    settings = settings.setIn(['styles','mismatch','styles',2,'style','__INSERTIONS'], this.refs.mismatchShowInsertions.getChecked()); 
-    settings = settings.setIn(['styles','mismatch','styles',2,'style','__disableQuals'], !this.refs.mismatchEnableQuals.getChecked()); 
-    
-    settings = settings.setIn(['styles','coverage','styles',2,'style','HEIGHT'],  coverageHeight); 
-
-    settings = settings.setIn(['styles','condensed','styles',2,'style','_minusColor'], this.refs.condensedMatchColor.getDOMNode().value); 
-    settings = settings.setIn(['styles','condensed','styles',2,'style','_plusColor'], this.refs.condensedMatchColor.getDOMNode().value); 
-    settings = settings.setIn(['styles','condensed','styles',2,'style','__disableQuals'], !this.refs.condensedEnableQuals.getChecked()); 
+      settings = settings.setIn(['styles','condensed','styles',2,'style','_minusColor'], this.refs.condensedMatchColor.getDOMNode().value); 
+      settings = settings.setIn(['styles','condensed','styles',2,'style','_plusColor'], this.refs.condensedMatchColor.getDOMNode().value); 
+      settings = settings.setIn(['styles','condensed','styles',2,'style','__disableQuals'], !this.refs.condensedEnableQuals.getChecked()); 
+    }
 
     this.props.handleSettings(settings);
     this.close();
+
   },
 
   close(){
@@ -172,13 +175,106 @@ var SettingsModal = React.createClass({
   },
 
   render() {
-    var currentZoomNode = (
+    let currentZoomNode = (
       <div>
         <Input type="text" ref="currentZoomLevel" addonAfter="bp"/>
         <Button bsStyle="primary">Capture current zoom level</Button>
       </div>
     );
-    console.log(this.props.settings);
+    console.log(this.props.settings.toJS());
+    let dallianceSettings;
+    if (this.props.view === 'qc') {
+      dallianceSettings = ( 
+        <div>
+        <dt>Dalliance zoom level</dt>
+        <dd>
+          <Input type="radio"
+            ref="unitBase"
+            name="defaultZoomLevel"
+            label="Unit base"
+            defaultChecked={this.props.settings.get('defaultZoomLevel') === 'unit'} />
+          <Input type="radio"
+            ref="currentLevel"
+            name="defaultZoomLevel"
+            label={currentZoomNode}
+            defaultChecked={typeof(this.props.settings.get('defaultZoomLevel')) === 'number'} />
+        </dd>
+        <dd>
+          <Input type="checkbox"
+            ref="autoZoom"
+            label="Automatically zoom to default level when visiting new candidate variant"
+            defaultChecked={this.props.settings.get('autoZoom')} />
+        </dd>
+        <dt>Color settings</dt>
+        <dd>
+          <input type="color" ref="A" defaultValue={this.props.settings.getIn(['colors','A'])} /> A<br/>
+          <input type="color" ref="C" defaultValue={this.props.settings.getIn(['colors','C'])} /> C<br/>
+          <input type="color" ref="G" defaultValue={this.props.settings.getIn(['colors','G'])} /> G<br/>
+          <input type="color" ref="T" defaultValue={this.props.settings.getIn(['colors','T'])} /> T<br/>
+          <input type="color" ref="D" defaultValue={this.props.settings.getIn(['colors', '-'])} /> Deletion<br/>
+          <input type="color" ref="I" defaultValue={this.props.settings.getIn(['colors','I'])} /> Insertion<br/>
+          
+        </dd>
+        <dt>Raw style</dt>
+        <dd>
+          <Input type="checkbox"
+            ref="rawShowInsertions"
+            label="Show insertions"
+            defaultChecked={this.props.settings.getIn(['styles','raw','styles', 2, 'style','__INSERTIONS'])} />
+          <Input type="checkbox"
+            ref="rawEnableQuals"
+            label="Reflect base quality with transparency"
+            defaultChecked={!this.props.settings.getIn(['styles','raw','styles',2,'style','__disableQuals'])} />
+        </dd>
+        <dt>Mismatch style</dt>
+        <dd>
+          <input type="color" 
+            ref="mismatchPlusStrandColor"
+            defaultValue={this.props.settings.getIn(['styles','mismatch','styles',2,'style','_plusColor'])} /> Plus strand color <br/>
+          <input type="color" 
+            ref="mismatchMinusStrandColor"
+            defaultValue={this.props.settings.getIn(['styles','mismatch','styles',2,'style','_minusColor'])} /> Minus strand color <br/>
+          <Input type="checkbox"
+            ref="mismatchShowInsertions"
+            label="Show insertions" 
+            defaultChecked={this.props.settings.getIn(['styles','mismatch','styles',2,'style','__INSERTIONS'])} />
+          <Input type="checkbox" 
+            ref="mismatchEnableQuals"
+            label="Reflect base quality with transparency"
+            defaultChecked={!this.props.settings.getIn(['styles','mismatch','styles', 2, 'style','__disableQuals'])} />
+        </dd>
+        <dt>Condensed style</dt>
+        <dd>
+          <input type="color" 
+            ref="condensedMatchColor"
+            defaultValue={this.props.settings.getIn(['styles','condensed','styles',2,'style','_minusColor'])} /> Match color<br/>
+          <Input type="checkbox" 
+            ref="condensedEnableQuals" 
+            label="Reflect base quality with transparency" 
+            defaultChecked={!this.props.settings.getIn(['styles','condensed','styles',2,'style','__disableQuals'])} />
+        </dd>
+        <dt>Coverage histogram style</dt>
+        <dd>
+          <Input type="text"
+            ref="coverageThreshold"
+            label="Allele threshold (between 0 and 1)" 
+            defaultValue={0.2} />
+          <Input type="text"
+            ref="coverageHeight"
+            label="Height"
+            defaultValue={this.props.settings.getIn(['styles','coverage','styles',2,'style','HEIGHT'])} />
+        </dd>
+        <dt>Snapshots</dt>
+        <dd>
+          <Input type="checkbox" 
+            ref="snapshots"
+            label="Automatically take snapshots at each variant"
+            defaultChecked={this.props.settings.get('snapshots')} />
+        </dd>
+      </div>
+      );
+    }
+
     return (
       <div>
         <Modal show={this.props.show} onHide={this.close} className="Settings">
@@ -230,91 +326,7 @@ var SettingsModal = React.createClass({
                       defaultValue={this.props.settings.getIn(['servers','SSHBridge','username'])} />
                   </div>
                 </dd>
-                <dt>Dalliance zoom level</dt>
-                <dd>
-                  <Input type="radio"
-                    ref="unitBase"
-                    name="defaultZoomLevel"
-                    label="Unit base"
-                    defaultChecked={this.props.settings.get('defaultZoomLevel') === 'unit'} />
-                  <Input type="radio"
-                    ref="currentLevel"
-                    name="defaultZoomLevel"
-                    label={currentZoomNode}
-                    defaultChecked={typeof(this.props.settings.get('defaultZoomLevel')) === 'number'} />
-                </dd>
-                <dd>
-                  <Input type="checkbox"
-                    ref="autoZoom"
-                    label="Automatically zoom to default level when visiting new candidate variant"
-                    defaultChecked={this.props.settings.get('autoZoom')} />
-                </dd>
-                <dt>Color settings</dt>
-                <dd>
-                  <input type="color" ref="A" defaultValue={this.props.settings.getIn(['colors','A'])} /> A<br/>
-                  <input type="color" ref="C" defaultValue={this.props.settings.getIn(['colors','C'])} /> C<br/>
-                  <input type="color" ref="G" defaultValue={this.props.settings.getIn(['colors','G'])} /> G<br/>
-                  <input type="color" ref="T" defaultValue={this.props.settings.getIn(['colors','T'])} /> T<br/>
-                  <input type="color" ref="D" defaultValue={this.props.settings.getIn(['colors', '-'])} /> Deletion<br/>
-                  <input type="color" ref="I" defaultValue={this.props.settings.getIn(['colors','I'])} /> Insertion<br/>
-                  
-                </dd>
-                <dt>Raw style</dt>
-                <dd>
-                  <Input type="checkbox"
-                    ref="rawShowInsertions"
-                    label="Show insertions"
-                    defaultChecked={this.props.settings.getIn(['styles','raw','styles', 2, 'style','__INSERTIONS'])} />
-                  <Input type="checkbox"
-                    ref="rawEnableQuals"
-                    label="Reflect base quality with transparency"
-                    defaultChecked={!this.props.settings.getIn(['styles','raw','styles',2,'style','__disableQuals'])} />
-                </dd>
-                <dt>Mismatch style</dt>
-                <dd>
-                  <input type="color" 
-                    ref="mismatchPlusStrandColor"
-                    defaultValue={this.props.settings.getIn(['styles','mismatch','styles',2,'style','_plusColor'])} /> Plus strand color <br/>
-                  <input type="color" 
-                    ref="mismatchMinusStrandColor"
-                    defaultValue={this.props.settings.getIn(['styles','mismatch','styles',2,'style','_minusColor'])} /> Minus strand color <br/>
-                  <Input type="checkbox"
-                    ref="mismatchShowInsertions"
-                    label="Show insertions" 
-                    defaultChecked={this.props.settings.getIn(['styles','mismatch','styles',2,'style','__INSERTIONS'])} />
-                  <Input type="checkbox" 
-                    ref="mismatchEnableQuals"
-                    label="Reflect base quality with transparency"
-                    defaultChecked={!this.props.settings.getIn(['styles','mismatch','styles', 2, 'style','__disableQuals'])} />
-                </dd>
-                <dt>Condensed style</dt>
-                <dd>
-                  <input type="color" 
-                    ref="condensedMatchColor"
-                    defaultValue={this.props.settings.getIn(['styles','condensed','styles',2,'style','_minusColor'])} /> Match color<br/>
-                  <Input type="checkbox" 
-                    ref="condensedEnableQuals" 
-                    label="Reflect base quality with transparency" 
-                    defaultChecked={!this.props.settings.getIn(['styles','condensed','styles',2,'style','__disableQuals'])} />
-                </dd>
-                <dt>Coverage histogram style</dt>
-                <dd>
-                  <Input type="text"
-                    ref="coverageThreshold"
-                    label="Allele threshold (between 0 and 1)" 
-                    defaultValue={0.2} />
-                  <Input type="text"
-                    ref="coverageHeight"
-                    label="Height"
-                    defaultValue={this.props.settings.getIn(['styles','coverage','styles',2,'style','HEIGHT'])} />
-                </dd>
-                <dt>Snapshots</dt>
-                <dd>
-                  <Input type="checkbox" 
-                    ref="snapshots"
-                    label="Automatically take snapshots at each variant"
-                    defaultChecked={this.props.settings.get('snapshots')} />
-                </dd>
+                {dallianceSettings}
               </dl>
             </form>
           </Modal.Body>
