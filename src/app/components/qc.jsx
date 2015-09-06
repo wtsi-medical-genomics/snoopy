@@ -41,7 +41,15 @@ var browser;
 var zip = new JSZip();
 var imageFolder = zip.folder('images');
 
+function getDallianceZoomLevel() {
+  if (browser)
+  return Math.round(browser.viewEnd - browser.viewStart);
+}
 
+function getDallianceZoomBase() {
+  if (browser)
+    return browser.zoomBase;
+}
 
 const QC = React.createClass({
 
@@ -165,6 +173,7 @@ var QCToolbar = React.createClass({
       showSessionsModal: false,
       showSaveModal: false,
       showExitModal: false,
+      showFinishedModal: false,
     };
   },
 
@@ -172,9 +181,12 @@ var QCToolbar = React.createClass({
     var nv = this.props.sessions.next(browser);
     this.setState({currentVariant: nv.variant});
     if (nv.done) {
-      var content = zip.generate({type:"blob"});
-      saveAs(content, "results.zip");
+      this.setState({ showFinishedModal: true });
     }
+    if (this.props.settings.get('defaultZoomLevel') === 'unit')
+      browser.zoomStep(-1000000);
+    else
+      browser.zoom(this.props.settings.get('defaultZoomLevel'));
   },
 
   handleVariantList(e) {
@@ -266,7 +278,10 @@ var QCToolbar = React.createClass({
   },
 
   closeSave() {
-    this.setState({ showSaveModal: false });
+    this.setState({
+      showSaveModal: false,
+      finished: false,
+    });
   },
 
   openExit() {
@@ -275,6 +290,14 @@ var QCToolbar = React.createClass({
 
   closeExit() {
     this.setState({ showExitModal: false });
+  },
+
+  openFinished() {
+    this.setState({ showFinishedModal: true });
+  },
+
+  closeFinished() {
+    this.setState({ showFinishedModal: false });
   },
 
   render() {
@@ -344,6 +367,13 @@ var QCToolbar = React.createClass({
           close={this.closeSave}
           show={this.state.showSaveModal}
         />
+        <FinishedModal
+          numVariantsReviewed={this.state.numVariantsReviewed}
+          numSnapshots={this.state.numSnapshots}
+          handleDownloadQC={this.handleDownloadQC}
+          close={this.closeFinished}
+          show={this.state.showFinishedModal}
+        />
       </div>
     );    
   }
@@ -401,6 +431,9 @@ const SaveForm = React.createClass({
   },
 
   render() {
+    let variantsDisable = this.props.numVariantsReviewed === 0;
+    let snapshotsDisable = this.props.numSnapshots === 0;
+
     let QCDecisionNode = (
       <Input
         type="text"
@@ -408,6 +441,7 @@ const SaveForm = React.createClass({
         placeholder="filename"
         addonAfter=".json"
         onChange={this.handleInputChange}
+        disabled={variantsDisable}
       />);
     let SnapshotNode = (
       <Input
@@ -416,6 +450,7 @@ const SaveForm = React.createClass({
         placeholder="zip archive name"
         addonAfter=".zip"
         onChange={this.handleInputChange}
+        disabled={snapshotsDisable}
       />);
     return (
       <form>
@@ -423,15 +458,17 @@ const SaveForm = React.createClass({
         <Input type="checkbox"
           ref="saveQCDecisions"
           label={QCDecisionNode}
-          defaultChecked={true}
+          defaultChecked={!variantsDisable}
           onChange={this.handleInputChange}
+          disabled={variantsDisable}
         />
         <h4>{this.props.numSnapshots} snapshots taken - save these?</h4>
         <Input type="checkbox"
           ref="saveScreenshots"
           label={SnapshotNode}
-          defaultChecked={true}
+          defaultChecked={!snapshotsDisable}
           onChange={this.handleInputChange}
+          disabled={snapshotsDisable}
         />
       </form>
     );
@@ -530,11 +567,6 @@ const SaveModal = React.createClass({
     this.handleClose();
   },
 
-  handleSaveRestart() {
-    this.handleDownloadQC();
-    this.handleRestart();
-  },
-
   render() {
     return (
       <Modal show={this.props.show} onHide={this.handleClose}>
@@ -558,4 +590,70 @@ const SaveModal = React.createClass({
 });
 
 
+const FinishedModal = React.createClass({
+
+  getInitialState() {
+    return {
+      qc: false,
+      snapshots: false,
+    };
+  },
+
+  handleSaveData(qc, snapshots) {
+    this.setState({
+      qc: qc,
+      snapshots: snapshots,
+    });
+  },
+
+  handleClose() {
+    this.props.close();
+  },
+
+  handleSave() {
+    this.props.handleDownloadQC(this.state.qc, this.state.snapshots);
+    this.handleClose();
+  },
+
+  handleRestart() {
+    document.location.reload();
+  },
+
+  render() {
+    return (
+      <Modal show={this.props.show} onHide={this.handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Save Results</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <h4 className="loose-bottom">
+            <Alert bsStyle='success'>
+              You have reached the last variant, would you like to save the results?
+            </Alert>
+          </h4>
+          <SaveForm
+            numVariantsReviewed={this.props.numVariantsReviewed}
+            numSnapshots={this.props.numSnapshots}
+            handleInputChange={this.handleSaveData}
+          />
+          <div className='text-center'>
+            <Button
+              bsStyle='info'
+              onClick={this.handleSave}
+            >
+             Save QC Decisions
+            </Button>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button bsStyle='primary' onClick={this.handleRestart}>Discard and restart Snoopy</Button>
+          <Button bsStyle='primary' onClick={this.handleClose}>Keep reviewing current session(s)</Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+});
+
+
 export default QC;
+export { getDallianceZoomLevel, getDallianceZoomBase }

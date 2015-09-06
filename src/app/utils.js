@@ -80,7 +80,7 @@ function httpGet(path, connection=Map(), opts) {
     var url = connection.get('type') ? getURL(path, connection) : path;
     var request = new XMLHttpRequest();
     request.open('GET', url);
-    request.withCredentials = connection.get('requiresCredentials') || false;
+    request.withCredentials = connection.get('requiresCredentials', false);
     
     if (opts && opts.range)
       request.setRequestHeader('Range', 'bytes=' + opts.range.min + '-' + opts.range.max);

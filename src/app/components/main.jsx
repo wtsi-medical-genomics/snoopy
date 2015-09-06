@@ -135,7 +135,7 @@ var Main = React.createClass({
     // Settings.init((settings) => {
     //   this.setState({settings: settings});
     // });
-    httpGet('./settings.json', undefined, {contentType: 'application/json'}).then((result) => {
+    httpGet('/servers', undefined, {contentType: 'application/json'}).then((result) => {
       let serverSettings = fromJS(JSON.parse(result));
       let settings = this.state.settings;
       settings = settings.mergeDeep(serverSettings);
@@ -165,7 +165,6 @@ var Main = React.createClass({
   
 
   handleSettings(settings) {
-    console.log(settings.toJS());
     this.setState({settings: settings})
   },
 
@@ -203,7 +202,7 @@ var Main = React.createClass({
       default:
         child = <Intro />;
     }
-    console.log(this.state.settings);
+    // console.log(this.state.settings);
     return (
       <div className="outerWrapper">
         <MainToolbar view={this.state.view} settings={this.state.settings} handleSettings={this.handleSettings} />
@@ -217,7 +216,7 @@ var Main = React.createClass({
 var Intro = React.createClass({
 
   render() {
-    console.log(styles);
+    // console.log(styles);
     return (
       <div className="innerWrapper">
         <Grid>

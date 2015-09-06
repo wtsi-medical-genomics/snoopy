@@ -477,6 +477,10 @@ dt.smallTopMargin {
     padding-bottom: 0px !important;
 }
 
+.loose-bottom {
+    padding-bottom: 15px !important;
+}
+
 .panel-loading-list .panel-heading {
     padding: 0px 6px;
     font-weight: bold;

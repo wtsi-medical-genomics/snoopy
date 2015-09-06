@@ -113,18 +113,19 @@ LocalBAM.prototype.getTier = function(style) {
     return this.tier;
 };
 
-function RemoteBAI(file) {
+function RemoteBAI(file, requiresCredentials=false) {
     this.base = BAI;
     this.base(file, getName(file), true);
 }
 
 RemoteBAI.prototype = new BAI;
 
-function RemoteBAM(file, requiresCredentials) {
+
+function RemoteBAM(file, requiresCredentials=false) {
     this.base = BAM;
     this.base(file, getName(file));
     this.index = true;
-    this.requiresCredentials = requiresCredentials || false;
+    this.requiresCredentials = requiresCredentials;
 }
 
 RemoteBAM.prototype = new BAM;

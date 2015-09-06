@@ -123,7 +123,7 @@ class Session {
           case "cram":
             switch (connection.get('type')) {
               case 'HTTP':
-                var requiresCredentials = connection.get('requiresCredentials') || false;
+                var requiresCredentials = connection.get('requiresCredentials', false);
                 var newBam = new RemoteBAM(file, requiresCredentials);
                 break;
               case 'SSHBridge':
@@ -329,7 +329,7 @@ class Session {
     if (this.bamFiles.length === 0)
       return false;
     for (let i=0; i<this.bamFiles.length; i++) {
-      if (this.bamFiles[i].index === false)
+      if (this.bamFiles[i].index === null)
         return false;
     }
     return true;
@@ -356,10 +356,9 @@ function Sessions() {
 };
 
 Sessions.prototype.next = function(b) {
-  var nextVariant = this.sessions[this.index].next(b);
+  let nextVariant = this.sessions[this.index].next(b);
   if (nextVariant.done) {
     if (this.index < this.sessions.length - 1) {
-      console.log(this.style);
       this.sessions[++this.index].init(b, this.style);
       nextVariant = {variant: this.gotoCurrentVariant(b), done: false};
     } else {
@@ -452,12 +451,7 @@ Sessions.prototype.generateQCreport = function() {
     date: Date(),
     sessions: sessions
   };
-  return JSON.stringify(jso, null, '\t');
-    // var str = Date();
-    // this.sessions.forEach((session) => {
-    //   str += session.generateQCreport();
-    // });
-    // return str;
+  return JSON.stringify(jso, null, '  ');
 };
 
 Sessions.prototype.updateStyle = function(b, style) {
