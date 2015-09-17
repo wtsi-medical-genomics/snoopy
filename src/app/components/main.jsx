@@ -1,33 +1,24 @@
 "use strict";
 
 import React from 'react';
-import { Alert, Panel, Nav, Navbar, NavItem, MenuItem, DropdownButton, Col, Row, Grid, Button, Glyphicon} from 'react-bootstrap';
-// var rb = require('react-bootstrap');
-// var Alert = rb.Alert;
-// var Panel = rb.Panel;
-// var Nav = rb.Nav;
-// var Navbar = rb.Navbar;
-// var NavItem = rb.NavItem;
-// var MenuItem = rb.MenuItem;
-// var DropdownButton = rb.DropdownButton;
-// var Col = rb.Col;
-// var Row = rb.Row;
-// var Grid = rb.Grid;
-// var Button = rb.Button;
-// var Glyphicon = rb.Glyphicon;
+import {
+  Alert,
+  Button,
+  Col,
+  DropdownButton,
+  Glyphicon,
+  Grid,
+  MenuItem,
+  Nav,
+  Navbar,
+  NavItem,
+  Panel,
+  Row,
+} from 'react-bootstrap';
 import LoadManual from './loadmanual.jsx';
 import LoadBatch from './loadbatch.jsx';
-// var LoadManual = require('./loadmanual.jsx');
-// var LoadBatch = require('./loadbatch.jsx');
-
 import QC from './qc.jsx';
-// var QC = require('./qc.jsx');
-
-
-// var Settings = require('./settings.jsx');
-// var SettingsModal = Settings.SettingsModal;
 import { SettingsModal } from './settings.jsx';
-
 import { httpGet } from '../utils.js';
 import { fromJS, toJS } from 'immutable';
 import styles from '../styles.js';

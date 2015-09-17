@@ -345,5 +345,4 @@ var SSHTab = React.createClass({
           // }
 
 
-
-module.exports = FileLoader;
+export default FileLoader;

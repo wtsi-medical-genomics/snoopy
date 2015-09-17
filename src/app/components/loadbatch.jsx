@@ -1,49 +1,31 @@
 "use strict";
 
-var React = require('react');
+import React from 'react';
+import FileLoader from './fileloader.jsx';
+import Loader from 'react-loader';
+import {
+  Col,
+  Grid,
+  Input,
+  PageItem,
+  Pager,
+  Panel,
+  Row,
+  TabPane,
+} from 'react-bootstrap';
+import {
+  getExtension,
+  getName,
+  getURL,
+  localTextGet,
+} from '../utils.js';
+import {
+  Session,
+  Sessions,
+} from '../session.js';
 
-var rb = require('react-bootstrap');
-var Alert = rb.Alert;
-var Panel = rb.Panel;
-var Col = rb.Col;
-var Row = rb.Row;
-var Grid = rb.Grid;
-var Button = rb.Button;
-var Glyphicon = rb.Glyphicon;
-var Pager = rb.Pager;
-var PageItem = rb.PageItem;
-var ListGroup = rb.ListGroup;
-var ListGroupItem = rb.ListGroupItem;
-var Input = rb.Input;
 
-var FileLoader = require('./fileloader.jsx');
-var utils = require('../utils.js');
-var getExtension = utils.getExtension;
-var getName = utils.getName;
-var httpGet = utils.httpGet;
-var localTextGet = utils.localTextGet;
-var getURL = utils.getURL;
-
-var session = require('../session.js');
-var Session = session.Session;
-var Sessions = session.Sessions;
-
-var lft = require('../loadedfiletypes.js');
-var LocalBAM = lft.LocalBAM;
-var LocalBAI = lft.LocalBAI;
-var SSHBAM = lft.SSHBAM;
-var RemoteBAM = lft.RemoteBAM;
-var RemoteBAI = lft.RemoteBAI;
-
-var Settings = require('./settings.jsx');
-//var getRequiresCredentials = Settings.getRequiresCredentials;
-
-// var Promise = require('es6-promise').Promise;
-var Loader = require('react-loader');
-
-// const RE_DNA_LOCATION = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
-
-var LoadBatch = React.createClass({
+const LoadBatch = React.createClass({
 
   getInitialState() {
     return {
@@ -71,8 +53,9 @@ var LoadBatch = React.createClass({
   },
 
   render() {
+    let proceedNode;
     if (this.state.sessions) {
-      var proceedNode = (
+      proceedNode = (
         <Pager>
           <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
         </Pager>
@@ -102,7 +85,7 @@ var LoadBatch = React.createClass({
   }
 });
 
-var TitlePanel = React.createClass({
+const TitlePanel = React.createClass({
 
   render: function() {
     return (
@@ -114,7 +97,7 @@ var TitlePanel = React.createClass({
 
 });
 
-var LoadFilePanel = React.createClass({
+const LoadFilePanel = React.createClass({
   
   getInitialState() {
     return {loaded: false,
@@ -204,7 +187,7 @@ var LoadFilePanel = React.createClass({
   // }
   handleFileLoad() {
 
-    var file = React.findDOMNode(this.refs.file).files[0];
+    let file = React.findDOMNode(this.refs.file).files[0];
 
     // User clicked cancel
     if (file === undefined)
@@ -213,7 +196,7 @@ var LoadFilePanel = React.createClass({
     this.setState({ loading: true });
     console.log(file);
     console.log('here');
-    var ext = getExtension(file);
+    let ext = getExtension(file);
     if (ext === 'json') {
       localTextGet(file).then((result) => {
         console.log(result);
@@ -235,7 +218,7 @@ var LoadFilePanel = React.createClass({
           })
         );
       }).then(sessions => {
-        var ss = new Sessions();
+        let ss = new Sessions();
         ss.sessions = sessions;
         this.handleSessions(ss);
         this.setState({
@@ -260,23 +243,24 @@ var LoadFilePanel = React.createClass({
 
   getSession(jso) {
     return new Promise((resolve, reject) => {
-      var connection = this.props.settings.getIn(['servers', this.props.connection]);
+      let connection = this.props.settings.getIn(['servers', this.props.connection]);
       
-      var s = new Session();
+      let s = new Session();
+      let v, bams;
       if (jso.variants && jso.variants.length > 0) {
-        var v = jso.variants;
+        v = jso.variants;
       } else {
         throw 'Provided JSON contains a session which does not list any variants. Consult help for instructions and examples of valid JSON batch files.'
       }
       if (jso.bams && jso.bams.length > 0) {
-        var bams = jso.bams;
+        bams = jso.bams;
       } else {
         throw 'Provided JSON contains a session which does not list any BAMs or CRAMs. Consult help for instructions and examples of valid JSON batch files.'
       }
 
       s.addVariants(v, connection).then(() => {
         return Promise.all(bams.map(bam => {
-          var file = getURL(bam, connection); 
+          let file = getURL(bam, connection); 
           return s.addSequenceFile(file, connection);
         }));
       }).then(() => {
@@ -312,7 +296,7 @@ var LoadFilePanel = React.createClass({
   // },
 
   render() {
-    var options = {
+    let options = {
       lines: 13,
       length: 5,
       width: 3,
@@ -332,16 +316,16 @@ var LoadFilePanel = React.createClass({
     };
 
     if (this.state.loading) {
-      var child;
+      let child;
       if (this.state.error) {
         child = (<b>{this.state.error}</b>);
       } else {
         child = (<b>Found {this.state.nSessions} sessions with a total of {this.state.nVariants} variants</b>);
       }
-      var panelStyle = {
+      let panelStyle = {
         backgroundColor: '#EEFFEB'
       };
-      var loadNode = (
+      let loadNode = (
         <Loader loaded={this.state.loaded} options={options}>
           <Panel className="someTopMargin" style={panelStyle} >
             {child}
@@ -364,9 +348,9 @@ var LoadFilePanel = React.createClass({
 
 });
 
-var SelectConnectionPanel = React.createClass({
+const SelectConnectionPanel = React.createClass({
   handleChange() {
-    var connection = this.refs.connection.getValue();
+    let connection = this.refs.connection.getValue();
     console.log(connection);
     this.props.handleConnection(connection);
   },
@@ -376,9 +360,9 @@ var SelectConnectionPanel = React.createClass({
   },
 
   render() {
-    var opt1 = 'Remote HTTP - ' + this.props.settings.getIn(['servers','remoteHTTP','location']);
-    var opt2 = 'Local HTTP - ' + this.props.settings.getIn(['servers','localHTTP','location']);
-    var opt3 = 'SSH-Bridge - ' + this.props.settings.getIn(['servers','SSHBridge','username']) + '@' + this.props.settings.getIn(['servers','SSHBridge','remoteSSHServer']);
+    let opt1 = 'Remote HTTP - ' + this.props.settings.getIn(['servers','remoteHTTP','location']);
+    let opt2 = 'Local HTTP - ' + this.props.settings.getIn(['servers','localHTTP','location']);
+    let opt3 = 'SSH-Bridge - ' + this.props.settings.getIn(['servers','SSHBridge','username']) + '@' + this.props.settings.getIn(['servers','SSHBridge','remoteSSHServer']);
     return (
       <div>
       <Panel>

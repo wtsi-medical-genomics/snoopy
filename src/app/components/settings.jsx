@@ -1,29 +1,38 @@
 "use strict";
 
-let React = require('react');
-let rb = require('react-bootstrap');
-let Col = rb.Col;
-let Row = rb.Row;
-let Grid = rb.Grid;
-let Button = rb.Button;
-let Glyphicon = rb.Glyphicon;
-let TabbedArea = rb.TabbedArea;
-let TabPane = rb.TabPane;
-let Modal = rb.Modal;
-let Input = rb.Input;
-let Alert = rb.Alert;
+import React from 'react';
 
-let utils = require('../utils.js');
-let getExtension = utils.getExtension;
-let arrayStringContains = utils.arrayStringContains;
-let combineServerPath = utils.combineServerPath;
-let httpExists = utils.httpExists;
+import {
+  Col,
+  Row,
+  Grid,
+  Button,
+  Glyphicon,
+  TabbedArea,
+  TabPane,
+  Modal,
+  Input,
+  Alert,
+} from 'react-bootstrap';
 
-let styles = require('../styles.js');
-//let fromJS = require('immutable').fromJS;
+import {
+  fromJS,
+  Map,
+} from 'immutable';
 
-import { fromJS, Map } from 'immutable';
-import { getDallianceZoomLevel, getDallianceZoomBase } from './qc.jsx';
+import {
+  getExtension,
+  arrayStringContains,
+  combineServerPath,
+  httpExists,
+} from '../utils.js';
+
+import styles from '../styles.js';
+
+import {
+  getDallianceZoomLevel,
+  getDallianceZoomBase,
+} from './qc.jsx';
 
 
 // function getPrefix(settings, connection) {
