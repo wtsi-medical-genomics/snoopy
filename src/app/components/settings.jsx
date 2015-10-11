@@ -367,7 +367,7 @@ const SettingsModal = React.createClass({
           <Modal.Body>
             <form>
               <dl>
-                <dt className="smallTopMargin">Default Remote HTTP</dt>
+                <dt className="smallTopMargin">Remote HTTP</dt>
                 <dd>
                   <Input type="text" 
                     ref="remoteHTTP"
@@ -377,7 +377,7 @@ const SettingsModal = React.createClass({
                     defaultChecked={this.props.settings.getIn(['servers','remoteHTTP','requiresCredentials'])}
                     label="Requires credentials" />
                 </dd>
-                <dt>Default Local HTTP</dt>
+                <dt>Local HTTP</dt>
                 <dd>
                   <Input type="text"
                     ref="localHTTP"
@@ -387,7 +387,7 @@ const SettingsModal = React.createClass({
                     defaultChecked={this.props.settings.getIn(['servers','localHTTP','requiresCredentials'])}
                     label="Requires credentials" />
                 </dd>
-                <dt>Default SSH Bridge</dt>
+                <dt>SSH Bridge</dt>
                 <dd>
                   <div className="form-horizontal">
                     <Input type="text" 
@@ -408,7 +408,7 @@ const SettingsModal = React.createClass({
                       label="Local HTTP Server"
                       labelClassName="col-md-4" 
                       wrapperClassName="col-md-8" 
-                      placeholder="our username to login to the remote SSH server"
+                      placeholder="Your username to login to the remote SSH server"
                       ref="SSHBridge_username"
                       defaultValue={this.props.settings.getIn(['servers','SSHBridge','username'])} />
                   </div>

@@ -25,66 +25,6 @@ import {
 } from '../session.js';
 
 
-const LoadBatch = React.createClass({
-
-  getInitialState() {
-    return {
-      connection: '',
-      sessions: ''  ,
-    };
-  },
-
-  handleConnection(connection) {
-    this.setState({connection: connection});
-  },
-
-  handleGoQC(e) {
-    e.preventDefault();
-    this.props.handleGoQC(this.state.sessions);
-  },
-
-  handleGoBack(e) {
-    e.preventDefault();
-    this.props.handleGoIntro();
-  },
-
-  handleSessions(sessions) {
-    this.setState({sessions: sessions});
-  },
-
-  render() {
-    let proceedNode;
-    if (this.state.sessions) {
-      proceedNode = (
-        <Pager>
-          <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
-        </Pager>
-      );
-    } else {
-      proceedNode = null;
-    }
-    return (
-      <div>
-        <Grid>
-          <Row className='show-grid'>
-            <Col md={3}></Col>
-            <Col md={6}>
-              <Pager>
-                <PageItem previous href='#' onClick={this.handleGoBack}>&larr; Cancel, Return To Main Menu</PageItem>
-              </Pager>
-              <TitlePanel />
-              <SelectConnectionPanel settings={this.props.settings} handleConnection={this.handleConnection} />
-              <LoadFilePanel settings={this.props.settings} connection={this.state.connection} handleSessions={this.handleSessions}/>
-              {proceedNode}
-            </Col>
-            <Col md={3}></Col>
-          </Row>
-        </Grid>
-      </div>
-    );
-  }
-});
-
 const TitlePanel = React.createClass({
 
   render: function() {
@@ -99,13 +39,184 @@ const TitlePanel = React.createClass({
 
 const LoadFilePanel = React.createClass({
   
-  getInitialState() {
-    return {loaded: false,
-            loading: false,
-            error: '',
-            nSessions: 0,
-            nVariants: 0 };
+   handleFileLoad() {
+    let file = React.findDOMNode(this.refs.file).files[0];
+    this.props.handleFileLoad(file);
   },
+
+  render() {
+    const options = {
+      lines: 13,
+      length: 5,
+      width: 3,
+      radius: 6,
+      corners: 1,
+      rotate: 0,
+      direction: 1,
+      color: '#000',
+      speed: 1,
+      trail: 60,
+      shadow: false,
+      hwaccel: false,
+      zIndex: 2e9,
+      top: '50%',
+      left: '50%',
+      scale: 1.00,
+    };
+
+    let loadNode;
+    if (this.props.loading) {
+      let child;
+      if (this.props.error) {
+        child = (<b>{this.props.error}</b>);
+      } else {
+        child = (<b>Found {this.props.nSessions} sessions with a total of {this.props.nVariants} variants</b>);
+      }
+
+      let panelStyle = {
+        backgroundColor: '#EEFFEB',
+        wordWrap: 'break-word',
+      };
+
+      loadNode = (
+        <Loader loaded={this.props.loaded} options={options}>
+          <Panel className="someTopMargin" style={panelStyle} >
+            {child}
+          </Panel>
+        </Loader>
+      );
+    }
+
+    return (
+      <Panel>
+        <h4>2. Select Batch File</h4>
+        <p>
+          Select a local JSON file containing a list of sessions. Consult the help for a detailed description of the expected format.
+        </p>
+        <input type="file" ref="file" onChange={this.handleFileLoad} />
+        {loadNode}
+      </Panel>
+    );
+  }
+
+});
+
+const SelectConnectionPanel = React.createClass({
+
+  handleChange(v, e) {
+    // this.refs.unitBase.getInputDOMNode().checked
+    // let connection = this.refs.connection.getValue();
+    console.log(v);
+    this.props.handleConnection(v);
+  },
+
+  componentDidMount() {
+    this.handleChange();
+  },
+
+  render() {
+    let remoteHTTPLocation = this.props.settings.getIn(['servers','remoteHTTP','location']);
+    let localHTTPLocation = this.props.settings.getIn(['servers','localHTTP','location']);
+    let sshBridgeLocation = this.props.settings.getIn(['servers','SSHBridge','remoteSSHServer']);
+    let remoteHTTPNode, localHTTPNode, sshBridgeNode;
+    if (remoteHTTPLocation) {
+      let label = 'Remote HTTP - ' + remoteHTTPLocation;
+      remoteHTTPNode = (
+        <Input type="radio"
+          ref="remoteHTTP"
+          name="connection"
+          label={label}
+          onChange={this.handleChange.bind(this, "remoteHTTP")}
+        />
+      );
+    }
+
+    if (localHTTPLocation) {
+      console.log(localHTTPLocation);
+      let label = 'Local HTTP - ' + localHTTPLocation;
+      localHTTPNode = (
+        <Input type="radio"
+          ref="localHTTP"
+          name="connection"
+          label={label}
+          onChange={this.handleChange.bind(this, "localHTTP")}
+        />
+      );
+    }
+
+    if (sshBridgeLocation) {
+      let label = 'SSH-Bridge - ' + sshBridgeLocation;
+      sshBridgeNode = (
+        <Input type="radio"
+          ref="SSHBridge"
+          name="connection"
+          label={label}
+          onChange={this.handleChange.bind(this, "SSHBridge")}
+        />
+      );
+    }
+    let formStyle = {
+      backgroundColor: 'aliceblue',
+      padding: '10px',
+    };
+
+    // let opt1 = 'Remote HTTP - ' + this.props.settings.getIn(['servers','remoteHTTP','location']);
+    // let opt2 = 'Local HTTP - ' + this.props.settings.getIn(['servers','localHTTP','location']);
+    // let opt3 = 'SSH-Bridge - ' + this.props.settings.getIn(['servers','SSHBridge','username']) + '@' + this.props.settings.getIn(['servers','SSHBridge','remoteSSHServer']);
+    return (
+      <div>
+      <Panel >
+        <h4>1. Select Connection Type</h4>
+        <p>
+          In the batch mode, a local JSON file lists the variants/variant files and sequencing data located either on a remote server or through a local server (see help for more info). Please select the location of your variant/sequence data listed in your local JSON file.
+        </p>
+        <form style={formStyle}>
+          {remoteHTTPNode}
+          {localHTTPNode}
+          {sshBridgeNode}
+        </form>
+      </Panel>
+      </div>
+    );
+  }
+});
+
+const LoadBatch = React.createClass({
+
+  getInitialState() {
+    return {
+      connection: null,
+      file: null,
+      sessions: null,
+      nSessions: 0,
+      nVariants: 0,
+      loaded: false,
+      error: '',
+    };
+  },
+
+  handleConnection(connection) {
+    this.setState(
+      { connection: connection },
+      this.digestBatchFile
+    );
+
+    
+  },
+
+  handleGoQC(e) {
+    e.preventDefault();
+    this.props.handleGoQC(this.state.sessions);
+  },
+
+  handleGoBack(e) {
+    e.preventDefault();
+    this.props.handleGoIntro();
+  },
+
+  // handleSessions(sessions) {
+  //   this.setState({sessions: sessions});
+  // },
 
   handleSessions(sessions) {
     console.log(sessions);
@@ -113,84 +224,32 @@ const LoadFilePanel = React.createClass({
       this.setState({
         nSessions: sessions.getNumSessions(),
         nVariants: sessions.getNumVariants(),
-        loaded: true
+        loaded: true,
+        sessions: sessions,
       });
     } else {
       this.setState({
         nSessions: 0,
         nVariants: 0,
-        loaded: true
+        loaded: true,
       });
     }
-    this.props.handleSessions(sessions);
+    // this.props.handleSessions(sessions);
   },
 
-  // parseJSON(jso, filename) {
-  //   // There are two different types of JSON formats ( see docs) so
-  //   // need to figure out which one is being used.
-  //   console.log(filename);
-  //   console.log(jso);
-  //   // var prefix = getPrefix(this.props.settings, this.props.connection);
-  //   var connection = this.props.settings.getIn(['servers', this.props.connection]);
-  //   var sessions = jso["sessions"];
-  //   var ss = new Sessions();
-  //   var re_dna_location = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i;
+  handleFileLoad(file) {
+    this.setState(
+      {file: file},
+      this.digestBatchFile
+    );
+  },
 
-  //   for (var i=0; i<sessions.length; i++) {
-  //     if (!sessions[i]['variants'] || !sessions[i]['bams']) {
-  //       // this.renderFileLoadingErrorList('<strong>Error</strong>: ill-formed JSON in ' + filename + '. Check file syntax at <a href="http://jsonlint.com/">http://jsonlint.com/</a>');
-  //       continue;
-  //     }
-  //     var s = new Session();
-  //     var v = sessions[i]["variants"];
-  //     s.addVariants(v);
-  //     //s.variantFile = new RemoteVariantFile(this.settings.serverLocation + );
-  //     for (var bi=0; bi<sessions[i]["bams"].length; bi++) {
-  //       // Add prefix to the file then create the RemoteBAM
-  //       var file = getURL(sessions[i]["bams"][bi], connection);
-  //       console.log(file);
-  //       s.addSequenceFile(file, connection);
-  //     }
-  //     ss.sessions.push(s);
-  //   }
-  //   this.handleSessions(ss);
-    
-  // },
-
-  // digestFile(file) {
-  //   var file = React.findDOMNode(this.refs.file).files[0];
-  //   console.log(file);
-  //   console.log('here');
-  //   if (getExtension(file) === 'json') {
-  //     textGet(file).then((result) => {
-  //       this.parseJSON(JSON.parse(result), file.name);
-  //     }).catch((error) => {
-  //       console.log(error);
-  //     }).then(() => {
-  //       console.log('FINISHED EVERYTHING');
-  //     });
-      
-  //     // var reader = new FileReader();
-  //     // reader.readAsText(file);
-  //     // reader.onload = () => {
-  //     //   this.parseJSON(JSON.parse(reader.result), file.name);
-  //     // }
-  //   }
-  // },
-
-  // loadFilePromise() {
-  //   return new Promise((fulfill, reject) => {
-  //     this.digestFile(file).done(() => {
-  //       fulfill()
-  //     })
-  //   }
-  // }
-  handleFileLoad() {
-
-    let file = React.findDOMNode(this.refs.file).files[0];
-
+  digestBatchFile() {
     // User clicked cancel
-    if (file === undefined)
+    let file = this.state.file;
+    let connection = this.state.connection;
+
+    if (!file || !connection)
       return;
 
     this.setState({ loading: true });
@@ -207,7 +266,7 @@ const LoadFilePanel = React.createClass({
           throw 'Provided JSON file is ill-formed. To valdate your JSON files use http://jsonlint.com';
         }
       }).then(jso => {
-        console.log(jso);    
+        console.log(jso);
         if (!jso.sessions) {
           throw 'Provided JSON file does not have a "sessions" listing. Consult help for instructions and examples of valid JSON batch files.';
         }
@@ -243,8 +302,8 @@ const LoadFilePanel = React.createClass({
 
   getSession(jso) {
     return new Promise((resolve, reject) => {
-      let connection = this.props.settings.getIn(['servers', this.props.connection]);
-      
+      let connection = this.props.settings.getIn(['servers', this.state.connection]);
+      console.log(connection);
       let s = new Session();
       let v, bams;
       if (jso.variants && jso.variants.length > 0) {
@@ -260,7 +319,7 @@ const LoadFilePanel = React.createClass({
 
       s.addVariants(v, connection).then(() => {
         return Promise.all(bams.map(bam => {
-          let file = getURL(bam, connection); 
+          let file = getURL(bam, connection);
           return s.addSequenceFile(file, connection);
         }));
       }).then(() => {
@@ -272,117 +331,52 @@ const LoadFilePanel = React.createClass({
     });
   },
 
-  // handleFileLoad2(file) {
-
-  //   this.setState({ loading: true });
-  //   var file = React.findDOMNode(this.refs.file).files[0];
-  //   console.log(file);
-  //   console.log('here');
-  //   var ext = getExtension(file);
-  //   if (ext === 'json') {
-  //     localTextGet(file).then((result) => {
-  //       var jso = JSON.parse(result);
-  //       this.parseJSON(jso, file.name);
-  //     }).catch((error) => {
-  //       this.setState({loaded: false, error: error});
-  //     }).then(() => {
-  //       console.log('FINISHED EVERYTHING');
-  //       this.setState({ loaded: true });
-  //     });
-  //   } else {
-  //     this.setState({loaded: false,
-  //                    error: 'Batch file must have json extension, found the following instead: ' + ext});
-  //   }
-  // },
-
   render() {
-    let options = {
-      lines: 13,
-      length: 5,
-      width: 3,
-      radius: 6,
-      corners: 1,
-      rotate: 0,
-      direction: 1,
-      color: '#000',
-      speed: 1,
-      trail: 60,
-      shadow: false,
-      hwaccel: false,
-      zIndex: 2e9,
-      top: '50%',
-      left: '50%',
-      scale: 1.00
-    };
-
-    if (this.state.loading) {
-      let child;
-      if (this.state.error) {
-        child = (<b>{this.state.error}</b>);
-      } else {
-        child = (<b>Found {this.state.nSessions} sessions with a total of {this.state.nVariants} variants</b>);
-      }
-      let panelStyle = {
-        backgroundColor: '#EEFFEB'
-      };
-      let loadNode = (
-        <Loader loaded={this.state.loaded} options={options}>
-          <Panel className="someTopMargin" style={panelStyle} >
-            {child}
-          </Panel>
-        </Loader>
+    let proceedNode;
+    console.log(this.state.sessions);
+    if (this.state.sessions) {
+      proceedNode = (
+        <Pager>
+          <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
+        </Pager>
       );
+    } else {
+      proceedNode = null;
     }
-
-    return (
-      <Panel>
-        <h4>Select Batch File</h4>
-        <p>
-          Select a local JSON file containing a list of sessions. Consult the help for a detailed description of the expected format.
-        </p>
-        <input type="file" ref="file" onChange={this.handleFileLoad} />
-        {loadNode}
-      </Panel>
-    );
-  }
-
-});
-
-const SelectConnectionPanel = React.createClass({
-  handleChange() {
-    let connection = this.refs.connection.getValue();
-    console.log(connection);
-    this.props.handleConnection(connection);
-  },
-
-  componentDidMount() {
-    this.handleChange();
-  },
-
-  render() {
-    let opt1 = 'Remote HTTP - ' + this.props.settings.getIn(['servers','remoteHTTP','location']);
-    let opt2 = 'Local HTTP - ' + this.props.settings.getIn(['servers','localHTTP','location']);
-    let opt3 = 'SSH-Bridge - ' + this.props.settings.getIn(['servers','SSHBridge','username']) + '@' + this.props.settings.getIn(['servers','SSHBridge','remoteSSHServer']);
     return (
       <div>
-      <Panel>
-        <h4>Select Connection Type</h4>
-        <p>
-          In the batch mode, a JSON file lists the variants/variant files and sequencing data located either on a remote server or through a local server (see help for more info). Please select the a means of accessing the files listed in your JSON file.
-        </p>
-        <form>
-          <Input type="select" ref="connection" label="Select connection" placeholder="select" onChange={this.handleChange}>
-            <option value="remoteHTTP">{opt1}</option>
-            <option value="localHTTP">{opt2}</option>
-            <option value="SSHBridge">{opt3}</option>
-          </Input>
-        </form>
-      </Panel>
+        <Grid>
+          <Row className='show-grid'>
+            <Col md={3}></Col>
+            <Col md={6}>
+              <Pager>
+                <PageItem previous href='#' onClick={this.handleGoBack}>&larr; Cancel, Return To Main Menu</PageItem>
+              </Pager>
+              <TitlePanel />
+              <SelectConnectionPanel
+                settings={this.props.settings}
+                handleConnection={this.handleConnection}
+              />
+              <LoadFilePanel
+                settings={this.props.settings}
+                connection={this.state.connection}
+                handleSessions={this.handleSessions}
+                handleFileLoad={this.handleFileLoad}
+                nSessions={this.state.nSessions}
+                nVariants={this.state.nVariants}
+                loaded={this.state.loaded}
+                loading={this.state.loading}
+                error={this.state.error}
+              />
+              {proceedNode}
+            </Col>
+            <Col md={3}></Col>
+          </Row>
+        </Grid>
       </div>
     );
   }
 });
-
 
 
 module.exports = LoadBatch;
