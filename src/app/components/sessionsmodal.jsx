@@ -1,35 +1,19 @@
 "use strict";
 
-// import React from 'react';
-// import {
-//   Button,
-//   Glyphicon,
-//   TabbedArea,
-//   TabPane,
-//   Modal,
-//   Input,
-//   Alert,
-//   ListGroup,
-//   ListGroupItem
-// } from 'react-bootstrap';
+import React from 'react';
+import {
+  Alert,
+  Button,
+  Glyphicon,
+  Input,
+  ListGroup,
+  ListGroupItem,
+  Modal,
+  TabbedArea,
+  TabPane,
+} from 'react-bootstrap';
 
-var React = require('react');
-var rb = require('react-bootstrap');
-var Col = rb.Col;
-var Row = rb.Row;
-var Grid = rb.Grid;
-var Button = rb.Button;
-var Glyphicon = rb.Glyphicon;
-var TabbedArea = rb.TabbedArea;
-var TabPane = rb.TabPane;
-var Modal = rb.Modal;
-var Input = rb.Input;
-var Alert = rb.Alert;
-var ListGroup = rb.ListGroup;
-var ListGroupItem = rb.ListGroupItem;
-
-
-var SessionListGroup = React.createClass({
+const SessionListGroup = React.createClass({
 
   handleClick(si, vi, e) {
     e.preventDefault();
@@ -37,18 +21,25 @@ var SessionListGroup = React.createClass({
   },
 
   render() {
-    var bamItem = this.props.session.bamFiles.map((bamFile) => {
-      return bamFile.name
+    let seqItems = this.props.session.bamFiles.map((seqFile, index) => {
+      return (<li key={index}>{seqFile.name}</li>)
     });
 
-    bamItem = (
+    let seqFilesListStyle = {
+      paddingLeft: "0.5em",
+      wordWrap: "break-word"
+    };
+    
+    let seqFilesList = (
       <ListGroupItem bsStyle='info'>
-        {bamItem.join(', ')}
+        <ul style={seqFilesListStyle}>
+          {seqItems}
+        </ul>
       </ListGroupItem>
     );
 
-    var variantItems = this.props.session.variants.map((variant, variantIndex) => {
-      var scoreBadge;
+    let variantItems = this.props.session.variants.map((variant, variantIndex) => {
+      let scoreBadge;
       switch (variant.score) {
         case 'variant':
           scoreBadge = (<span className="badge pull-right green qc-badge">&#x2713;</span>);
@@ -60,15 +51,21 @@ var SessionListGroup = React.createClass({
           scoreBadge = (<span className="badge pull-right red qc-badge">x</span>);
           break;
       }
+      let hereGlyphiconStyle={paddingLeft: "1em"};
+      let hereListGroupItemStyle={backgroundColor: "LightSteelBlue"};
       if ((variantIndex === this.props.currentVariantIndex) && 
          (this.props.sessionIndex === this.props.currentSessionIndex)) {
         return (
           <ListGroupItem
-            bsStyle="danger"
             key={variantIndex}
             href="#"
-            onClick={this.handleClick.bind(this, this.props.sessionIndex, variantIndex)} >
-            <b>{variant.locationString()}</b>
+            onClick={this.handleClick.bind(this, this.props.sessionIndex, variantIndex)}
+            style={hereListGroupItemStyle}
+          >
+            <b>
+              {variant.locationString()}
+              <Glyphicon bsSize="large" style={hereGlyphiconStyle} glyph="hand-left" />
+            </b>
             {scoreBadge}
           </ListGroupItem>
         );
@@ -87,7 +84,7 @@ var SessionListGroup = React.createClass({
 
     return (
       <ListGroup>
-        {bamItem}
+        {seqFilesList}
         {variantItems}
       </ListGroup>
     );
@@ -131,7 +128,7 @@ var SessionsModal = React.createClass({
     };
 
     return (
-      <Modal show={this.props.show} onHide={this.close}  bsSize="small">
+      <Modal show={this.props.show} onHide={this.close}  bsSize="medium">
         <Modal.Header closeButton>
           <Modal.Title>Select a variant</Modal.Title>
         </Modal.Header>
