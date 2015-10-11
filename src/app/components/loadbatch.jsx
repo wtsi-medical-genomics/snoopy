@@ -168,7 +168,7 @@ const SelectConnectionPanel = React.createClass({
       <Panel >
         <h4>1. Select Connection Type</h4>
         <p>
-          In the batch mode, a local JSON file lists the variants/variant files and sequencing data located either on a remote server or through a local server (see help for more info). Please select the location of your variant/sequence data listed in your local JSON file.
+          In the batch mode, a local JSON file lists the variants/variant files and sequencing data located either on a remote server or through a local server (see help for more info). Please select the location of your variant/sequence data listed in your local JSON file. Use settings to modify connections. 
         </p>
         <form style={formStyle}>
           {remoteHTTPNode}
