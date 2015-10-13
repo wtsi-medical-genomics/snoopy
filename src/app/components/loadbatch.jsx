@@ -306,15 +306,23 @@ const LoadBatch = React.createClass({
       console.log(connection);
       let s = new Session();
       let v, bams;
+      
+      // Ensure variants are there
       if (jso.variants && jso.variants.length > 0) {
         v = jso.variants;
       } else {
         throw 'Provided JSON contains a session which does not list any variants. Consult help for instructions and examples of valid JSON batch files.'
       }
-      if (jso.bams && jso.bams.length > 0) {
-        bams = jso.bams;
-      } else {
+
+      // Ensure sequence files are there
+      if (!jso.bams || jso.bams.length === 0) {
         throw 'Provided JSON contains a session which does not list any BAMs or CRAMs. Consult help for instructions and examples of valid JSON batch files.'
+      }
+      // If we have only a single sequence file, convert to array
+      if( typeof jso.bams === 'string' ) {
+        bams = [jso.bams];
+      } else {
+        bams = jso.bams;
       }
 
       s.addVariants(v, connection).then(() => {
