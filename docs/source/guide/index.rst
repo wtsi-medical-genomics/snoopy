@@ -1,6 +1,26 @@
 Guide
 =====
 
+.. |ref_loc| image:: /images/ref_loc.png
+.. |add_track| image:: /images/add_track.png
+.. |track_options| image:: /images/track_options.png
+.. |print| image:: /images/print.png
+.. |options| image:: /images/options.png
+.. |zoom| image:: /images/zoom.png
+.. |not_a_variant| image:: /images/not_a_variant.png
+.. |uncertain| image:: /images/uncertain.png
+.. |variant| image:: /images/variant.png
+.. |previous| image:: /images/previous.png
+.. |variant_loc| image:: /images/variant_loc.png
+.. |view| image:: /images/view.png
+.. |restart| image:: /images/restart.png
+.. |return_home| image:: /images/return_home.png
+.. |save| image:: /images/save.png
+.. |snapshot| image:: /images/snapshot.png
+
+Requirmemts
+-----------
+
 
 Installing
 ----------
@@ -10,10 +30,10 @@ Overview of Use
 ---------------
 In Snoopy, the manual quality control is split into sessions where each session consists of:
 
-* A set of sequence files (BAM, CRAM) which you want to visualise simultanously.
+* A set of sequence files (BAM, CRAM) which you want to simultanously visualise.
 * A list of variant locations (SNPs or CNVs) which you want to review in the sequence files.
 
-A typical session is a trio (mother, father and offspring) at some called de novo sites. Note that you don't need to have more than one sequence file if you are concerned with only a single individual. Broadly, the steps to using Snoopy are:
+A typical session is a trio (mother, father and offspring) at some called de novo sites. Note that you don't need to have more than one sequence file if you are concerned with only a single individual. Broadly, Snoopy is used in the following steps:
 
 1. Select sequence data (BAM, CRAM) and variant file.
 2. Review each session.
@@ -47,12 +67,12 @@ If your files exist on a remote server but cannot be accessed by HTTP/S, you can
 3. HTTP/S request is parse and turned into a samtools commdand: `samtools view x.bam chr:start-end`
 4. The samtools command is sent, via SSH, to remote machine
 5. On the local machine, output of the samtools command is parsed to JSON
-6. JSON is proveded to Dalliance
+6. JSON is provided to Dalliance
 
 As samtools is being used, this method has the benefit of being able to read CRAM files.
 
 ================== =========== ==============
-Acces modes        File Types  Mode
+Acces mode         File Types  Mode
 ================== =========== ==============
 Local              BAM         Manual
 Local File Server  BAM         Manual, Batch
@@ -127,14 +147,27 @@ After which you will be prompted for a password for this username.
 
 Save Your Options
 ^^^^^^^^^^^^^^^^^
+
+As A Text File
+""""""""""""""
 If you are using a \*NIX machine, you can save your options in a text file and provide them as input using ``$(< args.txt)``. For example, in a file ``args.txt`` you can have::
 
     -local-server-port=8085 -remote-http=some.server.ac.uk -remote-ssh=gary@deepblue -user=gary
 
 Then at the command line::
 
-    snoopy.py $(<args.txt)
+    snoopy $(<args.txt)
 
+As A Bash Script
+""""""""""""""""
+You can also combine everything into a bash script, let's call it ``my_snoopy.sh``::
+
+    #!/bin/bash
+    snoopy -local-server-port=8085 -remote-http=some.server.ac.uk -remote-ssh=gary@deepblue -user=gary
+
+Then at the command line::
+
+    ./my_snoopy.sh
 
 Load Your Data
 --------------
@@ -152,7 +185,7 @@ In this mode, you can review only **one** set of sequence files (eg a single ind
 
 Batch
 ^^^^^
-In this mode, you can review **several** sets of sequence files (eg several single individual or several trios). To avoid having to manually select by hand each file to review in each session, the batch mode accepts a JSON file which lists all of the sequence files and the variant locations. :doc:`/file_formats` provides a detailed description of the batch JSON specification.
+In this mode, you can review **several** sets of sequence files (e.g. several individuals or several trios). To avoid having to manually select by hand each file to review in each session, the batch mode accepts a JSON file which lists all of the sequence files and the variant locations. :doc:`/file_formats` provides a detailed description of the batch JSON specification.
 
 1. Start up snoopy, refer to `Starting Snoopy`_ for guidance.
 2. Click "Go Batch"
@@ -163,8 +196,21 @@ In this mode, you can review **several** sets of sequence files (eg several sing
 
 Perform Quality Control
 -----------------------
-Now that 
+With your data loaded, it's time to view each of the variant sites and record your decision. The following is a walk through guide. For a complete description of the user inteface refer to :doc:`/user_interface`. 
 
-
-
+1. Upon starting, the first variant in the first session will be viewed.
+2. Explore the current variant location:
+    * Drag the Dalliance track around.
+    * Zoom in or out with |zoom|
+    * There are several different view styles to present the sequence data which can be selected with the |view| dropdown button.
+3. Make a decision about the called variant site.
+    * |not_a_variant| - You are certain that the called site is not actually a variant.
+    * |uncertain| - You are unsure if the called site is a variant.
+    * |variant| - You are certain that the called variant is truly a variant.
+4. Take a snapshot (PNG) of the current view with |snapshot|.
+5. After each decision, Snoopy will load the next variant in that session, or if you have reviewed all in that session, it will load the next session's sequence files and the first variant location.
+6. If you wish to review your QC decisions made so far, click |variant_loc|. From window you can also quickly navigate to a different variant too.
+7. Save your results so far with |save|. Refer to :doc:`/file_formats` for information about the file format in which the results are saved.
+8. Once you have reviewed all variants in all of the sessions, you will be presented with a save dialoge.
+9. If at any point you wish to stop reviewing the loaded sessions and start again click |restart|.
 
