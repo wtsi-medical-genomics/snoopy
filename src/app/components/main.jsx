@@ -126,10 +126,10 @@ var Main = React.createClass({
     // Settings.init((settings) => {
     //   this.setState({settings: settings});
     // });
-    httpGet('/servers', undefined, {contentType: 'application/json'}).then((result) => {
-      let serverSettings = fromJS(JSON.parse(result));
+    httpGet('/settings', undefined, {contentType: 'application/json'}).then((result) => {
+      let localSettings = fromJS(JSON.parse(result));
       let settings = this.state.settings;
-      settings = settings.mergeDeep(serverSettings);
+      settings = settings.mergeDeep(localSettings);
       this.setState({ settings: settings });
       console.log(settings);
     }).catch(error => {

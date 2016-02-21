@@ -1,8 +1,8 @@
 "use strict";
 
 function Variant(chr) {
-	this.chr = chr;
-	this.score = 'not reviewed';
+    this.chr = chr;
+    this.score = 'not reviewed';
     this.colorCode = {
         'variant': 'limegreen',
         'not variant': 'darkred',
@@ -15,7 +15,7 @@ function Variant(chr) {
 // }
 
 Variant.prototype.scoreString = function() {
-	var s = "";
+    var s = "";
     switch (this.score) {
         case -1:
             s = " &#x2717;";
@@ -27,20 +27,49 @@ Variant.prototype.scoreString = function() {
             s = " &#x2713;";
         break;
     }
-	return s;
+    return s;
+}
+
+Variant.prototype.getScoreBadge = function() {
+  switch (this.score) {
+    case 'variant':
+      return '<span class="badge pull-right green qc-badge">&#x2713;</span>';
+    case 'uncertain':
+      return '<span class="badge pull-right amber qc-badge">?</span>';
+    case 'not variant':
+      return '<span class="badge pull-right red qc-badge">x</span>';
+    default:
+      return '';
+  }
+}
+
+Variant.prototype.takeSnapshot = function(browser) {
+    let imgdata = browser.exportImage();
+    imgdata = imgdata.split(',');
+    if (imgdata.length === 2)
+        this.snapshot = imgdata[1];
+    else
+        console.log('more than two parts!!!!')
+}
+
+Variant.prototype.getSnapshot = function() {
+    return this.snapshot;
 }
 
 SNP.prototype = new Variant;
 
 function SNP(chr, loc) {
-	this.base = Variant;
-	this.base(chr);
-	this.loc = parseInt(loc);
+    this.base = Variant;
+    this.base(chr);
+    this.loc = parseInt(loc);
 }
 
-SNP.prototype.visit = function(b) {
+SNP.prototype.visit = function(b, callback) {
     b.clearHighlights();
-    b.setCenterLocation('chr' + this.chr, this.loc);
+    b.setCenterLocation('chr' + this.chr, this.loc, callback)
+    // b.setCenterLocation('chr' + this.chr, this.loc, cb=>{
+    //     console.log('This is a callback!');
+    // });
     b.highlightRegion('chr' + this.chr, this.loc, this.loc + 1);
     return this;
 }
@@ -56,8 +85,10 @@ SNP.prototype.getHighlightRegion = function() {
             max: this.loc + 1}
 }
 
-SNP.prototype.prettyString = function() {
-	return this.chr + ":" + this.loc + " " + this.scoreString();
+SNP.prototype.getHTML = function() {
+    return `
+        ${this.chr} : ${this.loc} ${this.getScoreBadge()}
+    `;
 }
  
 SNP.prototype.html = function() {
@@ -74,7 +105,7 @@ SNP.prototype.toObject = function() {
 }
 
 SNP.prototype.string = function() {
-	return this.chr + " : " + this.loc + " " + this.score;
+    return this.chr + " : " + this.loc + " " + this.score;
 }
 
 SNP.prototype.fileString = function() {
@@ -88,15 +119,15 @@ SNP.prototype.locationString = function() {
 CNV.prototype = new Variant;
 
 function CNV(chr, min, max) {
-	this.base = Variant;
-	this.base(chr);
-	this.min = min;
-	this.max = max;
+    this.base = Variant;
+    this.base(chr);
+    this.min = min;
+    this.max = max;
 }
 
 CNV.prototype.visit = function(b) {
     b.clearHighlights();
-	var loc = (this.min + this.max) / 2;
+    var loc = (this.min + this.max) / 2;
     b.setCenterLocation('chr' + this.chr, loc);
     b.highlightRegion('chr' + this.chr, this.min, this.max);
     return this;
@@ -114,12 +145,14 @@ CNV.prototype.getHighlightRegion = function() {
             max: this.max}
 }
 
-CNV.prototype.prettyString = function() {
-	return this.chr + ":" + this.min + "-" + this.max + " "+ this.scoreString();
+CNV.prototype.getHTML = function() {
+    return `
+        ${this.chr} : ${this.min} - ${this.max} ${this.getScoreBadge()}
+    `;
 }
 
 CNV.prototype.string = function() {
-	return this.chr + ":" + this.min + "-" + this.max + " " + this.score;
+    return this.chr + ":" + this.min + "-" + this.max + " " + this.score;
 }
 
 CNV.prototype.locationString = function() {

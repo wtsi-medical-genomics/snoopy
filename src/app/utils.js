@@ -3,9 +3,6 @@
 // import { Promise } from 'es6-promise';
 import { Map } from 'immutable';
 
-// let Promise = require('es6-promise');
-// let Map = require('immutable').Map;
-
 const RE_EXT = /^.*\.(.*)$/;
 const RE_LEFT_SLASH = /^\/+/;
 const RE_RIGHT_SLASH = /\/+$/;

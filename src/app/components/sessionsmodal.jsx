@@ -29,9 +29,13 @@ const SessionListGroup = React.createClass({
       paddingLeft: "0.5em",
       wordWrap: "break-word"
     };
+
+    let headerStyle = {
+      backgroundColor: "#F0F1F3"
+    }
     
     let seqFilesList = (
-      <ListGroupItem bsStyle='info'>
+      <ListGroupItem style={headerStyle}>
         <ul style={seqFilesListStyle}>
           {seqItems}
         </ul>
@@ -74,7 +78,8 @@ const SessionListGroup = React.createClass({
           <ListGroupItem
             key={variantIndex}
             href="#"
-            onClick={this.handleClick.bind(this, this.props.sessionIndex, variantIndex)} >
+            onClick={this.handleClick.bind(this, this.props.sessionIndex, variantIndex)}
+          >
             {variant.locationString()}
             {scoreBadge}
           </ListGroupItem>

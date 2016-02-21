@@ -21,7 +21,7 @@ class SSHBridge(object):
 
     """
 
-    def __init__(self, username, hostname):
+    def __init__(self, username, password, hostname):
 
         # set up logging
         paramiko.util.log_to_file('ssh.log')
@@ -30,7 +30,7 @@ class SSHBridge(object):
         ssh_connection.connect(
             hostname,
             username=username,
-            password=getpass.getpass('Enter the password for SSH connection {}@{}: '.format(username, hostname))
+            password=password,
             )
         self._ssh_connection = ssh_connection
         self._username = username
@@ -177,18 +177,35 @@ class Snoopy(object):
             raise cherrypy.NotFound()
         else:
             return payload
+    def start_ssh(self, user, password):
+       Snoopy.bridge = SSHBridge(**ssh_config)
 
     @cherrypy.expose
-    def servers(self):
-        return json.dumps(Snoopy.settings)
+    def settings(self):
+        with open(os.path.expanduser('~/.snoopy')) as f:
+            settings = json.load(f)
+        print(settings)
+        settings['servers']['localHTTP'] = Snoopy.localHTTP
+        return json.dumps(settings)
 
+class StartSSHWebService(object):
+
+    exposed = True
+    @cherrypy.tools.accept(media='text/plain')
+    def PUT(self, username, password, hostname):
+        print('username', username)
+        print('password', password)
+        print('hostname', hostname)
+        """
+            Snoopy.bridge = SSHBridge(username, password, hostname)
+        """
 
 def main():
     # Cherrypy configuration
     conf = {
         'global': {
             'tools.staticdir.root': '/',
-            'server.socket_host' : '127.0.0.1',
+            'server.socket_host' : 'localhost',
             'server.socket_port' : 8084,
         },
         '/app': {
@@ -200,86 +217,15 @@ def main():
             'tools.staticdir.dir': '.',
         }
     }
-    user = 'snoopy'
-    password = 'peanuts'
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-local-server-port', '-p', 
-        type=int,
-        help='set the local HTTP server port number. DEFAULT: {}, or next available port.'.format(conf['global']['server.socket_port'])
-        )
-    parser.add_argument('-remote-http', '-r', 
-        help='specify a remote HTTP server. DEFAULT: none.',
-        default=''
-        )
-    parser.add_argument('--remote-http-no-credentials',
-        dest='remote-http-credentials',
-        action='store_false',
-        help='specify if remote HTTP server requires credentials. DEFAULT: Requires credentials.'
-        )
-    parser.set_defaults(remote_http_credentials=True)
     
-    parser.add_argument('-remote-ssh', '-ssh',
-        help='user@hostname for SSH connection to sequence files on remote host. DEFAULT: <no SSH connection>'
-        )
-    parser.add_argument('-user',
-        help='username for local web server. If set, you will be prompted for a password. DEFAULT: username:{} password:{}'.format(user, password)
-        )
-    parser.add_argument('--no-auth', 
-        dest='auth',
-        action='store_false', 
-        help='turn off digest authentication. DEFAULT: Authentication turned on.'
-        )
-    parser.set_defaults(auth=True)
-
-    args = parser.parse_args()
-    print args
-    if args.local_server_port:
-        conf['global']['server.socket_port'] = args.local_server_port
-
-    if args.remote_ssh:
-        p = re.compile(r'^(.+)@(.+)$')
-        m = p.match(args.remote_ssh)
-        if not m:
-            return 'SSH location must have format user@hostname'
-        g = m.groups()
-        ssh_config = {'username': g[0], 'hostname': g[1]}
-        Snoopy.bridge = SSHBridge(**ssh_config)
-
-    if args.auth:
-        if args.user:
-            user = args.user
-            password = getpass.getpass('Please enter a password for the username {} you have provided to protect your local server: '.format(user))
-
-        conf['global'].update({
-            'tools.auth_digest.on': True,
-            'tools.auth_digest.realm': 'realm',
-            'tools.auth_digest.get_ha1': auth_digest.get_ha1_dict_plain({user: password}),
-            'tools.auth_digest.key': 'a565c27146791cfd',
-        })
-
-    Snoopy.settings = {
-        "servers": {
-            "remoteHTTP": {
-                "type": "HTTP",
-                "location": args.remote_http,
-                "requiresCredentials": args.remote_http_credentials
-            },
-            "localHTTP": {
-                "type": "HTTP",
-                "location": "http://{}:{}/local/".format(conf['global']['server.socket_host'], conf['global']['server.socket_port']),
-                "requiresCredentials": args.auth
-            },
-            "SSHBridge": {
-                "type": "SSHBridge",
-                "localHTTPServer": "http://{}:{}/ssh/".format(conf['global']['server.socket_host'], conf['global']['server.socket_port']),
-                "remoteSSHServer": ssh_config['hostname'],
-                "username": ssh_config['username']
-            }
-        }
+    Snoopy.localHTTP = { 
+        "type": "HTTP",
+        "location": "http://{}:{}/local/".format(conf['global']['server.socket_host'], conf['global']['server.socket_port']),
     }
-    print conf
-    cherrypy.quickstart(Snoopy(), '/', conf)
+    
+    webapp = Snoopy()
+    webapp.generator = StartSSHWebService()
+    cherrypy.quickstart(webapp, '/', conf)
 
 
 if __name__ == '__main__':

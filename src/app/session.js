@@ -16,13 +16,14 @@ var LocalBAM = loadedfiletypes.LocalBAM;
 var LocalBAI = loadedfiletypes.LocalBAI;
 var Settings = require('./components/settings.jsx');
 var getPrefix = Settings.getPath;
+var JSZip = require('JSZip');
 
 const BAI_RE = /^(.*)\.bai$/i;
 const BAM_RE = /^(.*)\.bam$/i;
 const SNP_RE = /^\s*(chr)?([0-9,m,x,y]+)[-:,\s](\d+)\s*$/i;
 const CNV_RE = /^\s*(chr)?([0-9,m,x,y]+)[-:,\s](\d+)[-:,\s](\d+)\s*$/i;
 
-var referenceGenome = {
+const referenceGenome = {
   name: 'Genome',
   twoBitURI: 'http://www.biodalliance.org/datasets/hg19.2bit',
   tier_type: 'sequence',
@@ -168,7 +169,7 @@ class Session {
 
   /** Determines if any unmatched LocalBAM's have a matching LocalBAI. It is not necessary for
   a RemoteBAM to have a RemoteBAI, as it assumed to be in the same location, but if any RemoteBAI's 
-  have been provided marry these to a RemoteBAM. */
+  have been provided, marry these to a RemoteBAM. */
   matchMaker() {
     var toRemove = [];
     for (var i=0; i<this.bamFiles.length; ++i) {
@@ -203,16 +204,16 @@ class Session {
   }
 
 
-  next(b) {
+  next(b, callback) {
     if (this.index < this.variants.length - 1) {
-      return {variant: this.variants[++this.index].visit(b), done: false};
+      return {variant: this.variants[++this.index].visit(b, callback), done: false};
     } else { // at the end now
-      return {variant: this.variants[this.index].visit(b), done: true};
+      return {variant: this.variants[this.index].visit(b, callback), done: true};
     }
   }
 
-  gotoCurrentVariant(b) {
-    this.variants[this.index].visit(b);
+  gotoCurrentVariant(b, callback) {
+    this.variants[this.index].visit(b, callback);
     return this.variants[this.index];
   }
 
@@ -348,147 +349,85 @@ class Session {
     return this.baiFiles;
   }
 
-}
+  stringCurrentSession() {
+    var str = ''
+    this.bamFiles.forEach((bam) => {str += bam.name + '_'});
+    str += this.variants[this.index].fileString()
+    return str;
+  }
 
-function Sessions() {
-  this.sessions = [];
-  this.index = 0;
-};
-
-Sessions.prototype.next = function(b) {
-  let nextVariant = this.sessions[this.index].next(b);
-  if (nextVariant.done) {
-    if (this.index < this.sessions.length - 1) {
-      this.sessions[++this.index].init(b, this.style);
-      nextVariant = {variant: this.gotoCurrentVariant(b), done: false};
-    } else {
-      console.log('finished QC');
+  updateStyle(b, style) {
+    // get styles and update each tier
+    // app.browser.baseColors = app.settings.colors;
+    for (var i=1; i<b.tiers.length; ++i) {
+      b.tiers[i].setStylesheet(style.toJS());
     }
+    b.refresh();
   }
-  return nextVariant;
-};
+  
+  getHTMLResultsSelectionModal() {
+    
+    let variants = this.variants.map((variant, variantIndex)  => {
+      return `
+        <a href="#" class="list-group-item">
+          ${variant.getHTML()}
+        </a>
+      `;
+    }).join('');
 
-Sessions.prototype.previous = function(b) {
-  var previousVariant = this.sessions[this.index].previous(b);
-  if (!previousVariant) {
-    if (this.index > 0) {
-      this.index--;
-      this.sessions[this.index].init(b, this.style);
-      // Need to visit the last element of the previous session
-      this.sessions[this.index].index = this.sessions[this.index].variants.length - 1;
-      previousVariant = this.gotoCurrentVariant(b);
-    } else {
-      console.log('at the beginning');
-    }
+    let files = this.bamFiles.map((file, fileIndex)  => {
+      return `
+        <li>
+          ${file.name}
+        </li>
+      `;
+    }).join('');
+
+    let s = `
+      <a href="#" class="list-group-item active seq-file-list">
+        <ul>
+          ${files}
+        </ul>
+      </a>
+      ${variants}
+    `;
+
+    return s
   }
-  return previousVariant;
-};
 
-Sessions.prototype.setQC = function(decision) {
-  this.sessions[this.index].setQC(decision);
-};
-
-Sessions.prototype.gotoCurrentVariant = function(b) {
-  return this.sessions[this.index].gotoCurrentVariant(b);
-};
-
-Sessions.prototype.getCurrentVariant = function() {
-  return this.sessions[this.index].getCurrentVariant();
-};
-
-Sessions.prototype.goto = function(b, si, vi) {
-  if (this.index !== si) {
-    this.index = si;
-    return this.sessions[si].goto(b, this.style, vi);
-  } else {
-    this.sessions[this.index].index = vi;
-    return this.gotoCurrentVariant(b);
+  takeSnapshot(browser) {
+    console.log(browser)
+    this.variants[this.index].takeSnapshot(browser);
   }
-};
 
-/** Add tiers and visit the very first session/variant */
-// Sessions.prototype.jump = function(b) {
-//     if (typeof(this.style) === 'undefined')
-//         throw "A style sheet has not been set.";
-//     this.sessions[this.index].init(b, style);
-// };
-
-/** Add tiers and visit the very first session/variant */
-Sessions.prototype.init = function(b, style) {
-  if (typeof(style) !== 'undefined')
-    this.style = style;
-  if (typeof(this.style) === 'undefined')
-    throw "A style sheet has not been set.";
-  this.sessions[this.index].init(b, this.style);
-};
-
-Sessions.prototype.getCurrentVariantIndex = function() {
-  return this.sessions[this.index].getCurrentVariantIndex();
-};
-
-Sessions.prototype.getCurrentSessionIndex = function() {
-  return this.index;
-};
-
-Session.prototype.stringCurrentSession = function() {
-  var str = ''
-  this.bamFiles.forEach((bam) => {str += bam.name + '_'});
-  str += this.variants[this.index].fileString()
-  return str;
-}
-
-
-Sessions.prototype.stringCurrentSession = function() {
-  return this.sessions[this.index].stringCurrentSession();
-}
-
-
-Sessions.prototype.generateQCreport = function() {
-  let sessions = this.sessions.reduce((accum, session)  => {
-  return accum.concat(session.generateQCreport())
-  }, []);
-  let jso = {
-    date: Date(),
-    sessions: sessions
-  };
-  return JSON.stringify(jso, null, '  ');
-};
-
-Sessions.prototype.updateStyle = function(b, style) {
-  this.style = style;
-  this.sessions[this.index].updateStyle(b, style);
-}
-
-Session.prototype.updateStyle = function(b, style) {
-  // get styles and update each tier
-  // app.browser.baseColors = app.settings.colors;
-  for (var i=1; i<b.tiers.length; ++i) {
-    b.tiers[i].setStylesheet(style.toJS());
+  getNumSnapshots() {
+    let n = this.variants.reduce((accum, v) => {
+      if (!!v.snapshot)
+        return accum + 1;
+      else
+        return accum;
+    }, 0);
+    return n;
   }
-  b.refresh();
+
+  getSnasphots(imageFolder) {
+    let imgName = this.bamFiles.reduce((accum, f) => {
+      if (accum.length === 0)
+        return f.name;
+      else
+        return `${accum}_${f.name}`;
+    }, '');
+    this.variants.forEach(v => {
+      if (!!v.snapshot) {
+        imageFolder.file(
+          `${imgName}_${v.fileString()}.png`,
+          v.snapshot,
+          {base64: true}
+        );
+      }
+    });
+  }
+
 }
 
-Sessions.prototype.getNumVariants = function() {
-  var n = 0;
-  this.sessions.forEach((session) => {
-    n += session.variants.length;
-  });
-  return n;
-}
-
-Sessions.prototype.getNumVariantsReviewed = function() {
-  var n = 0;
-  this.sessions.forEach((session) => {
-    n += session.getNumVariantsReviewed();
-  });
-  return n;
-}
-
-Sessions.prototype.getNumSessions = function() {
-  return this.sessions.length;
-}
-
-module.exports = {
-  Sessions: Sessions,
-  Session: Session,
-}
+export default Session;

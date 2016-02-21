@@ -19,10 +19,9 @@ import {
   getURL,
   localTextGet,
 } from '../utils.js';
-import {
-  Session,
-  Sessions,
-} from '../session.js';
+import Session from '../session.js';
+import Sessions from '../sessions.js';
+
 
 
 const TitlePanel = React.createClass({

@@ -34,12 +34,9 @@ var Glyphicon = rb.Glyphicon;
 var Modal = rb.Modal;
 
 var SessionsModal = require('./sessionsmodal.jsx');
-var JSZip = require('JSZip');
 var saveAs = require('filesaver.js');
 
 var browser;
-var zip = new JSZip();
-var imageFolder = zip.folder('images');
 
 function getDallianceZoomLevel() {
   if (browser)
@@ -178,7 +175,12 @@ var QCToolbar = React.createClass({
   },
 
   nextVariant() {
-    var nv = this.props.sessions.next(browser);
+    if(this.props.settings.get('snapshots')) {
+      this.props.sessions.gotoCurrentVariant(browser, () => {
+          this.handleSnapshot();
+      });
+    }
+    var nv = this.props.sessions.next(browser)
     this.setState({currentVariant: nv.variant});
     if (nv.done) {
       this.setState({ showFinishedModal: true });
@@ -215,6 +217,7 @@ var QCToolbar = React.createClass({
 
   handleQC(decision, e) {
     e.preventDefault();
+    console.log(this.props.sessions.getNumSnapshots());
     this.props.sessions.setQC(decision);
     var nvr = this.props.sessions.getNumVariantsReviewed();
     this.setState({numVariantsReviewed: nvr});
@@ -227,17 +230,19 @@ var QCToolbar = React.createClass({
   },
 
   handleSnapshot() {
-    var imgdata = browser.exportImage();
-    imgdata = imgdata.split(',');
-    if (imgdata.length === 2) {
-        var screenshot = imgdata[1];
-        var imgName = this.props.sessions.stringCurrentSession();
-        imageFolder.file(imgName + '.png', screenshot, {base64: true});
-        var ns =  Object.keys(imageFolder.files).length - 1;
-        this.setState({numSnapshots: ns});
-    } else {
-        console.log('more than two parts to the image');
-    }
+    console.log(browser);
+    this.props.sessions.takeSnapshot(browser);
+    // var imgdata = browser.exportImage();
+    // imgdata = imgdata.split(',');
+    // if (imgdata.length === 2) {
+    //     var screenshot = imgdata[1];
+    //     var imgName = this.props.sessions.stringCurrentSession();
+    //     imageFolder.file(imgName + '.png', screenshot, {base64: true});
+    //     let ns =  Object.keys(imageFolder.files).length - 1;
+    //     this.setState({numSnapshots: ns});
+    // } else {
+    //     console.log('more than two parts to the image');
+    // }
   },
 
   handleView(view) {
@@ -255,13 +260,15 @@ var QCToolbar = React.createClass({
   },
 
   handleSaveQC(qcDecisionFilename) {
-    var results = this.props.sessions.generateQCreport();
-    var blob = new Blob([results], {type: 'text/plain;charset=utf-8'});
+    let results = this.props.sessions.generateQCreport();
+    let blob = new Blob([results], {type: 'text/plain;charset=utf-8'});
     saveAs(blob, qcDecisionFilename + '.txt');
   },
 
   handleSaveSnapshots(snapshotFilename) {
-    var content = zip.generate({type:'blob'});
+    // let content = zip.generate({type:'blob'});
+    let content = this.props.sessions.getSnasphots()
+    console.log(content);
     saveAs(content, snapshotFilename + '.zip');
   },
 
@@ -312,7 +319,7 @@ var QCToolbar = React.createClass({
       this.props.sessions.updateStyle(browser, this.props.settings.getIn(['styles',this.state.view]));
     }
 
-    var scoreBadge
+    let scoreBadge;
     switch (this.state.currentVariant.score) {
       case 'variant':
         scoreBadge = (<span className="badge green qc-badge">&#x2713;</span>);
@@ -324,6 +331,11 @@ var QCToolbar = React.createClass({
         scoreBadge = (<span className="badge red qc-badge">x</span>);
         break;
     }
+
+    if (!this.props.settings.get('snapshots')) {
+      var snapshotButton = (<NavItem eventKey={7} href='#' onClick={this.handleSnapshot}><Button><Glyphicon glyph="camera"/></Button></NavItem>);
+    }
+
     return (
       <div>
         <Navbar toggleNavKey={0} className='QCToolbar'>
@@ -334,7 +346,7 @@ var QCToolbar = React.createClass({
             <NavItem eventKey={4} href='#' onClick={this.handleQC.bind(this, 'not variant')}><Button>Not a Variant<Glyphicon glyph="chevron-right"/></Button></NavItem>
             <NavItem eventKey={5} href='#' onClick={this.handleQC.bind(this, 'uncertain')}><Button>Uncertain<Glyphicon glyph="chevron-right"/></Button></NavItem>
             <NavItem eventKey={6} href='#' onClick={this.handleQC.bind(this, 'variant')}><Button>Variant<Glyphicon glyph="chevron-right"/></Button></NavItem>
-            <NavItem eventKey={7} href='#' onClick={this.handleSnapshot}><Button><Glyphicon glyph="camera"/></Button></NavItem>
+            {snapshotButton}
             <DropdownButton eventKey={9} title={<Button><Glyphicon glyph="eye-open"/></Button>}>
               <MenuItem eventKey={1} onSelect={this.handleView.bind(this, 'raw')}>Raw</MenuItem>
               <MenuItem eventKey={2} onSelect={this.handleView.bind(this, 'condensed')}>Condensed</MenuItem>
@@ -355,21 +367,21 @@ var QCToolbar = React.createClass({
         />
         <ExitModal
           numVariantsReviewed={this.state.numVariantsReviewed}
-          numSnapshots={this.state.numSnapshots}
+          numSnapshots={this.props.sessions.getNumSnapshots()}
           handleDownloadQC={this.handleDownloadQC}
           close={this.closeExit}
           show={this.state.showExitModal}
         />
         <SaveModal
           numVariantsReviewed={this.state.numVariantsReviewed}
-          numSnapshots={this.state.numSnapshots}
+          numSnapshots={this.props.sessions.getNumSnapshots()}
           handleDownloadQC={this.handleDownloadQC}
           close={this.closeSave}
           show={this.state.showSaveModal}
         />
         <FinishedModal
           numVariantsReviewed={this.state.numVariantsReviewed}
-          numSnapshots={this.state.numSnapshots}
+          numSnapshots={this.props.sessions.getNumSnapshots()}
           handleDownloadQC={this.handleDownloadQC}
           close={this.closeFinished}
           show={this.state.showFinishedModal}
