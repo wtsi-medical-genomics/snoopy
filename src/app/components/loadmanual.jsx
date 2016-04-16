@@ -8,10 +8,30 @@
 // import { getURL, getName } from '../utils.js';
 
 import React from 'react';
-import { Alert, Panel, Col, Row, Grid, Button, Glyphicon, Pager, PageItem, ListGroup, ListGroupItem, Popover, Tooltip, Modal, OverlayTrigger } from 'react-bootstrap';
+import {
+  Alert,
+  Panel,
+  Col,
+  Row,
+  Grid,
+  Button,
+  Glyphicon,
+  Pager,
+  PageItem,
+  ListGroup,
+  ListGroupItem,
+  Popover,
+  Tooltip,
+  Modal, 
+  OverlayTrigger
+} from 'react-bootstrap';
 import FileLoader from './fileloader.jsx';
 import { Session, Sessions } from '../session.js';
-import { LocalBAM, LocalBAI, RemoteBAM, RemoteBAI } from '../loadedfiletypes.js';
+import { LocalBAM, 
+  LocalBAI, 
+  RemoteBAM, 
+  RemoteBAI,
+} from '../loadedfiletypes.js';
 import { getURL, getName, deepExtend } from '../utils.js';
 import { List, Map } from 'immutable';
 import Loader from 'react-loader';

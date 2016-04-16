@@ -4,8 +4,8 @@ var utils = require('./utils.js');
 var getName = utils.getName;
 var httpGet = utils.httpGet;
 var UID = utils.UID;
-
 var Map = require('immutable').Map;
+import urljoin from 'url-join';
 
 var uid = new UID();
 var BAI_RE = /^(.*)\.bai$/i;
@@ -168,7 +168,7 @@ SSHBAM.prototype.getTier = function(style) {
 
 SSHBAM.prototype.exists = function() {
   // Need to add to the path url for chr1, 0-1
-  var path = this.file + '&lchr=1&lmin=1&lmax=2';
+  var path = urljoin(this.file, '1:1-2');
   // var connection = Map({requiresCredentials: this.requiresCredentials});
   // var opts = {range: {min: 0, max:1}};
   return httpGet(path);

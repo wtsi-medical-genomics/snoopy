@@ -326,6 +326,8 @@ const LoadBatch = React.createClass({
 
       s.addVariants(v, connection).then(() => {
         return Promise.all(bams.map(bam => {
+          console.log('bam');
+          console.log(bam);
           let file = getURL(bam, connection);
           return s.addSequenceFile(file, connection);
         }));

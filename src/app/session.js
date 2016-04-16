@@ -15,7 +15,6 @@ var SSHBAM = loadedfiletypes.SSHBAM;
 var LocalBAM = loadedfiletypes.LocalBAM;
 var LocalBAI = loadedfiletypes.LocalBAI;
 var Settings = require('./components/settings.jsx');
-var getPrefix = Settings.getPath;
 var JSZip = require('JSZip');
 
 const BAI_RE = /^(.*)\.bai$/i;
@@ -119,6 +118,9 @@ class Session {
   addSequenceFile(file, connection) {
     return new Promise((resolve, reject) => {
       if (typeof(file) === 'string') { // a URL
+        console.log('alsjdfkl;ajsdfkl;jasd;fkl')
+        console.log(file);
+        console.log(connection);
         switch (getExtension(file)) {
           case "bam":
           case "cram":

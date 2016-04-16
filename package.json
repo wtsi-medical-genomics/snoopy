@@ -10,25 +10,25 @@
     "start": "gulp"
   },
   "devDependencies": {
-    "babelify": "^6.1.2",
-    "browser-sync": "^1.8.1",
-    "browserify": "^7.0.3",
-    "gulp": "^3.8.10",
-    "gulp-notify": "^2.1.0",
-    "gulp-util": "^3.0.1",
-    "pretty-hrtime": "^0.2.2",
-    "require-dir": "^0.1.0",
-    "underscore": "^1.7.0",
-    "vinyl-source-stream": "^1.0.0",
-    "watchify": "^2.2.1"
-
+    "babelify": "~6.1.2",
+    "browser-sync": "~1.8.1",
+    "browserify": "~7.0.3",
+    "gulp": "~3.8.10",
+    "gulp-notify": "~2.1.0",
+    "gulp-util": "~3.0.1",
+    "pretty-hrtime": "~0.2.2",
+    "require-dir": "~0.1.0",
+    "underscore": "~1.7.0",
+    "vinyl-source-stream": "~1.0.0",
+    "watchify": "~2.2.1"
   },
   "dependencies": {
-    "react-bootstrap": "^0.24",
-    "react": "^0.13",
-    "jszip": "^2.5",
-    "filesaver.js": "^0.1",
-    "react-loader": "^1.2",
-    "immutable": "^3.7"
+    "filesaver.js": "~0.1",
+    "immutable": "~3.7",
+    "jszip": "~2.5",
+    "react": "~0.13",
+    "react-bootstrap": "~0.24",
+    "react-loader": "~1.2",
+    "url-join": "^1.1.0"
   }
 }

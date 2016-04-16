@@ -2,6 +2,7 @@
 
 // import { Promise } from 'es6-promise';
 import { Map } from 'immutable';
+import urljoin from 'url-join';
 
 const RE_EXT = /^.*\.(.*)$/;
 const RE_LEFT_SLASH = /^\/+/;
@@ -42,19 +43,24 @@ function combineServerPath(server, path) {
 function getPrefix(connection) {
   switch (connection.get('type')) {
     case 'HTTP':
-      return connection.get('location') + '/';
+      return connection.get('location');
     case 'SSHBridge':
-      return connection.get('localHTTPServer') + '/' + '?user=' + connection.get('username') + '&server=' + connection.get('remoteSSHServer') + '&path=';
+      // return connection.get('localHTTPServer') + '/' + '?user=' + connection.get('username') + '&server=' + connection.get('remoteSSHServer') + '&path=';
+      return connection.get('localHTTPServer');
     default:
       throw 'Connection type not recognized: ' + connection.get('type');
   }
 }
 
 function getURL(path, connection) {
-  // console.log(connection)
-  // console.log(path)
-  return getPrefix(connection) + path;
+  console.log(connection)
+  console.log(path)
+  console.log(urljoin(getPrefix(connection), path));
+
+  return urljoin(getPrefix(connection), path);
 }
+
+
 
 // function getRequiresCredentials(settings, connection) {
 //   switch (connection) {
@@ -75,7 +81,12 @@ function httpGet(path, connection=Map(), opts) {
     if (connection === undefined)
       reject('Invalid remote connection parameters provided');
     var url = connection.get('type') ? getURL(path, connection) : path;
+    console.log(connection.get('type'));
+    if (connection.get('type'))
+      console.log(getURL(path, connection));
     var request = new XMLHttpRequest();
+    console.log('url')
+    console.log(url)
     request.open('GET', url);
     request.withCredentials = connection.get('requiresCredentials', false);
     
