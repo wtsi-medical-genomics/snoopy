@@ -1,0 +1,3 @@
+[submodule "dalliance"]
+	path = dalliance
+	url = https://github.com/dlrice/dalliance.git
