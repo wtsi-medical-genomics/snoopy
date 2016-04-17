@@ -19,8 +19,8 @@ var JSZip = require('JSZip');
 
 const BAI_RE = /^(.*)\.bai$/i;
 const BAM_RE = /^(.*)\.bam$/i;
-const SNP_RE = /^\s*(chr)?([0-9,m,x,y]+)[-:,\s](\d+)\s*$/i;
-const CNV_RE = /^\s*(chr)?([0-9,m,x,y]+)[-:,\s](\d+)[-:,\s](\d+)\s*$/i;
+const SNP_RE = /^\s*(chr)?\s*([0-9,m,x,y]+)[-:,\s]*(\d+)\s*$/i;
+const CNV_RE = /^\s*(chr)?\s*([0-9,m,x,y]+)[-:,\s]*(\d+)[-:,\s]*(\d+)\s*$/i;
 
 const referenceGenome = {
   name: 'Genome',
