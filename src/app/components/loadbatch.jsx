@@ -21,7 +21,7 @@ import {
 } from '../utils.js';
 import Session from '../session.js';
 import Sessions from '../sessions.js';
-
+import Immutable from 'Immutable';
 
 
 const TitlePanel = React.createClass({
@@ -88,7 +88,7 @@ const LoadFilePanel = React.createClass({
 
     return (
       <Panel>
-        <h4>2. Select Batch File</h4>
+        <h4>Step 2: Select Batch File</h4>
         <p>
           Select a local JSON file containing a list of sessions. Consult the help for a detailed description of the expected format.
         </p>
@@ -109,26 +109,66 @@ const SelectConnectionPanel = React.createClass({
     this.props.handleConnection(v);
   },
 
+  handleRemoteHTTPChange() {
+    let remoteHTTP = {
+      location: this.refs.remoteHTTPLocation.getValue().trim(),
+      requiresCredentials: this.refs.remoteHTTPCredentials.getChecked(),
+    }
+    this.props.handleRemoteHTTPChange(remoteHTTP);
+  },
+
+
   componentDidMount() {
     this.handleChange();
   },
 
   render() {
     let remoteHTTPLocation = this.props.settings.getIn(['servers','remoteHTTP','location']);
+    console.log('settings again');
+    console.log(this.props.settings.toJS());
+    console.log(this.props.settings.getIn(['servers','remoteHTTP']).toJS());
+    console.log(this.props.settings.getIn(['servers','remoteHTTP','location']));
+    let remoteHTTPCredentials = this.props.settings.getIn(['servers','remoteHTTP','requiresCredentials']);
     let localHTTPLocation = this.props.settings.getIn(['servers','localHTTP','location']);
     let sshBridgeLocation = this.props.settings.getIn(['servers','SSHBridge','remoteSSHServer']);
+
     let remoteHTTPNode, localHTTPNode, sshBridgeNode;
-    if (remoteHTTPLocation) {
-      let label = 'Remote HTTP - ' + remoteHTTPLocation;
-      remoteHTTPNode = (
-        <Input type="radio"
-          ref="remoteHTTP"
-          name="connection"
-          label={label}
-          onChange={this.handleChange.bind(this, "remoteHTTP")}
-        />
-      );
+    let textStyle = {
+      width: 400,
+      margin: 0,
+    };
+    let remoteStyle = {
+      marginBottom: -20,
+      position: 'relative',
+      top: -10,
     }
+    let label = (
+      <div style={remoteStyle}>
+        <Input
+          style={textStyle}
+          type="text"
+          ref="remoteHTTPLocation"
+          value={remoteHTTPLocation}
+          placeholder="http(s)://...remote web server address..."
+          onChange={this.handleRemoteHTTPChange}
+        />
+        <Input
+          type="checkbox"
+          ref="remoteHTTPCredentials"
+          label="Requires credentials"
+          defaultChecked={remoteHTTPCredentials}
+          onChange={this.handleRemoteHTTPChange}
+        />
+      </div>
+    );
+    remoteHTTPNode = (
+      <Input type="radio"
+        ref="remoteHTTP"
+        name="connection"
+        label={label}
+      />
+    );
+
 
     if (localHTTPLocation) {
       console.log(localHTTPLocation);
@@ -157,6 +197,7 @@ const SelectConnectionPanel = React.createClass({
     let formStyle = {
       backgroundColor: 'aliceblue',
       padding: '10px',
+      width: '100%'
     };
 
     // let opt1 = 'Remote HTTP - ' + this.props.settings.getIn(['servers','remoteHTTP','location']);
@@ -165,7 +206,7 @@ const SelectConnectionPanel = React.createClass({
     return (
       <div>
       <Panel >
-        <h4>1. Select Connection Type</h4>
+        <h4>Step 1: Select Connection Type</h4>
         <p>
           In the batch mode, a local JSON file lists the variants/variant files and sequencing data located either on a remote server or through a local server (see help for more info). Please select the location of your variant/sequence data listed in your local JSON file. Use settings to modify connections. 
         </p>
@@ -199,8 +240,14 @@ const LoadBatch = React.createClass({
       { connection: connection },
       this.digestBatchFile
     );
+  },
 
-    
+
+  handleRemoteHTTPChange(remoteHTTP) {
+    window.localStorage.setItem("snoopyRemoteHTTP", JSON.stringify(remoteHTTP));
+    let settings = this.props.settings;
+    settings = settings.mergeDeepIn(['servers','remoteHTTP'], Immutable.fromJS(remoteHTTP));
+    this.props.handleSettings(settings); 
   },
 
   handleGoQC(e) {
@@ -365,6 +412,7 @@ const LoadBatch = React.createClass({
               <SelectConnectionPanel
                 settings={this.props.settings}
                 handleConnection={this.handleConnection}
+                handleRemoteHTTPChange={this.handleRemoteHTTPChange}
               />
               <LoadFilePanel
                 settings={this.props.settings}

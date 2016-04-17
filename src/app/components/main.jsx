@@ -23,7 +23,6 @@ import { httpGet } from '../utils.js';
 import { fromJS, toJS } from 'immutable';
 import styles from '../styles.js';
 
-
 // var styles = require('../styles.js');
 // let settings = fromJS({
 //   servers: {
@@ -130,8 +129,15 @@ var Main = React.createClass({
       let localSettings = fromJS(JSON.parse(result));
       let settings = this.state.settings;
       settings = settings.mergeDeep(localSettings);
-      this.setState({ settings: settings });
       console.log(settings);
+      let remoteHTTP = window.localStorage.getItem("snoopyRemoteHTTP");
+      console.log(remoteHTTP)
+      if (remoteHTTP) {
+        console.log('it is here after all')
+        remoteHTTP = fromJS(JSON.parse(remoteHTTP));
+        settings = settings.mergeDeepIn(['servers','remoteHTTP'], remoteHTTP);
+      }
+      this.setState({ settings: settings });
     }).catch(error => {
       console.log(error);
     });
@@ -156,6 +162,7 @@ var Main = React.createClass({
   
 
   handleSettings(settings) {
+    console.log(settings.toJS());
     this.setState({settings: settings})
   },
 
@@ -185,7 +192,13 @@ var Main = React.createClass({
         child = <LoadManual handleGoQC={this.handleGoQC} handleGoIntro={this.handleGoIntro} settings={this.state.settings} />;
         break;
       case 'loadbatch':
-        child = <LoadBatch handleGoQC={this.handleGoQC} handleGoIntro={this.handleGoIntro}  settings={this.state.settings} />;
+        console.log(this.state.settings.toJS());
+        child = <LoadBatch 
+          handleGoQC={this.handleGoQC}
+          handleGoIntro={this.handleGoIntro}
+          settings={this.state.settings}
+          handleSettings={this.handleSettings}
+        />;
         break;
       case 'qc':
         child = <QC sessions={this.state.sessions} settings={this.state.settings} />;
@@ -326,6 +339,7 @@ var BatchPanel = React.createClass({
   },
 
   render() {
+
     var panelStyle = {
       backgroundColor: '#EEFFEB'
     };
