@@ -70,7 +70,7 @@ def main():
     print args
 
     if args.local_server:
-        handlers.append((r"/files/(.*)", StaticFileHandler, {"path": "/Users/dr9/"}))
+        handlers.append((r"/files/(.*)", StaticFileHandler, {"path": "."}))
 
     if args.ssh:
         p = re.compile(r'^(.+)@(.+)$')
