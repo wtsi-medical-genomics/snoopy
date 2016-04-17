@@ -25,6 +25,24 @@ module.exports = {
     src: src + "/www/**",
     dest: dest
   },
+  dalliance: {
+    build: {
+      src: './dalliance/build/**',
+      dest: dest + '/dalliance/build'
+    },
+    imgs: {
+      src: './dalliance/imgs/**',
+      dest: dest + '/dalliance/imgs'
+    },
+    fonts: {
+      src: './dalliance/fonts/**',
+      dest: dest + '/dalliance/fonts'
+    },
+    css: {
+      src: './dalliance/css/**',
+      dest: dest + '/dalliance/css'
+    },
+  },
   browserify: {
     // Enable source maps
     debug: true,
