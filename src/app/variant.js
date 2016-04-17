@@ -1,14 +1,15 @@
 "use strict";
 
-function Variant(chr) {
+function Variant(chr, score='not reviewed', snapshotName=false) {
     this.chr = chr;
-    this.score = 'not reviewed';
+    this.score = score;
     this.colorCode = {
         'variant': 'limegreen',
         'not variant': 'darkred',
         'uncertain': 'orange'
     }
     this.snapshot = false;
+    this.snapshotName = snapshotName;
 }
 
 // Variant.prototype.setScore(score) {
@@ -83,9 +84,9 @@ Variant.prototype.toObject = function() {
 
 SNP.prototype = new Variant;
 
-function SNP(chr, loc) {
+function SNP(chr, loc, score='not reviewed', snapshotName=false) {
     this.base = Variant;
-    this.base(chr);
+    this.base(chr, score, snapshotName);
     this.loc = parseInt(loc);
 }
 
@@ -141,9 +142,9 @@ SNP.prototype.getBasePosition = function() {
 
 CNV.prototype = new Variant;
 
-function CNV(chr, min, max) {
+function CNV(chr, min, max, score='not reviewed', snapshotName=false) {
     this.base = Variant;
-    this.base(chr);
+    this.base(chr, score, snapshotName);
     this.min = min;
     this.max = max;
 }

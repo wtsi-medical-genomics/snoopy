@@ -351,7 +351,7 @@ const LoadBatch = React.createClass({
       let connection = this.props.settings.getIn(['servers', this.state.connection]);
       console.log(connection);
       let s = new Session();
-      let v, bams;
+      let v, sequences;
       
       // Ensure variants are there
       if (jso.variants && jso.variants.length > 0) {
@@ -360,23 +360,29 @@ const LoadBatch = React.createClass({
         throw 'Provided JSON contains a session which does not list any variants. Consult help for instructions and examples of valid JSON batch files.'
       }
 
+      if (!!jso.sequences)
+        sequences = jso.sequences;
+      if (!!jso.bams)
+        sequences = jso.bams;
+      if (!!jso.crams)
+        sequences = jso.crams;
+      if (!!jso.files)
+        sequences = jso.files;
+
       // Ensure sequence files are there
-      if (!jso.bams || jso.bams.length === 0) {
+      if (!sequences || sequences.length === 0) {
         throw 'Provided JSON contains a session which does not list any BAMs or CRAMs. Consult help for instructions and examples of valid JSON batch files.'
       }
       // If we have only a single sequence file, convert to array
-      if( typeof jso.bams === 'string' ) {
-        bams = [jso.bams];
-      } else {
-        bams = jso.bams;
-      }
+      if(typeof sequences === 'string')
+        sequences = [sequences];
+      
 
       s.addVariants(v, connection).then(() => {
-        return Promise.all(bams.map(bam => {
-          console.log('bam');
-          console.log(bam);
-          let file = getURL(bam, connection);
-          return s.addSequenceFile(file, connection);
+        return Promise.all(sequences.map(sequence => {
+          console.log('sequences');
+          console.log(sequence);
+          return s.addSequenceFile(sequence, connection);
         }));
       }).then(() => {
         resolve(s);
