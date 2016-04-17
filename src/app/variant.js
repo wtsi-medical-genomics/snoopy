@@ -8,6 +8,7 @@ function Variant(chr) {
         'not variant': 'darkred',
         'uncertain': 'orange'
     }
+    this.snapshot = false;
 }
 
 // Variant.prototype.setScore(score) {
@@ -43,17 +44,41 @@ Variant.prototype.getScoreBadge = function() {
   }
 }
 
-Variant.prototype.takeSnapshot = function(browser) {
+Variant.prototype.takeSnapshot = function(browser, seqFiles) {
     let imgdata = browser.exportImage();
     imgdata = imgdata.split(',');
-    if (imgdata.length === 2)
+    if (imgdata.length === 2) {
         this.snapshot = imgdata[1];
-    else
+        this.snapshotName = this.createSnapshotName(seqFiles);
+    } else {
         console.log('more than two parts!!!!')
+    }
+}
+
+Variant.prototype.createSnapshotName = function(seqFiles, maxLength=200) {
+    let imgName = seqFiles.reduce((accum, f) => {
+      if (accum.length === 0)
+        return f.name;
+      else
+        return `${accum}_${f.name}`;
+    }, '');
+    imgName = imgName.slice(0, maxLength);
+    return `${imgName}_${this.fileString()}.png`
 }
 
 Variant.prototype.getSnapshot = function() {
     return this.snapshot;
+}
+
+Variant.prototype.toObject = function() {
+    var o = {chr: this.chr,
+        location: this.getBasePosition(),
+        qc_decision: this.score,
+    };
+    if (!!this.snapshot) {
+        o['snapshot'] = this.snapshotName;
+    }
+    return o
 }
 
 SNP.prototype = new Variant;
@@ -98,12 +123,6 @@ SNP.prototype.html = function() {
     return html;
 }
 
-SNP.prototype.toObject = function() {
-    return {chr: this.chr,
-            location: this.loc,
-            qc_decision: this.score};
-}
-
 SNP.prototype.string = function() {
     return this.chr + " : " + this.loc + " " + this.score;
 }
@@ -114,6 +133,10 @@ SNP.prototype.fileString = function() {
 
 SNP.prototype.locationString = function() {
     return this.chr + " : " + this.loc;
+}
+
+SNP.prototype.getBasePosition = function() {
+    return `${this.loc}`;
 }
 
 CNV.prototype = new Variant;
@@ -161,6 +184,10 @@ CNV.prototype.locationString = function() {
 
 CNV.prototype.fileString = function() {
     return this.chr + "_" + this.min + "-" + this.max;
+}
+
+CNV.prototype.getBasePosition = function() {
+    return `${this.min} - ${this.max}`;
 }
 
 module.exports = {

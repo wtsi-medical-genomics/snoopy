@@ -97,7 +97,6 @@ class Session {
       return accum.concat(variant.toObject())
     }, []);
 
-
     return {
       files: files,
       variants: variants
@@ -399,7 +398,7 @@ class Session {
 
   takeSnapshot(browser) {
     console.log(browser)
-    this.variants[this.index].takeSnapshot(browser);
+    this.variants[this.index].takeSnapshot(browser, this.bamFiles);
   }
 
   getNumSnapshots() {
@@ -413,16 +412,10 @@ class Session {
   }
 
   getSnasphots(imageFolder) {
-    let imgName = this.bamFiles.reduce((accum, f) => {
-      if (accum.length === 0)
-        return f.name;
-      else
-        return `${accum}_${f.name}`;
-    }, '');
     this.variants.forEach(v => {
       if (!!v.snapshot) {
         imageFolder.file(
-          `${imgName}_${v.fileString()}.png`,
+          v.snapshotName,
           v.snapshot,
           {base64: true}
         );
