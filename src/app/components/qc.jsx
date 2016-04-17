@@ -262,7 +262,7 @@ var QCToolbar = React.createClass({
   handleSaveQC(qcDecisionFilename) {
     let results = this.props.sessions.generateQCreport();
     let blob = new Blob([results], {type: 'text/plain;charset=utf-8'});
-    saveAs(blob, qcDecisionFilename + '.txt');
+    saveAs(blob, qcDecisionFilename + '.json');
   },
 
   handleSaveSnapshots(snapshotFilename) {
