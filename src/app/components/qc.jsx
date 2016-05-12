@@ -1,41 +1,26 @@
 "use strict";
-
-// import React from 'react';
-// import {
-//   Nav,
-//   Navbar,
-//   NavItem,
-//   MenuItem,
-//   DropdownButton,
-//   Button,
-//   Input,
-//   Glyphicon,
-//   Modal,
-// } from 'react-bootstrap';
-// import SessionsModal from './sessionsmodal.jsx';
-// import JSZip from 'JSZip';
-// import saveAs from 'filesaver.js';
-
-var React = require('react');
-var rb = require('react-bootstrap');
-var Alert = rb.Alert;
-var Panel = rb.Panel;
-var Nav = rb.Nav;
-var Navbar = rb.Navbar;
-var NavItem = rb.NavItem;
-var MenuItem = rb.MenuItem;
-var DropdownButton = rb.DropdownButton;
-var Col = rb.Col;
-var Row = rb.Row;
-var Grid = rb.Grid;
-var Button = rb.Button;
-var Input = rb.Input;
-var Glyphicon = rb.Glyphicon;
-var Modal = rb.Modal;
-var SessionsModal = require('./sessionsmodal.jsx');
-var saveAs = require('filesaver.js');
-
+import React from 'react';
+import {
+  Alert,
+  Button,
+  Col,
+  DropdownButton,
+  Glyphicon,
+  Grid,
+  Input,
+  MenuItem,
+  Modal,
+  Nav,
+  Navbar,
+  NavItem,
+  Panel,
+  Row,
+} from 'react-bootstrap';
+import SessionsModal from './sessionsmodal.jsx';
+import JSZip from 'JSZip';
+import saveAs from 'filesaver.js';
 import { httpGet } from '../utils.js';
+import moment from 'moment';
 
 var browser;
 
@@ -251,22 +236,35 @@ var QCToolbar = React.createClass({
     this.setState({view: view});
   },
 
-  handleDownloadQC(qcDecisionFilename, snapshotFilename) {
-    console.log('qcDecisionFilename', qcDecisionFilename);
-    console.log('snapshotFilename', snapshotFilename);
-    if (qcDecisionFilename)
-      this.handleSaveQC(qcDecisionFilename);
-    if (snapshotFilename)
-      this.handleSaveSnapshots(snapshotFilename);
+  handleDownloadQC(params) {
+    // rootFilename: '',
+    // saveQC: false,
+    // saveScreenshots: false,
+    // saveHtmlReport: false,
+
+    console.log('handleDownloadQC(params)', params)
+    if (params.saveQC)
+      this.handleSaveQC(params.rootFilename)
+    if (params.saveScreenshots)
+      this.handleSaveSnapshots(params.rootFilename)
+    if (params.saveHtmlReport)
+      this.handleSaveHtmlReport(params.rootFilename)
   },
 
-  // handleSaveQC(qcDecisionFilename) {
-  //   let results = this.props.sessions.generateQCreport();
-  //   let blob = new Blob([results], {type: 'text/plain;charset=utf-8'});
-  //   saveAs(blob, qcDecisionFilename + '.json');
-  // },
+  handleSaveQC(rootFilename) {
+    let results = this.props.sessions.generateQCreport();
+    let blob = new Blob([results], {type: 'text/plain;charset=utf-8'});
+    saveAs(blob, rootFilename + '.json');
+  },
 
-  handleSaveQC(qcDecisionFilename) {
+  handleSaveSnapshots(rootFilename) {
+    // let content = zip.generate({type:'blob'});
+    let content = this.props.sessions.getSnasphots()
+    console.log(content);
+    saveAs(content, rootFilename + '.zip');
+  },
+
+  handleSaveHtmlReport(rootFilename) {
     let embedImage = true;
     let results = this.props.sessions.generateQCreport(embedImage);
 
@@ -276,15 +274,8 @@ var QCToolbar = React.createClass({
     httpGet('app/qc_summary_template.html', connection).then(response => {
       response = response.replace('//<insert-results-object-here>', results);
       let blob = new Blob([response], {type: 'text/plain;charset=utf-8'});
-      saveAs(blob, qcDecisionFilename + '.html');
+      saveAs(blob, rootFilename + '.html');
     });
-  },
-
-  handleSaveSnapshots(snapshotFilename) {
-    // let content = zip.generate({type:'blob'});
-    let content = this.props.sessions.getSnasphots()
-    console.log(content);
-    saveAs(content, snapshotFilename + '.zip');
   },
 
   openSessionsModal() {
@@ -406,114 +397,106 @@ var QCToolbar = React.createClass({
   }
 });
 
-
-// var SaveModalTrigger = React.createClass({
-//   render() {
-//     return (
-//       <ModalTrigger modal={<ExitModal 
-//                               handleRestart={this.props.handleRestart}
-//                               numVariantsReviewed={this.props.numVariantsReviewed}
-//                               numSnapshots={this.props.numSnapshots}
-//                               handleDownloadQC={this.props.handleDownloadQC} 
-//                               view='save' />
-//                           }>
-//         <NavItem eventKey={this.props.eventKey} href='#'>
-//           <Button><Glyphicon glyph="save-file"/></Button>
-//         </NavItem>
-//       </ModalTrigger>
-//     );
-//   }
-
-// });
-
-// var ExitModalTrigger = React.createClass({
-//   render() {
-//     // numVariantsReviewed={this.props.sessions.getNumVariantsReviewed()}
-//     // numSnapshots={Object.keys(imageFolder.files).length-1}
-//     return (
-//       <ModalTrigger modal={<ExitModal 
-//                               handleRestart={this.props.handleRestart}
-//                               numVariantsReviewed={this.props.numVariantsReviewed}
-//                               numSnapshots={this.props.numSnapshots}
-//                               handleDownloadQC={this.props.handleDownloadQC} 
-//                               view='exit' />
-//                           }>
-//         <NavItem eventKey={this.props.eventKey} href='#'>
-//           <Button><Glyphicon glyph="eject"/></Button>
-//         </NavItem>
-//       </ModalTrigger>
-//     );
-//   }
-// });
-
 const SaveForm = React.createClass({
 
   componentDidMount() {
     this.handleInputChange();
   },
 
+  getInitialState() {
+    return {alerts: []}
+  },
+
   handleInputChange() {
-    let qcFilename = this.refs.QCDecisionsFilename.getValue().trim();
-    let screenshotsFilename = this.refs.screenshotsFilename.getValue().trim();
-    let saveQC = this.refs.saveQCDecisions.getChecked();
-    let saveScreenshots = this.refs.saveScreenshots.getChecked();
+    const rootFilename = this.refs.rootFilename.getValue().trim();
+    const saveQC = this.refs.saveQCDecisions.getChecked();
+    const saveScreenshots = this.refs.saveScreenshots.getChecked();
+    const saveHtmlReport = this.refs.saveHtmlReport.getChecked();
 
     let alerts = [];
-    if (!saveQC && !saveScreenshots)
-      alerts.push('Nothing to save.');
-    if (saveQC && (qcFilename === ''))
-      alerts.push('Please enter a filename for the QC results.');
-    if (saveScreenshots && (screenshotsFilename === ''))
-      alerts.push('Please enter a filename for the snapshots.');
-    if (!saveQC)
-      qcFilename = '';
-    if (!saveScreenshots)
-      screenshotsFilename = '';
+    if (!saveQC && !saveScreenshots && !saveHtmlReport)
+      alerts.push('You haven\'t selected anything to save.');
+    if ((saveQC || saveScreenshots ||saveHtmlReport ) && (rootFilename === ''))
+      alerts.push('Please enter a root filename.');
 
-    this.props.handleInputChange({qcFilename, screenshotsFilename, ...alerts});
+    this.props.handleInputChange({
+      rootFilename,
+      saveQC,
+      saveScreenshots,
+      saveHtmlReport,
+      alerts,
+    });
+
+    this.setState({alerts})
   },
 
   render() {
     let variantsDisable = this.props.numVariantsReviewed === 0;
     let snapshotsDisable = this.props.numSnapshots === 0;
+    const summaryListStyle = {
+      fontSize: 20,
+    }
+    const summaryPanelStyle = {
+      backgroundColor: 'lightblue',
+    }
 
-    let QCDecisionNode = (
-      <Input
-        type="text"
-        ref="QCDecisionsFilename"
-        placeholder="filename"
-        addonAfter=".json"
-        onChange={this.handleInputChange}
-        disabled={variantsDisable}
-      />);
-    let SnapshotNode = (
-      <Input
-        type="text"
-        ref="screenshotsFilename"
-        placeholder="zip archive name"
-        addonAfter=".zip"
-        onChange={this.handleInputChange}
-        disabled={snapshotsDisable}
-      />);
+    let alertNode;
+    if (this.state.alerts.length > 0) {
+      let alerts = this.state.alerts.map((a) => {
+        return (
+          <li>{a}</li>
+        )
+      });
+      alertNode = (
+        <Alert bsStyle="danger">
+          <ul>
+            {alerts}
+          </ul>
+        </Alert>
+      );
+    }
+
     return (
-      <form>
-        <h4>{this.props.numVariantsReviewed} QC decisions - save these?</h4>
-        <Input type="checkbox"
-          ref="saveQCDecisions"
-          label={QCDecisionNode}
-          defaultChecked={!variantsDisable}
-          onChange={this.handleInputChange}
-          disabled={variantsDisable}
-        />
-        <h4>{this.props.numSnapshots} snapshots taken - save these?</h4>
-        <Input type="checkbox"
-          ref="saveScreenshots"
-          label={SnapshotNode}
-          defaultChecked={!snapshotsDisable}
-          onChange={this.handleInputChange}
-          disabled={snapshotsDisable}
-        />
-      </form>
+      <div>
+        <Panel style={summaryPanelStyle}>
+          <ul style={summaryListStyle}>
+            <li>{this.props.numVariantsReviewed} QC decisions made.</li>
+            <li>{this.props.numSnapshots} snapshots taken.</li>
+          </ul>
+        </Panel>
+        <form>
+          <Input
+            type="text"
+            ref="rootFilename"
+            placeholder="root filename"
+            onChange={this.handleInputChange}
+            disabled={variantsDisable}
+            defaultValue={'snoopy_ ' + moment().format('YYYYMMDD_HH:mm:ss')}
+          />
+          <Input type="checkbox"
+            ref="saveQCDecisions"
+            label="Export JSON"
+            defaultChecked={!variantsDisable}
+            onChange={this.handleInputChange}
+            disabled={variantsDisable}
+          />
+          <Input type="checkbox"
+            ref="saveScreenshots"
+            label="Export zip file of snapshots"
+            defaultChecked={!snapshotsDisable}
+            onChange={this.handleInputChange}
+            disabled={snapshotsDisable}
+          />
+          <Input type="checkbox"
+            ref="saveHtmlReport"
+            label="Export HTML QC summary"
+            defaultChecked={!snapshotsDisable}
+            onChange={this.handleInputChange}
+            disabled={snapshotsDisable}
+          />
+        </form>
+        {alertNode}
+      </div>
     );
   }
 });
@@ -523,18 +506,16 @@ const ExitModal = React.createClass({
 
   getInitialState() {
     return {
-      qc: false,
-      snapshots: false,
+      rootFilename: '',
+      saveQC: false,
+      saveScreenshots: false,
+      saveHtmlReport: false,
+      alerts: [],
     };
   },
 
-  handleSaveData(saveQC, qcFilename, saveScreenshots, screenshot) {
-    this.setState({
-      saveQC: saveQC,
-      qcFilename: qcFilename, 
-      saveScreenshots: saveScreenshots,
-      screenshot: screenshot,
-    });
+  handleSaveData(params) {
+    this.setState(params);
   },
 
   handleClose() {
@@ -542,7 +523,10 @@ const ExitModal = React.createClass({
   },
 
   handleSave() {
-    this.props.handleDownloadQC(this.state.qc, this.state.snapshots);
+   if (this.state.alerts.length === 0) {
+      this.props.handleDownloadQC(this.state);
+      this.handleClose();  
+    }
   },
 
   handleRestart() {
@@ -556,6 +540,7 @@ const ExitModal = React.createClass({
   },
 
   render() {
+
     return (
       <Modal show={this.props.show} onHide={this.handleClose}>
         <Modal.Header closeButton>
@@ -591,8 +576,10 @@ const SaveModal = React.createClass({
 
   getInitialState() {
     return {
-      qcFilename: '',
-      screenshotsFilename: '',
+      rootFilename: '',
+      saveQC: false,
+      saveScreenshots: false,
+      saveHtmlReport: false,
       alerts: [],
     };
   },
@@ -607,29 +594,12 @@ const SaveModal = React.createClass({
 
   handleSave() {
    if (this.state.alerts.length === 0) {
-      this.props.handleDownloadQC(this.state.qcFilename, this.state.screenshotsFilename);
+      this.props.handleDownloadQC(this.state);
       this.handleClose();  
     }
   },
 
   render() {
-    let alertNode;
-    if (this.state.alerts.length > 0) {
-      let alerts = this.state.alerts.map((a) => {
-        return (
-          <li>{a}</li>
-        )
-      });
-      alertNode = (
-        <Alert bsStyle="danger">
-          <ul>
-            {alerts}
-          </ul>
-        </Alert>
-      );
-    }
-    console.log('this.state');
-    console.log(this.state);
     return (
       <Modal show={this.props.show} onHide={this.handleClose}>
         <Modal.Header closeButton>
@@ -641,7 +611,6 @@ const SaveModal = React.createClass({
             numSnapshots={this.props.numSnapshots}
             handleInputChange={this.handleSaveData}
           />
-          {alertNode}
         </Modal.Body>
         <Modal.Footer>
           <Button bsStyle='primary' onClick={this.handleSave}>Save</Button>
@@ -655,18 +624,18 @@ const SaveModal = React.createClass({
 
 const FinishedModal = React.createClass({
 
-  getInitialState() {
+    getInitialState() {
     return {
-      qc: false,
-      snapshots: false,
+      rootFilename: '',
+      saveQC: false,
+      saveScreenshots: false,
+      saveHtmlReport: false,
+      alerts: [],
     };
   },
 
-  handleSaveData(qc, snapshots) {
-    this.setState({
-      qc: qc,
-      snapshots: snapshots,
-    });
+  handleSaveData(params) {
+    this.setState(params);
   },
 
   handleClose() {
@@ -674,8 +643,10 @@ const FinishedModal = React.createClass({
   },
 
   handleSave() {
-    this.props.handleDownloadQC(this.state.qc, this.state.snapshots);
-    this.handleClose();
+   if (this.state.alerts.length === 0) {
+      this.props.handleDownloadQC(this.state);
+      this.handleClose();  
+    }
   },
 
   handleRestart() {

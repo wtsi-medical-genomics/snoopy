@@ -30,6 +30,7 @@
     "filesaver.js": "~0.1",
     "immutable": "~3.7",
     "jszip": "~2.5",
+    "moment": "^2.11.2",
     "react": "~0.13",
     "react-bootstrap": "~0.24",
     "react-loader": "~1.2",
