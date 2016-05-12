@@ -115,11 +115,14 @@ const SelectConnectionPanel = React.createClass({
       requiresCredentials: this.refs.remoteHTTPCredentials.getChecked(),
     }
     this.props.handleRemoteHTTPChange(remoteHTTP);
+    if (this.refs.remoteHTTP.getChecked()) {
+      this.props.handleConnection('remoteHTTP');
+    }
   },
 
 
   componentDidMount() {
-    this.handleChange();
+    this.handleRemoteHTTPChange();
   },
 
   render() {
@@ -166,6 +169,7 @@ const SelectConnectionPanel = React.createClass({
         ref="remoteHTTP"
         name="connection"
         label={label}
+        onChange={this.handleChange.bind(this, "remoteHTTP")}
       />
     );
 
@@ -242,7 +246,6 @@ const LoadBatch = React.createClass({
     );
   },
 
-
   handleRemoteHTTPChange(remoteHTTP) {
     window.localStorage.setItem("snoopyRemoteHTTP", JSON.stringify(remoteHTTP));
     let settings = this.props.settings;
@@ -286,7 +289,7 @@ const LoadBatch = React.createClass({
   handleFileLoad(file) {
     this.setState(
       {file: file},
-      this.digestBatchFile
+      this.digestBatchFile //callback
     );
   },
 
@@ -294,6 +297,9 @@ const LoadBatch = React.createClass({
     // User clicked cancel
     let file = this.state.file;
     let connection = this.state.connection;
+
+    console.log('connection');
+    console.log(connection);
 
     if (!file || !connection)
       return;

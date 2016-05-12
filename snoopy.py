@@ -21,7 +21,7 @@ SERVERS = {}
 class SSH_Handler(RequestHandler):
 
     def initialize(self, username, password, hostname):
-        self.set_header('Access-Control-Allow-Origin', '*')
+        # self.set_header('Access-Control-Allow-Origin', '*')
         self._ssh_bridge = SSHBridge(username, password, hostname)
         self._RE_SEQ = re.compile(r'(.*)/(.*):(.*)-(.*)')
         self._RE_TXT = re.compile(r'(.*)') #(.*(\.(txt|json))?)

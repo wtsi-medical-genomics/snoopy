@@ -32,9 +32,10 @@ var Button = rb.Button;
 var Input = rb.Input;
 var Glyphicon = rb.Glyphicon;
 var Modal = rb.Modal;
-
 var SessionsModal = require('./sessionsmodal.jsx');
 var saveAs = require('filesaver.js');
+
+import { httpGet } from '../utils.js';
 
 var browser;
 
@@ -90,15 +91,15 @@ const QC = React.createClass({
       noPersistView : true,
       noClearHighlightsButton: true,
       baseColors: this.props.settings.getIn(['colors']).toJS(),
-      sources: [
-        {
-          name: 'Genome',
-          twoBitURI: 'http://www.biodalliance.org/datasets/hg19.2bit',
-          tier_type: 'sequence',
-          provides_entrypoints: true,
-          pinned: true
-        }
-      ]
+      // sources: [
+      //   {
+      //     name: 'Genome',
+      //     twoBitURI: 'http://www.biodalliance.org/datasets/hg19.2bit',
+      //     tier_type: 'sequence',
+      //     provides_entrypoints: true,
+      //     pinned: true
+      //   }
+      // ]
       })
       browser.addInitListener(() => {
         // this.index = 0;
@@ -259,10 +260,24 @@ var QCToolbar = React.createClass({
       this.handleSaveSnapshots(snapshotFilename);
   },
 
+  // handleSaveQC(qcDecisionFilename) {
+  //   let results = this.props.sessions.generateQCreport();
+  //   let blob = new Blob([results], {type: 'text/plain;charset=utf-8'});
+  //   saveAs(blob, qcDecisionFilename + '.json');
+  // },
+
   handleSaveQC(qcDecisionFilename) {
-    let results = this.props.sessions.generateQCreport();
-    let blob = new Blob([results], {type: 'text/plain;charset=utf-8'});
-    saveAs(blob, qcDecisionFilename + '.json');
+    let embedImage = true;
+    let results = this.props.sessions.generateQCreport(embedImage);
+
+    let connection = this.props.settings.getIn(['servers', 'localHTTP']);
+    console.log(connection);
+
+    httpGet('app/qc_summary_template.html', connection).then(response => {
+      response = response.replace('//<insert-results-object-here>', results);
+      let blob = new Blob([response], {type: 'text/plain;charset=utf-8'});
+      saveAs(blob, qcDecisionFilename + '.html');
+    });
   },
 
   handleSaveSnapshots(snapshotFilename) {
@@ -432,14 +447,30 @@ var QCToolbar = React.createClass({
 // });
 
 const SaveForm = React.createClass({
+
+  componentDidMount() {
+    this.handleInputChange();
+  },
+
   handleInputChange() {
-    let qcDecisionsFilename = this.refs.QCDecisionsFilename.getValue().trim();
+    let qcFilename = this.refs.QCDecisionsFilename.getValue().trim();
     let screenshotsFilename = this.refs.screenshotsFilename.getValue().trim();
-    let saveQCDecisions = this.refs.saveQCDecisions.getChecked();
+    let saveQC = this.refs.saveQCDecisions.getChecked();
     let saveScreenshots = this.refs.saveScreenshots.getChecked();
-    let qc = saveQCDecisions && qcDecisionsFilename ? qcDecisionsFilename : false;
-    let snapshots = saveScreenshots && screenshotsFilename ? screenshotsFilename : false;
-    this.props.handleInputChange(qc, snapshots);
+
+    let alerts = [];
+    if (!saveQC && !saveScreenshots)
+      alerts.push('Nothing to save.');
+    if (saveQC && (qcFilename === ''))
+      alerts.push('Please enter a filename for the QC results.');
+    if (saveScreenshots && (screenshotsFilename === ''))
+      alerts.push('Please enter a filename for the snapshots.');
+    if (!saveQC)
+      qcFilename = '';
+    if (!saveScreenshots)
+      screenshotsFilename = '';
+
+    this.props.handleInputChange({qcFilename, screenshotsFilename, ...alerts});
   },
 
   render() {
@@ -466,7 +497,7 @@ const SaveForm = React.createClass({
       />);
     return (
       <form>
-        <h4>{this.props.numVariantsReviewed} QC decisions made - save these?</h4>
+        <h4>{this.props.numVariantsReviewed} QC decisions - save these?</h4>
         <Input type="checkbox"
           ref="saveQCDecisions"
           label={QCDecisionNode}
@@ -497,10 +528,12 @@ const ExitModal = React.createClass({
     };
   },
 
-  handleSaveData(qc, snapshots) {
+  handleSaveData(saveQC, qcFilename, saveScreenshots, screenshot) {
     this.setState({
-      qc: qc,
-      snapshots: snapshots,
+      saveQC: saveQC,
+      qcFilename: qcFilename, 
+      saveScreenshots: saveScreenshots,
+      screenshot: screenshot,
     });
   },
 
@@ -558,16 +591,14 @@ const SaveModal = React.createClass({
 
   getInitialState() {
     return {
-      qc: false,
-      snapshots: false,
+      qcFilename: '',
+      screenshotsFilename: '',
+      alerts: [],
     };
   },
 
-  handleSaveData(qc, snapshots) {
-    this.setState({
-      qc: qc,
-      snapshots: snapshots,
-    });
+  handleSaveData(params) {
+    this.setState(params);
   },
 
   handleClose() {
@@ -575,11 +606,30 @@ const SaveModal = React.createClass({
   },
 
   handleSave() {
-    this.props.handleDownloadQC(this.state.qc, this.state.snapshots);
-    this.handleClose();
+   if (this.state.alerts.length === 0) {
+      this.props.handleDownloadQC(this.state.qcFilename, this.state.screenshotsFilename);
+      this.handleClose();  
+    }
   },
 
   render() {
+    let alertNode;
+    if (this.state.alerts.length > 0) {
+      let alerts = this.state.alerts.map((a) => {
+        return (
+          <li>{a}</li>
+        )
+      });
+      alertNode = (
+        <Alert bsStyle="danger">
+          <ul>
+            {alerts}
+          </ul>
+        </Alert>
+      );
+    }
+    console.log('this.state');
+    console.log(this.state);
     return (
       <Modal show={this.props.show} onHide={this.handleClose}>
         <Modal.Header closeButton>
@@ -591,6 +641,7 @@ const SaveModal = React.createClass({
             numSnapshots={this.props.numSnapshots}
             handleInputChange={this.handleSaveData}
           />
+          {alertNode}
         </Modal.Body>
         <Modal.Footer>
           <Button bsStyle='primary' onClick={this.handleSave}>Save</Button>

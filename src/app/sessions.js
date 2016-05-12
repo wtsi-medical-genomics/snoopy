@@ -88,10 +88,16 @@ class Sessions {
   }
 
 
-  generateQCreport() {
+  generateHTMLreport() {
+    let embedImage = true;
+    let report = this.generateQCreport(embedImage);
+    
+  }
+
+  generateQCreport(embedImage=false) {
     this.getHTMLResultsSelectionModal();
     let sessions = this.sessions.reduce((accum, session)  => {
-      return accum.concat(session.generateQCreport())
+      return accum.concat(session.generateQCreport(embedImage))
     }, []);
     let jso = {
       date: Date(),

@@ -71,13 +71,17 @@ Variant.prototype.getSnapshot = function() {
     return this.snapshot;
 }
 
-Variant.prototype.toObject = function() {
+Variant.prototype.toObject = function(embedImage=false) {
     var o = {chr: this.chr,
         location: this.getBasePosition(),
         qc_decision: this.score,
     };
     if (!!this.snapshot) {
-        o['snapshot'] = this.snapshotName;
+        if (embedImage){
+            o['snapshot'] = this.snapshot;
+        } else {
+            o['snapshot'] = this.snapshotName;
+        }
     }
     return o
 }
