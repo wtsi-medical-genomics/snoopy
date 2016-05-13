@@ -11,6 +11,9 @@ Contents:
 .. toctree::
    :maxdepth: 3
 
+   overview
+   loading_data
+   starting_snoopy
    guide/index
    user_interface
    file_formats
