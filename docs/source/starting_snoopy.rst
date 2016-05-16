@@ -1,5 +1,6 @@
 .. _starting-snoopy:
 
+###############
 Starting Snoopy
 ###############
 To start Snoopy goto the command line and enter::

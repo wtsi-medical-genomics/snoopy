@@ -18,9 +18,9 @@
 .. |save| image:: /images/save.png
 .. |snapshot| image:: /images/snapshot.png
 
-
+#######################
 Perform Quality Control
------------------------
+#######################
 After starting snoopy from the terminal, a new browser tab will open and present you with the first screen: mode selection. Using :ref:`loading-data` as a guide, select the relevant mode and load your data. It's time to view each of the variant sites and record your decision. The following is a walk through guide, for a description of specific parts of the user inteface refer to :doc:`/user_interface`. 
 
 1. Upon starting, the first variant in the first session will be viewed.

@@ -1,5 +1,6 @@
 .. _loading-data:
 
+############
 Loading Data
 ############
 
@@ -25,6 +26,7 @@ There are a few choices to make when using snoopy: which mode to use and how to 
             Use batch mode and load files with the SSH Bridge
 
 
+*****
 Modes
 *****
 There are two ways to use Snoopy: **manual mode** and **batch mode**.
@@ -51,6 +53,7 @@ For example, a session may consist of:
 * a set of de novo sites which need to be verified ``chr5:96244805``, ``chr11:28483998``, ``chr12:106799289``, ...
 
 
+***********
 Data Access
 ***********
 
@@ -141,6 +144,7 @@ SSH Bridge         BAM, CRAM   Manual, Batch
     When loading Local BAM files through the browser, you will also need to specify the accompanying BAI file. For the other access modes, as long as the BAI files exist in the same directory and have corresponding file names (ie :code:`x.bam ==> x.bam.bai`) you do not need to explicitly load them.
 
 
+******************
 Input File Formats
 ******************
 
@@ -159,6 +163,7 @@ The variant text file can list both SNPs and CNVs. SNPs can be in any of the fol
 The format for CNVs is as SNPs except the location consists of two numbers. For example, a CNV location may be 16:start-end.
 
 
+.. _batch-json-file:
 Batch JSON File
 ===============
 

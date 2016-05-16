@@ -1,3 +1,4 @@
+##############
 User Interface
 ##############
 
@@ -28,9 +29,9 @@ There are two main sections in this view: the Snoopy interface and the Dalliance
 
 .. image:: /images/overview_split.png
 
-
+*********
 Dalliance
-=========
+*********
 Within Dalliance you have access to following:
 
 * |ref_loc| - Lists the genome reference being used and the current chromosome and location. You can change the location by entering either a start and end position or a single base position.
@@ -40,11 +41,15 @@ Within Dalliance you have access to following:
 * |print| - Export current view as an SVG or PNG.
 * |options| - Change some of Dalliance's options such as vertical guideline location, scrolling direction.
 
+
+.. _snoopy-ui:
+
+******
 Snoopy
-======
+******
 
 Variant Decisions
------------------
+=================
 When either of the decision buttons are clicked, you will advance to the next variant.
 
 * |not_a_variant| - You are certain that the called site is not actually a variant.
@@ -52,13 +57,13 @@ When either of the decision buttons are clicked, you will advance to the next va
 * |variant| - You are certain that the called variant is truly a variant.
 
 Navigation
-----------
+==========
 * |variant_loc| - This displays the current variant and a QC decision, if available. If you click this button you will presented with a window which summarizes all of the QC decisions made so far, as well as allowing you to quickly navigate to a different variant.
 * |return_home| - Returns to the current variant of interest if you've dragged the Dalliance track away.
 * |previous| - Go to the previous variant. Clicking this button does not register any variant decisions.
 
 Viewing
--------
+=======
 * |view| - This dropdown button allows you to select four different track styles:
     * Raw - Display the bases with color scheme as specified in the settings.
     * Condensed - Only display a base if it differs from the reference. If a read exists and is in agreement with the reference, use match color as set in your settings.
@@ -67,12 +72,14 @@ Viewing
 * |snapshot| - Clicking this will take a snapshot of whatever view is currently loaded into Dalliance.
 
 Admin
------
+=====
 * |restart| - Stop and restart Snoopy button, there will be a prompt asking if you wish to save your progress.
-* |save| - Save whatever progress you have made so far. The output format is described in :doc:`/file_formats`. 
+* |save| - Save whatever progress you have made so far. The output format is described in :doc:`/saving_results`. 
+
+.. _settings:
 
 Settings
---------
+========
 View and change the following settings:
 
 * Connections
@@ -94,12 +101,10 @@ View and change the following settings:
 * Snapshots
     * Automatically take snapshots at each variant
 
-
 Help
-----
+====
 A link to the documentation hosted on Read The Docs.
 
-
 GitHub
-------
+======
 A link to the GitHub repository holding the snoopy's source code.
