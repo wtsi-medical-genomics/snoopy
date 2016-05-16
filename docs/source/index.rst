@@ -16,8 +16,6 @@ Contents:
    starting_snoopy
    perform_quality_control
    user_interface
-   file_formats
-   settings
 
 
 
