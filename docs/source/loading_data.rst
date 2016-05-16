@@ -1,10 +1,12 @@
+.. _loading-data:
+
 Loading Data
 ############
 
-There are a few choices to make when using snoopy: which mode to use and how to get to your data. The following usage matrix summarises these choices and the following discusses each use case in more detail.
+There are a few choices to make when using snoopy: which mode to use and how to get to your data. The following usage matrix summarises the choices. Following this each use-case is discussed in more detail.
 
 
-**I want to review**
+**I want to review...**
 
     A single set of sequence files/candidate variants
         My BAM files are local
@@ -16,7 +18,7 @@ There are a few choices to make when using snoopy: which mode to use and how to 
 
     Several sets of sequence files/candidate variants
         My BAM files are local
-            Use batch mode and load files within the browser
+            Use batch mode and load files from the local file server
         My BAM files are on a remote server with HTTP/S access
             Use batch mode and load files from remote HTTP
         My BAM/CRAM files are on a remote server without HTTP/S access
@@ -65,6 +67,9 @@ Modes
 File types
     Bam
 
+Command line arguments
+    None
+
 
 Local File Server
 """""""""""""""""
@@ -76,10 +81,13 @@ Modes
 File types
     Bam
 
+Command line arguments
+    ``--local-server``, ``-l`` (see :ref:`starting-snoopy` for more details)
+
 Remote Files
 ^^^^^^^^^^^^
 
-http/s
+HTTP/S
 """"""
 If your files exist on a remote HTTP/S server, you will be able to access these in either manual or batch mode. You will be limited to BAM files however.
 
@@ -89,6 +97,8 @@ Modes
 File types
     Bam
 
+Command line arguments
+    None
 
 SSH Bridge
 """"""""""
@@ -109,6 +119,9 @@ Modes
 
 File types
     Bam, Cram
+
+Command line arguments
+    ``--ssh SSH``, ``-s`` (see :ref:`starting-snoopy` for more details)
 
 
 ================== =========== ==============

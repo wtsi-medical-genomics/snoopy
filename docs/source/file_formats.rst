@@ -1,3 +1,5 @@
+.. _file-formats:
+
 File Formats
 ============
 

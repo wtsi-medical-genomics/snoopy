@@ -1,3 +1,5 @@
+.. _starting-snoopy:
+
 Starting Snoopy
 ###############
 To start Snoopy goto the command line and enter::
@@ -19,3 +21,5 @@ Where options are summarised here:
 --ssh SSH, -s SSH     user@hostname for SSH connection to sequence files on remote host
 
                       DEFAULT: SSH-Bridge not switched on
+
+See the section :ref:`loading-data` for more information about these options.
