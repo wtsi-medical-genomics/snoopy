@@ -4,15 +4,18 @@ import tornado.ioloop
 from tornado.web import RequestHandler, StaticFileHandler, Application
 from tornado.netutil import bind_sockets
 from tornado.httpserver import HTTPServer
-from tornado import gen
+from tornado import gen, ioloop
 import re
 import os
 import argparse
 import getpass
 import base64
 import json
+import webbrowser
+import threading
+import signal
+import sys
 from ssh_bridge import SSHBridge
-
 
 SERVERS = {}
 
@@ -109,7 +112,26 @@ def main():
             "username": ssh_config['username']
         }
 
-    tornado.ioloop.IOLoop.current().start()
+    # Start tornado server.
+    t = lambda: ioloop.IOLoop.current().start()
+    tornado_thread = threading.Thread(target=t)
+    tornado_thread.start()
+    
+    # Open new tab in default web browser.
+    url = 'http://localhost:{}/app'.format(port)
+    print url
+    b = lambda : webbrowser.open(url, new=2)
+    threading.Thread(target=b).start()
+
+    # Kill on ^C
+    try:
+        while tornado_thread.is_alive():
+            tornado_thread.join(timeout=1.0)
+    except (KeyboardInterrupt, SystemExit):
+        print '\n\n...stopping snoopy...\n'
+        ioloop.IOLoop.current().stop()
+        sys.exit(0)
+    
 
 
 if __name__ == "__main__":
