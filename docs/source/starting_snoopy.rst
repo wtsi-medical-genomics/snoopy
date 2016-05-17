@@ -24,3 +24,27 @@ Where options are summarised here:
                       DEFAULT: SSH-Bridge not switched on
 
 See the section :ref:`loading-data` for more information about these options.
+
+
+
+********
+Examples
+********
+
+Start local server
+==================
+::
+
+    $ snoopy -l
+
+Start local server at port 8888
+===============================
+::
+
+    $ snoopy -l -p 8888
+
+Start SSH-Bridge with username ``bob`` at ``big-bio-server``
+================
+::
+
+    $ snoopy -s bob@big-bio-server

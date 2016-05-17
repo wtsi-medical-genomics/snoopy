@@ -16,7 +16,9 @@ It is possible to export JSON files with the same as described in :ref:`batch-js
                 "sequence_files": [
                     "path/to/sequence file 1",
                     "path/to/sequence file 2",
-                    "path/to/sequence file 3"
+                    .
+                    .
+                    .
                 ],
                 "variants": [
                     {
