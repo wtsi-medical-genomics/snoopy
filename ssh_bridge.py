@@ -5,6 +5,7 @@ import base64
 import logging
 import pdb
 from tornado import gen
+from tornado.web import HTTPError
 
 class SSHBridge(object):
     """
@@ -59,18 +60,22 @@ class SSHBridge(object):
         #         return False
         return ssh_stdout
 
+    def _prepend_slash(self, path):
+        if path[0] == '~':
+            return path
+        return '/' + path
 
     @gen.coroutine
     def fetch_plaintext(self, path):
-        ftype = os.path.splitext(path)[1].lower()
+        # ftype = os.path.splitext(path)[1].lower()
         # if ftype in ('.txt', '.json'):
+        path = self._prepend_slash(path)
         c = 'cat {}'.format(path)
         stdout = self._send(c)
-        if not stdout:
-            return False
-        return stdout.read()
-
-
+        lines = stdout.read()
+        if not lines:
+            raise HTTPError(404)
+        return lines
 
     @gen.coroutine
     def fetch_sequence(self, path, chrom, start, end):
@@ -100,11 +105,12 @@ class SSHBridge(object):
         """
 
         ftype = os.path.splitext(path)[1].lower()
+        path = self._prepend_slash(path)
         if ftype in ('.bam', '.cram'):
             c = 'samtools view {} {}:{}-{}'.format(path, chrom, start, end)
             stdout = self._send(c)
             if not stdout:
-                return False
+                raise HTTPError(404)
             return self.parse_samtools_view(stdout)
 
     def parse_samtools_view(self, samtools_view_output):

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 import tornado.ioloop
-import tornado.web
-from tornado.web import RequestHandler, StaticFileHandler
+from tornado.web import RequestHandler, StaticFileHandler, Application
 from tornado.netutil import bind_sockets
 from tornado.httpserver import HTTPServer
 from tornado import gen
@@ -13,7 +12,6 @@ import getpass
 import base64
 import json
 from ssh_bridge import SSHBridge
-
 
 
 SERVERS = {}
@@ -37,6 +35,7 @@ class SSH_Handler(RequestHandler):
             m = self._RE_TXT.match(params)
             if m:
                 path = m.groups()[0]
+                print path
                 fetched = yield self._ssh_bridge.fetch_plaintext(path)
         self.write(fetched)
 
@@ -55,15 +54,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--local-server', '-l',
         action='store_true',
-        help='turn on local file server'
+        help='turn on local file server DEFAULT: local-server not switched on'
         )
     parser.add_argument('--port', '-p',
         type=int,
-        help='set the local HTTP server port number. DEFAULT: {}, or next available port.'.format(DEFAULT_PORT),
+        help='set the local HTTP server port number DEFAULT: {}, or next available port'.format(DEFAULT_PORT),
         default=DEFAULT_PORT,
         )
     parser.add_argument('--ssh', '-s',
-        help='user@hostname for SSH connection to sequence files on remote host. DEFAULT: <no SSH connection>'
+        help='user@hostname for SSH connection to sequence files on remote host DEFAULT: SSH-Bridge not switched on'
         )
     args = parser.parse_args()
     
@@ -88,7 +87,7 @@ def main():
 
 
     handlers.append((r"/settings", SettingsHandler))
-    app = tornado.web.Application(handlers)
+    app = Application(handlers)
     sockets = bind_sockets(args.port, '')
     server = HTTPServer(app)
     server.add_sockets(sockets)
