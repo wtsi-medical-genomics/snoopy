@@ -26,7 +26,8 @@ import {
   OverlayTrigger
 } from 'react-bootstrap';
 import FileLoader from './fileloader.jsx';
-import { Session, Sessions } from '../session.js';
+import Session from '../session.js';
+import Sessions from '../sessions.js';
 import { LocalBAM, 
   LocalBAI, 
   RemoteBAM, 
@@ -401,6 +402,10 @@ const LoadManual = React.createClass({
   handleVariantFile(file, connection) {
     this.setState({variantsLoading: true});
     let session = this.state.session;
+    console.log('file')
+    console.log(file)
+    console.log('connection')
+    console.log(connection)
     session.addVariants(file, connection).then(() => {
       this.setState({
         session: session,
@@ -418,8 +423,6 @@ const LoadManual = React.createClass({
 
   handleDataFile(files, connection) {
     this.setState({ dataLoading: true });
-    if (connection.get('type') !== 'local')
-      files = getURL(files, connection);
     let session = this.state.session;
     session.addSequenceFile(files, connection).then(() => {
       session.matchMaker();
@@ -432,10 +435,6 @@ const LoadManual = React.createClass({
       console.log(error);
       this.setState({dataError: error, dataLoaded: true})
     });
-    // var s = this.state.session;
-    // s.addSequenceFile(files, connection).then();
-    // this.setState({session: s});
-    // console.log(s);
   },
 
   handleRemoveDataFile(id) {
