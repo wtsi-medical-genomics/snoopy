@@ -1,8 +1,13 @@
 "use strict";
 
+
 var variants = require('./variant.js');
 var SNP = variants.SNP;
 var CNV = variants.CNV;
+var utils = require('./utils.js');
+var getExtension = utils.getExtension;
+var httpGet = utils.httpGet;
+var localTextGet = utils.localTextGet;
 var styleSheets = require('./styles.js');
 var loadedfiletypes = require('./loadedfiletypes.js');
 var RemoteBAM = loadedfiletypes.RemoteBAM;
@@ -11,25 +16,16 @@ var SSHBAM = loadedfiletypes.SSHBAM;
 var LocalBAM = loadedfiletypes.LocalBAM;
 var LocalBAI = loadedfiletypes.LocalBAI;
 var Settings = require('./components/settings.jsx');
-var JSZip = require('JSZip');
-import {
-  getURL,
-  getExtension,
-  httpGet,
-  localTextGet,
-} from './utils.js';
+var getPrefix = Settings.getPath;
 
 const BAI_RE = /^(.*)\.bai$/i;
 const BAM_RE = /^(.*)\.bam$/i;
-const SNP_RE = /^\s*(chr)?\s*([0-9,m,x,y]+)[-:,\s]*(\d+)\s*$/i;
-const CNV_RE = /^\s*(chr)?\s*([0-9,m,x,y]+)[-:,\s]*(\d+)[-:,\s]*(\d+)\s*$/i;
+const SNP_RE = /^\s*(chr)?([0-9,m,x,y]+)[-:,\s](\d+)\s*$/i;
+const CNV_RE = /^\s*(chr)?([0-9,m,x,y]+)[-:,\s](\d+)[-:,\s](\d+)\s*$/i;
 
-const referenceGenome = {
+var referenceGenome = {
   name: 'Genome',
   twoBitURI: 'http://www.biodalliance.org/datasets/hg19.2bit',
-  // twoBitURI: 'https://web-lustre-01.internal.sanger.ac.uk/lustre/scratch113/teams/barrett/users/dr9/human_g1k_v37.2bit',
-  // twoBitURI: 'http://localhost:4444/files/examples/human_g1k_v37.2bit',
-  credentials: true,
   tier_type: 'sequence',
   provides_entrypoints: true,
   pinned: true
@@ -62,7 +58,8 @@ class Session {
             }).then(() => {
               this.variantFile = variants;
               resolve();
-            }).catch(error => {
+            }).catch((error) => {
+              console.log(error);
               reject(error);
             });
           }
@@ -77,8 +74,6 @@ class Session {
               this.parseVariants(result);
               console.log('finished parsing variants');
               resolve();
-            }).catch(error => {
-              reject(error);
             });
           } else {
             // An array of single dna locations
@@ -92,6 +87,162 @@ class Session {
     });
   }
 
+  generateQCreport() {
+    // Create an object which will be exported as JSON
+    let files = this.bamFiles.reduce((accum, file)  => {
+      return accum.concat(file.name)
+    }, []);
+
+    let variants = this.variants.reduce((accum, variant)  => {
+      return accum.concat(variant.toObject())
+    }, []);
+
+
+    return {
+      files: files,
+      variants: variants
+    };
+
+    // var str = "\n\nVariant File\n" + this.variantFile.name;
+    // str += "\n\nBAM Files\n";
+    // for (var i = 0; i < this.bamFiles.length; i++) {
+    //   str += this.bamFiles[i].name + "\n";
+    // }
+    // str += "\n";
+    // for (var i = 0; i < this.variants.length; i++) {
+    //   str += this.variants[i].string() + "\n"; 
+    // }
+    // return str;
+  }
+
+  addSequenceFile(file, connection) {
+    return new Promise((resolve, reject) => {
+      if (typeof(file) === 'string') { // a URL
+        switch (getExtension(file)) {
+          case "bam":
+          case "cram":
+            switch (connection.get('type')) {
+              case 'HTTP':
+                var requiresCredentials = connection.get('requiresCredentials') || false;
+                var newBam = new RemoteBAM(file, requiresCredentials);
+                break;
+              case 'SSHBridge':
+                var newBam = new SSHBAM(file);
+                break;
+            }
+            newBam.exists().then(result => {
+              // console.log(result);
+              // console.log('it exists');
+              this.bamFiles.push(newBam);
+            }).catch((e) => {
+              console.log('error in the addSequenceFile ' +  e); 
+              reject(e);
+            });
+            break;
+          case "bai":
+            var newBai = new RemoteBAI(file);
+            this.baiFiles.push(newBai);
+            break;
+        }
+      } else { // a file object
+        for (let i=0; i < file.length; ++i) {
+          let f = file[i];
+          // console.log(f);
+          switch (getExtension(f)) {
+            case "bam":
+              var newBam = new LocalBAM(f);
+              this.bamFiles.push(newBam);
+              break;
+            case "bai":
+              var newBai = new LocalBAI(f);
+              this.baiFiles.push(newBai);
+              break;
+          }
+        }
+      }
+      console.log('finished addSequenceFile');
+      console.log(this.bamFiles);
+      console.log(this.baiFiles);
+      this.matchMaker();
+      resolve();
+    });
+  }
+
+  /** Determines if any unmatched LocalBAM's have a matching LocalBAI. It is not necessary for
+  a RemoteBAM to have a RemoteBAI, as it assumed to be in the same location, but if any RemoteBAI's 
+  have been provided marry these to a RemoteBAM. */
+  matchMaker() {
+    var toRemove = [];
+    for (var i=0; i<this.bamFiles.length; ++i) {
+      var bamFile = this.bamFiles[i];
+      if (!bamFile.index) {
+        var stripBam = bamFile.name.match(BAM_RE);
+        for (var j=0; j<this.baiFiles.length; ++j) {
+          var baiFile = this.baiFiles[j];
+          var stripBai = baiFile.name.match(BAI_RE);
+          if ((stripBai[1] === bamFile.name) || (stripBai[1] === stripBam[1]) &&
+            (bamFile.file.type === baiFile.file.type)) {
+            this.bamFiles[i].index = baiFile;
+            toRemove.push(baiFile.id);
+          }
+        }
+      }
+    }
+    console.log('just before remove');
+    console.log(this.bamFiles);
+    toRemove.forEach(id => {this.remove(id)});
+    console.log('still in matchMaker');
+    console.log(this.bamFiles);
+  }
+
+  remove(id) {
+    this.bamFiles = this.bamFiles.filter(function(bamFile) {
+      return bamFile.id !== id;
+    })
+    this.baiFiles = this.baiFiles.filter(function(baiFile) {
+      return baiFile.id !== id;
+    })
+  }
+
+  setQC(decision) {
+    this.variants[this.index].score = decision;
+  }
+
+
+  next(b) {
+    if (this.index < this.variants.length - 1) {
+      return {variant: this.variants[++this.index].visit(b), done: false};
+    } else { // at the end now
+      return {variant: this.variants[this.index].visit(b), done: true};
+    }
+  }
+
+  gotoCurrentVariant(b) {
+    this.variants[this.index].visit(b);
+    return this.variants[this.index];
+  }
+
+  getCurrentVariant() {
+    return this.variants[this.index];
+  }
+
+  previous(b) {
+    if (this.index > 0) {
+      this.index--;
+      return this.gotoCurrentVariant(b);
+      // return this.getCurrentVariant();
+    } else {
+      return false;
+    }
+  }
+
+  getNumVariantsReviewed() {
+    var reviewed = this.variants.filter((variant) => {
+       return variant.score !== 'not reviewed';
+    });
+    return reviewed.length;
+  }
+
   parseVariants(variants) {
     // the variants have not been loaded so process the contents of the variant file text
     this.variants = [];
@@ -102,40 +253,17 @@ class Session {
     }
     //var pattern = /\s*[-:,\s]+\s*/;
     variants.map(variant => {
-      let v;
-      // This is output from a previous QC session with Snoopy
-      if (typeof(variant) === 'object') {
-        console.log('JSON.stringify(variant)');
-        console.log(JSON.stringify(variant));
-        let chr = 'chr' in variant ? variant.chr : false;
-        let qc_decision = 'qc_decision' in variant ? variant.qc_decision : 'not reviewed';
-        let snapshotName = 'snapshot' in variant ? variant.snapshot : false
-        let t = variant.location.split('-');
-        if (t.length === 1) {
-          let loc = t[0]
-          v = new SNP(chr, loc, qc_decision, snapshotName);
-        } else if (t.length === 2) {
-          let [start, end] = t
-          v = new CNV(chr, start, end, qc_decision, snapshotName);
-        } else {
-          throw 'Variant does not contain location: ' + JSON.stringify(variant)
-        }
-
-      // Standard input file generated by user
+      var snp = variant.match(SNP_RE);
+      var cnv = variant.match(CNV_RE);
+      if (snp) {
+        var [, , chr, loc] = snp;
+        var v = new SNP(chr, loc);
+      } else if (cnv) {
+        var [, , chr, start, end] = cnv;
+        var v = new CNV(chr, start, end);
       } else {
-        let snp = variant.match(SNP_RE);
-        let cnv = variant.match(CNV_RE);
-        if (snp) {
-          let [, , chr, loc] = snp;
-          v = new SNP(chr, loc);
-        } else if (cnv) {
-          let [, , chr, start, end] = cnv;
-          v = new CNV(chr, start, end);
-        } else {
-          throw 'Unrecognized variant: ' + variant;
-        }
+        throw 'Unrecognized variant: ' + variant;
       }
-      console.log(v.string())
       this.variants.push(v);
     });
     // for (var i = 0; i < variants.length; i++) {
@@ -160,163 +288,6 @@ class Session {
     //     console.log(this);
     //     this.variants.push(v);
     // }
-  }
-
-
-  generateQCreport(embedImage=false) {
-    // Create an object which will be exported as JSON
-    let files = this.bamFiles.reduce((accum, file)  => {
-      if ('path' in file)
-        return accum.concat(file.path);
-      else
-        return accum.concat(file.name);
-    }, []);
-
-    let variants = this.variants.reduce((accum, variant)  => {
-      return accum.concat(variant.toObject(embedImage));
-    }, []);
-
-    return {
-      files: files,
-      variants: variants
-    };
-
-    // var str = "\n\nVariant File\n" + this.variantFile.name;
-    // str += "\n\nBAM Files\n";
-    // for (var i = 0; i < this.bamFiles.length; i++) {
-    //   str += this.bamFiles[i].name + "\n";
-    // }
-    // str += "\n";
-    // for (var i = 0; i < this.variants.length; i++) {
-    //   str += this.variants[i].string() + "\n"; 
-    // }
-    // return str;
-  }
-
-  addSequenceFile(path, connection) {
-    return new Promise((resolve, reject) => {
-      if (typeof(path) === 'string') { // a URL
-        let file = getURL(path, connection);
-        console.log('alsjdfkl;ajsdfkl;jasd;fkl')
-        console.log(file);
-        console.log(connection);
-        switch (getExtension(file)) {
-          case "bam":
-          case "cram":
-            switch (connection.get('type')) {
-              case 'HTTP':
-                var requiresCredentials = connection.get('requiresCredentials', false);
-                var newBam = new RemoteBAM(file, requiresCredentials, path);
-                break;
-              case 'SSHBridge':
-                var newBam = new SSHBAM(file, path);
-                break;
-            }
-            newBam.exists().then(result => {
-              // console.log(result);
-              // console.log('it exists');
-              this.bamFiles.push(newBam);
-              resolve();
-            }).catch((e) => {
-              console.log('error in the addSequenceFile ' +  e); 
-              reject(e);
-            });
-            break;
-          case "bai":
-            var newBai = new RemoteBAI(file);
-            this.baiFiles.push(newBai);
-            break;
-        }
-      } else { // a file object
-        for (let i=0; i < path.length; ++i) {
-          let f = path[i];
-          // console.log(f);
-          switch (getExtension(f)) {
-            case "bam":
-              var newBam = new LocalBAM(f);
-              this.bamFiles.push(newBam);
-              break;
-            case "bai":
-              var newBai = new LocalBAI(f);
-              this.baiFiles.push(newBai);
-              break;
-          }
-        }
-        resolve();
-      }
-      
-    });
-  }
-
-  /** Determines if any unmatched LocalBAM's have a matching LocalBAI. It is not necessary for
-  a RemoteBAM to have a RemoteBAI, as it assumed to be in the same location, but if any RemoteBAI's 
-  have been provided, marry these to a RemoteBAM. */
-  matchMaker() {
-    var toRemove = [];
-    for (var i=0; i<this.bamFiles.length; ++i) {
-      var bamFile = this.bamFiles[i];
-      if (!bamFile.index) {
-        var stripBam = bamFile.name.match(BAM_RE);
-        for (var j=0; j<this.baiFiles.length; ++j) {
-          var baiFile = this.baiFiles[j];
-          var stripBai = baiFile.name.match(BAI_RE);
-          if ((stripBai[1] === bamFile.name) || (stripBai[1] === stripBam[1]) &&
-            (bamFile.file.type === baiFile.file.type)) {
-            this.bamFiles[i].index = baiFile;
-            toRemove.push(baiFile.id);
-          }
-        }
-      }
-    }
-    toRemove.forEach(id => {this.remove(id)});
-  }
-
-  remove(id) {
-    this.bamFiles = this.bamFiles.filter(function(bamFile) {
-      return bamFile.id !== id;
-    })
-    this.baiFiles = this.baiFiles.filter(function(baiFile) {
-      return baiFile.id !== id;
-    })
-  }
-
-  setQC(decision) {
-    this.variants[this.index].score = decision;
-  }
-
-
-  next(b, callback) {
-    if (this.index < this.variants.length - 1) {
-      return {variant: this.variants[++this.index].visit(b, callback), done: false};
-    } else { // at the end now
-      return {variant: this.variants[this.index].visit(b, callback), done: true};
-    }
-  }
-
-  gotoCurrentVariant(b, callback) {
-    this.variants[this.index].visit(b, callback);
-    return this.variants[this.index];
-  }
-
-  getCurrentVariant() {
-    return this.variants[this.index];
-  }
-
-  previous(b) {
-    if (this.index > 0) {
-      this.index--;
-      return this.gotoCurrentVariant(b);
-      // return this.getCurrentVariant();
-    } else {
-      return false;
-    }
-  }
-
-  getNumVariantsReviewed() {
-    var reviewed = this.variants.filter((variant) => {
-       return variant.score !== 'not reviewed';
-    });
-    return reviewed.length;
   }
 
   init(b, style) {
@@ -364,7 +335,7 @@ class Session {
     if (this.bamFiles.length === 0)
       return false;
     for (let i=0; i<this.bamFiles.length; i++) {
-      if (this.bamFiles[i].index === null)
+      if (this.bamFiles[i].index === false)
         return false;
     }
     return true;
@@ -383,79 +354,153 @@ class Session {
     return this.baiFiles;
   }
 
-  stringCurrentSession() {
-    var str = ''
-    this.bamFiles.forEach((bam) => {str += bam.name + '_'});
-    str += this.variants[this.index].fileString()
-    return str;
-  }
-
-  updateStyle(b, style) {
-    // get styles and update each tier
-    // app.browser.baseColors = app.settings.colors;
-    for (var i=1; i<b.tiers.length; ++i) {
-      b.tiers[i].setStylesheet(style.toJS());
-    }
-    b.refresh();
-  }
-  
-  getHTMLResultsSelectionModal() {
-    
-    let variants = this.variants.map((variant, variantIndex)  => {
-      return `
-        <a href="#" class="list-group-item">
-          ${variant.getHTML()}
-        </a>
-      `;
-    }).join('');
-
-    let files = this.bamFiles.map((file, fileIndex)  => {
-      return `
-        <li>
-          ${file.name}
-        </li>
-      `;
-    }).join('');
-
-    let s = `
-      <a href="#" class="list-group-item active seq-file-list">
-        <ul>
-          ${files}
-        </ul>
-      </a>
-      ${variants}
-    `;
-
-    return s
-  }
-
-  takeSnapshot(browser) {
-    console.log(browser)
-    this.variants[this.index].takeSnapshot(browser, this.bamFiles);
-  }
-
-  getNumSnapshots() {
-    let n = this.variants.reduce((accum, v) => {
-      if (!!v.snapshot)
-        return accum + 1;
-      else
-        return accum;
-    }, 0);
-    return n;
-  }
-
-  getSnasphots(imageFolder) {
-    this.variants.forEach(v => {
-      if (!!v.snapshot) {
-        imageFolder.file(
-          v.snapshotName,
-          v.snapshot,
-          {base64: true}
-        );
-      }
-    });
-  }
-
 }
 
-export default Session;
+function Sessions() {
+  this.sessions = [];
+  this.index = 0;
+};
+
+Sessions.prototype.next = function(b) {
+  var nextVariant = this.sessions[this.index].next(b);
+  if (nextVariant.done) {
+    if (this.index < this.sessions.length - 1) {
+      console.log(this.style);
+      this.sessions[++this.index].init(b, this.style);
+      nextVariant = {variant: this.gotoCurrentVariant(b), done: false};
+    } else {
+      console.log('finished QC');
+    }
+  }
+  return nextVariant;
+};
+
+Sessions.prototype.previous = function(b) {
+  var previousVariant = this.sessions[this.index].previous(b);
+  if (!previousVariant) {
+    if (this.index > 0) {
+      this.index--;
+      this.sessions[this.index].init(b, this.style);
+      // Need to visit the last element of the previous session
+      this.sessions[this.index].index = this.sessions[this.index].variants.length - 1;
+      previousVariant = this.gotoCurrentVariant(b);
+    } else {
+      console.log('at the beginning');
+    }
+  }
+  return previousVariant;
+};
+
+Sessions.prototype.setQC = function(decision) {
+  this.sessions[this.index].setQC(decision);
+};
+
+Sessions.prototype.gotoCurrentVariant = function(b) {
+  return this.sessions[this.index].gotoCurrentVariant(b);
+};
+
+Sessions.prototype.getCurrentVariant = function() {
+  return this.sessions[this.index].getCurrentVariant();
+};
+
+Sessions.prototype.goto = function(b, si, vi) {
+  if (this.index !== si) {
+    this.index = si;
+    return this.sessions[si].goto(b, this.style, vi);
+  } else {
+    this.sessions[this.index].index = vi;
+    return this.gotoCurrentVariant(b);
+  }
+};
+
+/** Add tiers and visit the very first session/variant */
+// Sessions.prototype.jump = function(b) {
+//     if (typeof(this.style) === 'undefined')
+//         throw "A style sheet has not been set.";
+//     this.sessions[this.index].init(b, style);
+// };
+
+/** Add tiers and visit the very first session/variant */
+Sessions.prototype.init = function(b, style) {
+  if (typeof(style) !== 'undefined')
+    this.style = style;
+  if (typeof(this.style) === 'undefined')
+    throw "A style sheet has not been set.";
+  this.sessions[this.index].init(b, this.style);
+};
+
+Sessions.prototype.getCurrentVariantIndex = function() {
+  return this.sessions[this.index].getCurrentVariantIndex();
+};
+
+Sessions.prototype.getCurrentSessionIndex = function() {
+  return this.index;
+};
+
+Session.prototype.stringCurrentSession = function() {
+  var str = ''
+  this.bamFiles.forEach((bam) => {str += bam.name + '_'});
+  str += this.variants[this.index].fileString()
+  return str;
+}
+
+
+Sessions.prototype.stringCurrentSession = function() {
+  return this.sessions[this.index].stringCurrentSession();
+}
+
+
+Sessions.prototype.generateQCreport = function() {
+  let sessions = this.sessions.reduce((accum, session)  => {
+  return accum.concat(session.generateQCreport())
+  }, []);
+  let jso = {
+    date: Date(),
+    sessions: sessions
+  };
+  return JSON.stringify(jso, null, '\t');
+    // var str = Date();
+    // this.sessions.forEach((session) => {
+    //   str += session.generateQCreport();
+    // });
+    // return str;
+};
+
+Sessions.prototype.updateStyle = function(b, style) {
+  this.style = style;
+  this.sessions[this.index].updateStyle(b, style);
+}
+
+Session.prototype.updateStyle = function(b, style) {
+  // get styles and update each tier
+  // app.browser.baseColors = app.settings.colors;
+  for (var i=1; i<b.tiers.length; ++i) {
+    b.tiers[i].setStylesheet(style.toJS());
+  }
+  b.refresh();
+}
+
+Sessions.prototype.getNumVariants = function() {
+  var n = 0;
+  this.sessions.forEach((session) => {
+    n += session.variants.length;
+  });
+  return n;
+}
+
+Sessions.prototype.getNumVariantsReviewed = function() {
+  var n = 0;
+  this.sessions.forEach((session) => {
+    n += session.getNumVariantsReviewed();
+  });
+  return n;
+}
+
+Sessions.prototype.getNumSessions = function() {
+  return this.sessions.length;
+}
+
+module.exports = {
+  Sessions: Sessions,
+  Session: Session,
+}
