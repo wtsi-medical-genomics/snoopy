@@ -119,7 +119,6 @@ def main():
     
     # Open new tab in default web browser.
     url = 'http://localhost:{}/app'.format(port)
-    print url
     b = lambda : webbrowser.open(url, new=2)
     threading.Thread(target=b).start()
 

@@ -255,23 +255,22 @@ var MainToolbar = React.createClass({
     this.setState({ showSettings: false });
   },
 
-  handleGitHub(e) {
-    e.preventDefault();
-    var newTab = window.open('https://github.com/wtsi-medical-genomics/snoopy', '_blank');
+  handleLinkClick(url) {
+    let newTab = window.open(url, '_blank');
     if(newTab)
         newTab.focus();
     else
         alert('Please allow popups for this site.');
   },
-
+// this.onClick.bind(null, this.state.text)}
   render() {
       return (
         <div>
           <Navbar brand='Snoopy' inverse toggleNavKey={0}>
             <Nav right eventKey={0}> {/* This is the eventKey referenced */}
               <NavItem eventKey={1} href='#' onClick={this.openSettings}>Settings</NavItem>
-              <NavItem eventKey={2} href='#'>Help</NavItem>
-              <NavItem eventKey={3} href='#' onClick={this.handleGitHub}>GitHub</NavItem>
+              <NavItem eventKey={2} href='#' onClick={this.handleLinkClick.bind(null, 'http://snoopy.readthedocs.io')}>Help</NavItem>
+              <NavItem eventKey={3} href='#' onClick={this.handleLinkClick.bind(null, 'https://github.com/wtsi-medical-genomics/snoopy')}>GitHub</NavItem>
             </Nav>
           </Navbar>
 

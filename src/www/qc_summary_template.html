@@ -1,0 +1,292 @@
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <title>Snoopy QC Summary</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous" type="text/css" />
+  <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.6/yeti/bootstrap.min.css" rel="stylesheet" integrity="sha256-daEYF2SGTkiPl4cmxH06AOMnZ+Hb8wBpvs7DqvceszY= sha512-xmSDqcgDrroCG8Sp/p0IArjjB3lO0m0Yde0tm1mOFD4BwmsvZnVNfHgw7icU6q4ScrTCQKCokxnYMy/hUUfGrg==" crossorigin="anonymous" type="text/css" />
+  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+  <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous" type="text/javascript"></script>
+  <script type="text/javascript">
+    $( document ).ready(function() {
+      var results = //<insert-results-object-here>;
+
+      var App = {
+        init: function() {
+          this.sessionIndex = 0;
+          this.variantIndex = 0;
+          this.re = /variant-(\d+)-(\d+)/;
+          var sessionTemplate = Handlebars.compile($('#session-template').html());
+          var variantList = $('#variantList .list-group');
+          var classForQCDecision = {
+            'variant': 'green',
+            'not variant': 'red',
+            'uncertain': 'amber',
+            'not reviewed': 'label-primary',
+          };
+          for (var si=0; si<results.sessions.length; si++) {
+            var thisSession = results.sessions[si];
+            for (var vi=0; vi<thisSession.variants.length; vi++) {
+              thisSession.variants[vi]['id'] = this.encodeID(si, vi);
+              thisSession.variants[vi]['class'] = classForQCDecision[thisSession.variants[vi]['qc_decision']];
+            }
+            var html = sessionTemplate(thisSession);
+            console.log(html);
+            variantList.append(html);
+          }
+          this.bindEvents();
+          this.visitVariant();
+        },
+
+        encodeID: function(si, vi) {
+          return 'variant-' + si + '-' + vi
+        },
+
+        decodeID: function(ID) {
+          var result = this.re.exec(ID);
+          return {
+            sessionIndex: parseInt(result[1]), 
+            variantIndex: parseInt(result[2]),
+          } 
+        },       
+
+        bindEvents: function() {
+          $('#variantList .list-group').on('click', this.handleVariantSelection.bind(this));
+          $('#previous').on('click', this.handlePrevious.bind(this));
+          $('#next').on('click', this.handleNext.bind(this));
+        },
+
+        visitVariant: function() {
+
+          // Show snapshot if taken          
+          var variant = results.sessions[this.sessionIndex].variants[this.variantIndex];
+          if (!variant.snapshot) {
+            var html = '<H1 class="noSnapshot">No Snapshot Available</H1>';
+          } else {
+            var html = '<img id="snapshot" src="data:image/png;base64,' + variant.snapshot + '" />';
+          }
+          $('#snapshot').html(html);
+          $('#variantList').modal('hide');
+    
+          // Create location and results buttons
+          html = '<span class="label label-primary">' + variant.chr + ' : ' + variant.location + '</span> <span class="label '+ variant.class + '">' + variant.qc_decision + '</span>';
+          $('.results p').html(html);
+
+          // Create previous and next buttons.
+          if (this.sessionIndex || this.variantIndex)
+            $('#previous').removeClass('disabled');
+          else
+            $('#previous').addClass('disabled');
+
+          if ((this.sessionIndex < results.sessions.length - 1) || (this.variantIndex < results.sessions.slice(-1)[0].variants.length - 1))
+            $('#next').removeClass('disabled');
+          else
+            $('#next').addClass('disabled');
+
+          // Show currently viewed variant in selection modal.
+          $('[id^="variant-"]').removeClass('current');
+          $('#' + this.encodeID(this.sessionIndex, this.variantIndex)).addClass('current');
+
+        },
+
+        handleNext: function() {
+          if (this.variantIndex + 1 === results.sessions[this.sessionIndex].variants.length) {
+            if (this.sessionIndex + 1 !== results.sessions.length) {
+              this.variantIndex = 0;
+              this.sessionIndex++;
+            }
+          } else {
+            this.variantIndex++;
+          }
+          this.visitVariant();
+        },
+
+        handlePrevious: function() {
+          if (this.variantIndex  === 0 ) {
+            if (this.sessionIndex !== 0) {
+              this.sessionIndex--;
+              this.variantIndex = results.sessions[this.sessionIndex].variants.length - 1;
+            }
+          } else {
+            this.variantIndex--;
+          }
+          this.visitVariant();
+        },
+
+        handleVariantSelection: function(e) {
+          var indices = $(e.target).closest('a').attr('id');
+          if (!indices)
+            return
+          console.log(indices);
+          r = this.decodeID(indices);
+          this.sessionIndex = r.sessionIndex;
+          this.variantIndex = r.variantIndex;
+          this.visitVariant();
+        }
+      }
+
+
+    App.init();
+
+    });
+
+  </script>
+  <style type="text/css">
+      .container {
+          width: 100%;
+      }
+
+      .navbar-inverse {
+        background-color: #4F4F7F;
+        border-color: #4F4F7F;
+      }
+
+      .navbar-nav .btn-default, .navbar-nav .btn-default:active, .navbar-nav .btn-default:focus {
+        background-color: #8080B9 !important;
+        border-color: #4F4F7F !important;
+      }
+
+      .navbar-nav .btn-default:hover{
+        background-color: #7474A7 !important;
+        border-color: #4F4F7F !important;
+      }
+
+      .navbar-nav .btn-default {
+        top: 5px;
+      }
+
+      .results {
+        padding:0;
+        margin-top: 60px;
+        font-size: 20px;
+        background-color: #E2ECE9;
+      }
+
+      .results > img {
+        width: 100%;
+      }
+
+      .results > p {
+        padding: 5px !important;
+        margin: 0px !important;
+      }
+
+      #snapshot {
+        border: 8px solid #E2ECE9;
+        overflow-x: scroll;
+        overflow-y: hidden;
+        white-space: nowrap;
+      }
+
+      #snapshot img {
+        display: inline;
+      }
+
+      .green {
+        background-color: green !important;
+      }
+
+      .red {
+        background-color: firebrick !important;
+      }
+
+      .amber {
+        background-color: orange !important;
+      }
+
+      .current {
+        background-color: lightblue !important; 
+      }
+
+      .qc-badge {
+          min-width: 27px;
+      }
+
+      #variantList .modal-body {
+        max-height: calc(100vh - 144px);
+        overflow-y: auto;
+      }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Snoopy QC Summary</a>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="#" class="btn btn-default" data-toggle="modal" data-target="#variantList">Select a variant</a></li>
+          <li id="previous"><a href="#" class="btn btn-default">Previous</a></li>
+          <li id="next"><a href="#" class="btn btn-default">Next</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="http://snoopy.readthedocs.io" target="_blank">Help</a></li>
+          <li><a href="https://github.com/wtsi-medical-genomics/snoopy" target="_blank">GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="results">
+      <p>
+      </p>
+      <div id="snapshot"></div>
+    </div>
+  </div>
+  <div class="modal fade" id="variantList" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&#215;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Select a variant</h4>
+        </div>
+        <div class="modal-body">
+          <div class="list-group">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script id="session-template" type="text/x-handlebars-template">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <ul>
+            {{#each files}}
+              <li>
+                {{this}}
+              </li>
+            {{/each}}
+          </ul>
+        </h3>
+      </div>
+      <div class="panel-body">
+        {{#each variants}}
+          <a href="#" id={{id}} class="list-group-item">
+            {{chr}}: {{location}}
+            <span class="badge pull-right qc-badge {{class}}">{{qc_decision}}</span>
+          </a>
+        {{/each}}
+      </div>
+    </div>
+  </script>
+</body>
+</html>
