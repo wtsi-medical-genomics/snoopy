@@ -72,7 +72,7 @@ function getURL(path, connection) {
 //   }
 // }
 
-function httpGet(path, connection=Map(), opts) {
+function httpGet(path, connection=Map(), opts={}) {
   return new Promise((resolve, reject) => {
     console.log(path);
     // console.log(connection.toJS());
@@ -90,12 +90,13 @@ function httpGet(path, connection=Map(), opts) {
     request.open('GET', url);
     request.withCredentials = connection.get('requiresCredentials', false);
     
-    if (opts && opts.range)
+    if ('range' in opts)
       request.setRequestHeader('Range', 'bytes=' + opts.range.min + '-' + opts.range.max);
-    if (opts && opts.contentType)
+    if ('contentType' in opts)
       request.setRequestHeader('Content-Type', opts.contentType);
 
     request.onload = () => {
+      console.log(request)
       if (request.status >= 200 && request.status < 400) {
         console.log('found somethign at path: ' + path);
         resolve(request.responseText);
