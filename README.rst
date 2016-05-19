@@ -2,20 +2,36 @@
 Snoopy
 ######
 
+Browser based quality control tool to expedite reviewing predicted variants in next generation sequencing files.
 
 ************
 Installation
 ************
 
-After cloning the repository, install dependencies:
-```
-npm install
-```
+Dalliance builds with::
 
-Now you can run your local server:
-```
-npm start
-```
+    $ npm --version
+    2.15.1
+    $ node --version
+    v4.4.3
+
+
+After cloning the repository, install dependencies::
+
+    npm install
+
+
+Now you can run your local server::
+
+    npm start
+
+
+*******
+Authors
+*******
+* Daniel Rice (dr9@sanger.ac.uk)
+* Jeff Barrett
+
 
 *******
 License

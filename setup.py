@@ -1,20 +1,30 @@
 from setuptools import setup, find_packages
 from codecs import open
-from os import path
+import os
 
-here = path.abspath(path.dirname(__file__))
 
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+here = os.path.abspath(os.path.dirname(__file__))
+
+with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
+
+def get_package_data(directory):
+    package_data = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            package_data.append(os.path.join('./', path, filename))
+    return package_data
+
+package_data = get_package_data(os.path.join('snoopy/build'))
 
 setup(
     name='Snoopy',
     version='0.3.3',
-    description='Snoopy is a web-based variant quality control tool',
+    description='Browser based quality control tool to expedite reviewing predicted variants in next generation sequencing files.',
     long_description=long_description,
     url='https://github.com/wtsi-medical-genomics/snoopy',
-    author='Daniel Rice, Jeff Barrett',
-    author_email='dr9@sanger.ac.uk, jb26@sanger.ac.uk',
+    author='Daniel Rice',
+    author_email='dr9@sanger.ac.uk',
     license='MIT',
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -36,7 +46,7 @@ setup(
     packages=find_packages(exclude=['docs', 'tests', 'gulp']),
     install_requires=['tornado', 'paramiko'],
     package_data={
-        'snoopy': ['build/*'],
+        'snoopy': package_data,
     },
     entry_points={
         'console_scripts': [
