@@ -32,6 +32,11 @@ Authors
 * Daniel Rice (dr9@sanger.ac.uk)
 * Jeff Barrett
 
+*************
+Documentation
+*************
+
+http://snoopy.readthedocs.io
 
 *******
 License
