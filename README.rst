@@ -5,6 +5,22 @@ Snoopy
 Browser based quality control tool to expedite reviewing predicted variants in next generation sequencing files.
 
 ************
+Requirements
+************
+
+Snoopy has been tested on
+
+* Mac OS X
+* Ubuntu
+
+And requires
+
+* python (2 or 3)
+* a modern web browser
+
+If your files reside on a server without HTTP/S access snoopy can access this but will require a **samtools** to be installed and in your path.
+
+************
 Installation
 ************
 
@@ -26,17 +42,35 @@ Now you can run your local server::
     npm start
 
 
+FAQs
+====
+
+On Linux, Failed building wheel for cryptography
+------------------------------------------------
+
+Snoopy requires the python package paramiko which in turn requires cryptography. According to `this stackoverflow question <http://stackoverflow.com/questions/22073516/failed-to-install-python-cryptography-package-with-pip-and-setup-py>`_ in order to install cryptography on Debian and Ubuntu you must first::
+
+    sudo apt-get install build-essential libssl-dev libffi-dev python-dev
+
+and on Fedora and RHEL-derivatives::
+
+    sudo yum install gcc libffi-devel python-devel openssl-devel
+
+
 *******
 Authors
 *******
+
 * Daniel Rice (dr9@sanger.ac.uk)
 * Jeff Barrett
+
 
 *************
 Documentation
 *************
 
-http://snoopy.readthedocs.io
+All docuomentation is at `Read the Docs <http://snoopy.readthedocs.io/>`_.
+
 
 *******
 License
