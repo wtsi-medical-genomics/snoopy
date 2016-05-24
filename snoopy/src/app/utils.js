@@ -75,11 +75,8 @@ function getURL(path, connection) {
 function httpGet(path, connection=Map(), opts={}) {
   return new Promise((resolve, reject) => {
     console.log(path);
-    // console.log(connection.toJS());
     if (path === undefined)
       reject('No path provided');
-    if (connection === undefined)
-      reject('Invalid remote connection parameters provided');
     var url = connection.get('type') ? getURL(path, connection) : path;
     console.log(connection.get('type'));
     if (connection.get('type'))
@@ -89,12 +86,10 @@ function httpGet(path, connection=Map(), opts={}) {
     console.log(url)
     request.open('GET', url);
     request.withCredentials = connection.get('requiresCredentials', false);
-    
     if ('range' in opts)
       request.setRequestHeader('Range', 'bytes=' + opts.range.min + '-' + opts.range.max);
     if ('contentType' in opts)
       request.setRequestHeader('Content-Type', opts.contentType);
-
     request.onload = () => {
       console.log(request)
       if (request.status >= 200 && request.status < 400) {
@@ -108,7 +103,6 @@ function httpGet(path, connection=Map(), opts={}) {
           reject('The path: ' + path + ' does not exist with connection: ' + JSON.stringify(connection, null, 2));
       }
     }
-
     // Handle network errors
     request.onerror = () => {
       reject("Network Error");

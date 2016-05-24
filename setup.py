@@ -8,18 +8,17 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-def get_package_data(directory):
-    package_data = []
-    for (path, directories, filenames) in os.walk(directory):
-        for filename in filenames:
-            package_data.append(os.path.join('./', path, filename))
-    return package_data
-
-package_data = get_package_data(os.path.join('snoopy/build'))
+package_data = []
+os.chdir(os.path.join(here, 'snoopy'))
+for (path, directories, filenames) in os.walk('build'):
+    path = path
+    for filename in filenames:
+        package_data.append(os.path.join(path, filename))
+os.chdir('..')
 
 setup(
-    name='Snoopy',
-    version='0.3.3',
+    name='snoopy',
+    version='0.3.9',
     description='Browser based quality control tool to expedite reviewing predicted variants in next generation sequencing files.',
     long_description=long_description,
     url='https://github.com/wtsi-medical-genomics/snoopy',
@@ -43,14 +42,14 @@ setup(
         'Programming Language :: Python :: 3.5',
     ],
     keywords='quality control qc variants next generation sequencing bam cram',
-    packages=find_packages(exclude=['docs', 'tests', 'gulp']),
+    packages=find_packages(exclude=['docs', 'tests']),
     install_requires=['tornado', 'paramiko'],
     package_data={
         'snoopy': package_data,
     },
     entry_points={
         'console_scripts': [
-            'snoopy=snoopy:main',
+            'snoopy=snoopy.snoopy:cli',
         ],
     },
 )

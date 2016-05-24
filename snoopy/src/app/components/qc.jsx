@@ -268,10 +268,10 @@ var QCToolbar = React.createClass({
     let embedImage = true;
     let results = this.props.sessions.generateQCreport(embedImage);
 
-    let connection = this.props.settings.getIn(['servers', 'localHTTP']);
-    console.log(connection);
+    // let connection = this.props.settings.getIn(['servers', 'localHTTP']);
+    // console.log(connection);
 
-    httpGet('app/qc_summary_template.html', connection).then(response => {
+    httpGet('qc_summary_template.html').then(response => {
       response = response.replace('//<insert-results-object-here>', results);
       let blob = new Blob([response], {type: 'text/plain;charset=utf-8'});
       saveAs(blob, rootFilename + '.html');

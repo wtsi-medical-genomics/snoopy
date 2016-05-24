@@ -38,9 +38,9 @@ class SSH_Handler(RequestHandler):
             m = self._RE_TXT.match(params)
             if m:
                 path = m.groups()[0]
-                print path
                 fetched = yield self._ssh_bridge.fetch_plaintext(path)
         self.write(fetched)
+
 
 class SettingsHandler(RequestHandler):
     
@@ -49,10 +49,15 @@ class SettingsHandler(RequestHandler):
         self.write(json.dumps({'servers': SERVERS}))
 
 
-def main():
+def get_abs_path(path):
+    here = os.path.dirname(__file__)
+    return os.path.join(here, path)
+
+
+def cli():
 
     DEFAULT_PORT = 4444 # 0
-    handlers = [(r"/app/?(.*)", StaticFileHandler, {"path": 'build', "default_filename": "index.html"})]
+    handlers = [(r"/app/?(.*)", StaticFileHandler, {"path": get_abs_path('build'), "default_filename": "index.html"})]
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--local-server', '-l',
@@ -68,8 +73,6 @@ def main():
         help='user@hostname for SSH connection to sequence files on remote host DEFAULT: SSH-Bridge not switched on'
         )
     args = parser.parse_args()
-    
-    print args
 
     if args.local_server:
         handlers.append((r"/files/(.*)", StaticFileHandler, {"path": "."}))
@@ -78,7 +81,8 @@ def main():
         p = re.compile(r'^(.+)@(.+)$')
         m = p.match(args.ssh)
         if not m:
-            return 'SSH location must have format user@hostname'
+            print('SSH location must have format user@hostname')
+            sys.exit(0)
         g = m.groups()
         password = base64.b64encode(getpass.getpass('Enter the password for SSH connection {}: '.format(args.ssh)))
         ssh_config = {
@@ -95,7 +99,7 @@ def main():
     server = HTTPServer(app)
     server.add_sockets(sockets)
     port = sockets[0].getsockname()[1]
-    print 'Listening on port', port 
+    print('Listening on port {}'.format(port))
 
 
     # Add server info for Snoopy web app to find information
@@ -127,14 +131,10 @@ def main():
         while tornado_thread.is_alive():
             tornado_thread.join(timeout=1.0)
     except (KeyboardInterrupt, SystemExit):
-        print '\n\n...stopping snoopy...\n'
+        print('\n\n...stopping snoopy...\n')
         ioloop.IOLoop.current().stop()
         sys.exit(0)
     
 
-
-if __name__ == "__main__":
-
-    main()
-
-
+if __name__ == '__main__':
+    cli()
