@@ -1,7 +1,7 @@
 {
-  "name": "snoopy-bootstrap-react",
+  "name": "snoopy",
   "version": "0.3.0",
-  "license": "MIT"
+  "license": "MIT",
   "description": "Variant QC webtool built with Dalliance",
   "repository": {
     "type": "git",
