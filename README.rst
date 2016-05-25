@@ -28,7 +28,7 @@ Installation
 FAQs
 ====
 
-On Linux, Failed building wheel for cryptography
+On Ubuntu, Failed building wheel for cryptography
 ------------------------------------------------
 
 Snoopy requires the python package paramiko which in turn requires cryptography. According to `this stackoverflow question <http://stackoverflow.com/questions/22073516/failed-to-install-python-cryptography-package-with-pip-and-setup-py>`_ in order to install cryptography on Debian and Ubuntu you must first::
@@ -38,6 +38,14 @@ Snoopy requires the python package paramiko which in turn requires cryptography.
 and on Fedora and RHEL-derivatives::
 
     sudo yum install gcc libffi-devel python-devel openssl-devel
+
+
+On Ubuntu, npm start fails with Error: watch ENOSPC
+---------------------------------------------------
+
+According to https://discourse.roots.io/t/gulp-watch-error-on-ubuntu-14-04-solved/3453 this is caused by a limit for how many files can be watched by a user and can be updated with::
+
+	echo fs.inotify.max_user_watches=582222 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
 
 *******
@@ -59,7 +67,7 @@ All documentation is at `Read the Docs <http://snoopy.readthedocs.io/>`_.
 Development
 ***********
 
-To install snoopy for development purposes, if you don't have this already install `Node Version Manager <https://github.com/creationix/nvm>`_. Use `NVM ` to install v4.4.5 of Node::
+To install snoopy for development purposes, if you don't have this already install `Node Version Manager <https://github.com/creationix/nvm>`_. Use **NVM** to install v4.4.5 of Node::
 	
 	$ nvm install v.4.4.5
 	$ nvm use v4.4.5
