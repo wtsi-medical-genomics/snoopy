@@ -24,23 +24,6 @@ If your files reside on a server without HTTP/S access snoopy can access this bu
 Installation
 ************
 
-Dalliance builds with::
-
-    $ npm --version
-    2.15.1
-    $ node --version
-    v4.4.3
-
-
-After cloning the repository, install dependencies::
-
-    npm install
-
-
-Now you can run your local server::
-
-    npm start
-
 
 FAQs
 ====
@@ -69,7 +52,34 @@ Authors
 Documentation
 *************
 
-All docuomentation is at `Read the Docs <http://snoopy.readthedocs.io/>`_.
+All documentation is at `Read the Docs <http://snoopy.readthedocs.io/>`_.
+
+
+***********
+Development
+***********
+
+To install snoopy for development purposes, if you don't have this already install `Node Version Manager <https://github.com/creationix/nvm>`_. Use `NVM ` to install v4.4.5 of Node::
+	
+	$ nvm install v.4.4.5
+	$ nvm use v4.4.5
+
+Clone the repository::
+
+	$ git clone --recursive https://github.com/wtsi-medical-genomics/snoopy.git
+
+Build dalliance::
+	
+	$ cd snoopy/snoopy/dalliance
+	$ npm install -g gulp
+	$ npm install
+	$ gulp
+
+Build snoopy::
+
+	$ cd .. // now in snoopy/snoopy/
+	$ npm install
+	$ npm start
 
 
 *******
