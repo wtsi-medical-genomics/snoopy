@@ -9,22 +9,25 @@ To start Snoopy goto the command line and enter::
 
 Where options are summarised here:
 
--h, --help            show help message and exit
-
---local-server, -l    turn on local file server
-
-                      DEFAULT: local-server not switched on
-
---port PORT, -p PORT  set the local HTTP server port number
-
-                      DEFAULT: 4444, or next available port
-
---ssh SSH, -s SSH     user@hostname for SSH connection to sequence files on remote host
-
-                      DEFAULT: SSH-Bridge not switched on
++-------------------------+------------------------------------------------+
+| ``--help``, ``-h``      | show help message                              |
+|                         |                                                |
+|                         |                                                |
++-------------------------+------------------------------------------------+
+| ``--local-server``,     | turn on local file server                      |
+| ``-l``                  |                                                |
+|                         | **default**: turned off                        |
++-------------------------+------------------------------------------------+
+| ``--port PORT``,        | set the local HTTP server port number          |
+| ``-p PORT``             |                                                |
+|                         | **default**: 4444                              |
++-------------------------+------------------------------------------------+
+| ``--ssh USER@HOSTNAME``,| turn on SSH-Bridge with USER@HOSTNAME          |
+| ``-s USER@HOSTNAME``    |                                                |
+|                         | **default**: turned off                        |
++-------------------------+------------------------------------------------+
 
 See the section :ref:`loading-data` for more information about these options.
-
 
 
 ********
@@ -44,7 +47,7 @@ Start local server at port 8888
     $ snoopy -l -p 8888
 
 Start SSH-Bridge with username ``bob`` at ``big-bio-server``
-================
+============================================================
 ::
 
     $ snoopy -s bob@big-bio-server
