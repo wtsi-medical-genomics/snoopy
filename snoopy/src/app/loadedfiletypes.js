@@ -1,10 +1,13 @@
 "use strict";
 
-var utils = require('./utils.js');
-var getName = utils.getName;
-var httpGet = utils.httpGet;
-var UID = utils.UID;
-var Map = require('immutable').Map;
+
+import { 
+    getName,
+    httpGet,
+    UID,
+    cleanHash,
+} from './utils.js'
+import { Map } from 'immutable'
 import urljoin from 'url-join';
 
 var uid = new UID();
@@ -132,7 +135,7 @@ function RemoteBAM(file, requiresCredentials=false, path) {
 RemoteBAM.prototype = new BAM;
 
 RemoteBAM.prototype.getTier = function(style) {
-    this.tier["bamURI"] = this.file;
+    this.tier["bamURI"] = cleanHash(this.file);
     this.tier["credentials"] = this.requiresCredentials;
     this.tier["padding"] = 0;
     this.tier["name"] = this.name;
@@ -143,7 +146,8 @@ RemoteBAM.prototype.getTier = function(style) {
 
 RemoteBAM.prototype.exists = function() {
   // return new Promise((resolve, reject) => {
-    var path = this.file;
+    console.log(this.file)
+    var path = cleanHash(this.file)
     var connection = Map({requiresCredentials: this.requiresCredentials});
     var opts = {range: {min: 0, max:1}};
     return httpGet(path, connection, opts);
@@ -159,7 +163,7 @@ function SSHBAM(file, path) {
 SSHBAM.prototype = new BAM;
 
 SSHBAM.prototype.getTier = function(style) {
-    this.tier["samURI"] = this.file;
+    this.tier["samURI"] = cleanHash(this.file);
     this.tier["tier_type"] = 'samserver';
     this.tier["padding"] = 0;
     this.tier["name"] = this.name;
@@ -170,7 +174,7 @@ SSHBAM.prototype.getTier = function(style) {
 
 SSHBAM.prototype.exists = function() {
   // Need to add to the path url for chr1, 0-1
-  var path = urljoin(this.file, '1:1-2');
+  var path = urljoin(cleanHash(this.file), '1:1-2');
   // var connection = Map({requiresCredentials: this.requiresCredentials});
   // var opts = {range: {min: 0, max:1}};
   return httpGet(path);
@@ -246,7 +250,7 @@ RemoteVariantFile.prototype = new VariantFile;
 
 RemoteVariantFile.prototype.get = function(sessionInstance, dallianceBrowser) {
     $.ajax({
-        url: this.file,
+        url: cleanHash(this.file),
         xhrFields: { withCredentials: true }
     }).done(function(fileText) {
         console.log(fileText);

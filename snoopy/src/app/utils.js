@@ -196,26 +196,31 @@ var deepExtend = function(out) {
   return out;
 };
 
-// class UID {
-//   constructor() {
-//     this.ID = 0
-//   }
 
-//   next() {
-//     this.ID++;
-//     console.log(this.ID);
-//     return this.ID;
-//   }
+// function UID() {
+//     this.ID = 0;
 // }
 
-function UID() {
-    this.ID = 0;
-}
+// UID.prototype.next = function() {
+//     this.ID++;
+//     return this.ID;    
+// }
 
-UID.prototype.next = function() {
+class UID {
+  constructor() {
+    this.ID = 0
+  }
+
+  next() {
     this.ID++;
     return this.ID;
+  }
 }
+
+const cleanHash = (url) => {
+  return url.replace(new RegExp('#', 'g'), '%23');
+}
+
 
 module.exports = {
   getName: getName,
@@ -228,5 +233,6 @@ module.exports = {
   // getRequiresCredentials: getRequiresCredentials,
   httpGet: httpGet,
   localTextGet: localTextGet,
-  deepExtend: deepExtend
+  deepExtend: deepExtend,
+  cleanHash: cleanHash,
 }
