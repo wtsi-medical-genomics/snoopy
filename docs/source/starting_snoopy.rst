@@ -7,23 +7,23 @@ To start Snoopy goto the command line and enter::
 
     $ snoopy <options>
 
-Where options are summarised here:
+Where the options are:
 
 +-------------------------+------------------------------------------------+
-| ``--help``, ``-h``      | show help message                              |
+| ``--help`` ``-h``       | show help message                              |
 |                         |                                                |
 |                         |                                                |
 +-------------------------+------------------------------------------------+
-| ``--local-server``,     | turn on local file server                      |
+| ``--local-server``      | turn on local file server                      |
 | ``-l``                  |                                                |
 |                         | **default**: turned off                        |
 +-------------------------+------------------------------------------------+
-| ``--port PORT``,        | set the local HTTP server port number          |
-| ``-p PORT``             |                                                |
+| ``--port`` ``-p``       | set the local HTTP server ``PORT`` number      |
+| ``{PORT}``              |                                                |
 |                         | **default**: 4444                              |
 +-------------------------+------------------------------------------------+
-| ``--ssh USER@HOSTNAME``,| turn on SSH-Bridge with USER@HOSTNAME          |
-| ``-s USER@HOSTNAME``    |                                                |
+| ``--ssh`` ``-s``        | turn on SSH-Bridge with ``USER@HOSTNAME``      |
+| ``{USER@HOSTNAME}``     |                                                |
 |                         | **default**: turned off                        |
 +-------------------------+------------------------------------------------+
 
