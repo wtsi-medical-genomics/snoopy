@@ -124,9 +124,9 @@ function RemoteBAI(file, requiresCredentials=false) {
 RemoteBAI.prototype = new BAI;
 
 
-function RemoteBAM(file, requiresCredentials=false, path) {
+function RemoteBAM(file, requiresCredentials=false, path, name=getName(file)) {
     this.base = BAM;
-    this.base(file, getName(file));
+    this.base(file, name);
     this.index = true;
     this.path = path
     this.requiresCredentials = requiresCredentials;
@@ -153,9 +153,9 @@ RemoteBAM.prototype.exists = function() {
     return httpGet(path, connection, opts);
 }
 
-function SSHBAM(file, path) {
+function SSHBAM(file, path, name=getName(file)) {
     this.base = BAM;
-    this.base(file, getName(file));
+    this.base(file, name);
     this.path = path
     this.index = true;
 }

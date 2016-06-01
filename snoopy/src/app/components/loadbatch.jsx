@@ -366,14 +366,7 @@ const LoadBatch = React.createClass({
         throw 'Provided JSON contains a session which does not list any variants. Consult help for instructions and examples of valid JSON batch files.'
       }
 
-      if (!!jso.sequences)
-        sequences = jso.sequences;
-      if (!!jso.bams)
-        sequences = jso.bams;
-      if (!!jso.crams)
-        sequences = jso.crams;
-      if (!!jso.files)
-        sequences = jso.files;
+      sequences = jso.sequences || jso.bams || jso.crams || jso.files || jso.sequence_files
 
       // Ensure sequence files are there
       if (!sequences || sequences.length === 0) {

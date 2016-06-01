@@ -197,59 +197,72 @@ class Session {
     // return str;
   }
 
-  addSequenceFile(path, connection) {
+  addSequenceFile(sequence, connection) {
     return new Promise((resolve, reject) => {
-      if (typeof(path) === 'string') { // a URL
-        let file = getURL(path, connection);
-        console.log('alsjdfkl;ajsdfkl;jasd;fkl')
-        console.log(file);
-        console.log(connection);
-        switch (getExtension(file)) {
-          case "bam":
-          case "cram":
-            switch (connection.get('type')) {
-              case 'HTTP':
-                var requiresCredentials = connection.get('requiresCredentials', false);
-                var newBam = new RemoteBAM(file, requiresCredentials, path);
-                break;
-              case 'SSHBridge':
-                var newBam = new SSHBAM(file, path);
-                break;
-            }
-            newBam.exists().then(result => {
-              // console.log(result);
-              // console.log('it exists');
-              this.bamFiles.push(newBam);
-              resolve();
-            }).catch((e) => {
-              console.log('error in the addSequenceFile ' +  e); 
-              reject(e);
-            });
-            break;
-          case "bai":
-            var newBai = new RemoteBAI(file);
-            this.baiFiles.push(newBai);
-            break;
-        }
-      } else { // a file object
-        for (let i=0; i < path.length; ++i) {
-          let f = path[i];
-          // console.log(f);
-          switch (getExtension(f)) {
+      switch(sequence.constructor) {
+        case String:
+        case Object: //{
+          let name
+          console.log()
+          if (sequence.constructor === Object) {
+            name = sequence.name
+            if (!name)
+              reject('Please provide a name attribute for sequence objects.')
+            sequence = sequence.path || sequence.file
+            if (!sequence || sequence.length === 0)
+              reject('Please provide either a path or file attribute for sequence objects.')
+          }
+          let file = getURL(sequence, connection);
+          console.log(file);
+          console.log(connection);
+          switch (getExtension(file)) {
             case "bam":
-              var newBam = new LocalBAM(f);
-              this.bamFiles.push(newBam);
+            case "cram":
+              switch (connection.get('type')) {
+                case 'HTTP':
+                  var requiresCredentials = connection.get('requiresCredentials', false);
+                  var newBam = new RemoteBAM(file, requiresCredentials, sequence, name);
+                  break;
+                case 'SSHBridge':
+                  var newBam = new SSHBAM(file, sequence, name);
+                  break;
+              }
+              newBam.exists().then(result => {
+                // console.log(result);
+                // console.log('it exists');
+                this.bamFiles.push(newBam);
+                resolve();
+              }).catch((e) => {
+                console.log('error in the addSequenceFile ' +  e); 
+                reject(e);
+              });
               break;
             case "bai":
-              var newBai = new LocalBAI(f);
+              var newBai = new RemoteBAI(file);
               this.baiFiles.push(newBai);
               break;
           }
-        }
-        resolve();
+          break;
+        //} string object
+        default: //{
+          for (let i=0; i < sequence.length; ++i) {
+            let f = sequence[i];
+            // console.log(f);
+            switch (getExtension(f)) {
+              case "bam":
+                var newBam = new LocalBAM(f);
+                this.bamFiles.push(newBam);
+                break;
+              case "bai":
+                var newBai = new LocalBAI(f);
+                this.baiFiles.push(newBai);
+                break;
+            }
+          }
+          resolve()
+        //} default
       }
-      
-    });
+    })
   }
 
   /** Determines if any unmatched LocalBAM's have a matching LocalBAI. It is not necessary for
