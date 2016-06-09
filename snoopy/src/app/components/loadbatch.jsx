@@ -315,7 +315,7 @@ const LoadBatch = React.createClass({
           return JSON.parse(result)
         } catch(e) {
           console.log('ill formed json');
-          throw 'Provided JSON file is ill-formed. To valdate your JSON files use http://jsonlint.com';
+          throw 'Provided JSON file is ill-formed. To validate your JSON files use http://jsonlint.com';
         }
       }).then(jso => {
         console.log(jso);
