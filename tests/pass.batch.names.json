@@ -1,0 +1,32 @@
+{
+    "sessions": [{
+        "variants": [
+            "chr 16-48000042",
+            "chr16:48000231",
+            "16,48000339",
+            "16-48000447",
+            "chr16-48000447-48000449",
+            "16-48000750:48000800"
+        ],
+        "sequences": [{
+            "path": "tests/example.bam",
+            "name": "this is a bam"
+        }, {
+            "path": "tests/example.bam",
+            "name": "this is the same bam with a different name"
+        }]
+    }, {
+        "variants": [
+            "chr 16-48000042",
+            "chr16:48000231",
+            "16,48000339",
+            "16-48000447",
+            "chr16-48000447-48000449",
+            "16-48000750:48000800"
+        ],
+        "sequences": [{
+            "path": "tests/example.bam",
+            "name": "testing"
+        }]
+    }]
+}
