@@ -29,7 +29,7 @@ FAQs
 ====
 
 On Ubuntu, Failed building wheel for cryptography
-------------------------------------------------
+-------------------------------------------------
 
 Snoopy requires the python package paramiko which in turn requires cryptography. According to `this stackoverflow question <http://stackoverflow.com/questions/22073516/failed-to-install-python-cryptography-package-with-pip-and-setup-py>`_ in order to install cryptography on Debian and Ubuntu you must first::
 
