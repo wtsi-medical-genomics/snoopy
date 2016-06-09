@@ -91,7 +91,7 @@ SNP.prototype = new Variant;
 function SNP(chr, loc, score='not reviewed', snapshotName=false) {
     this.base = Variant;
     this.base(chr, score, snapshotName);
-    this.loc = parseInt(loc);
+    this.loc = Number(loc);
 }
 
 SNP.prototype.visit = function(b, callback) {
@@ -149,8 +149,8 @@ CNV.prototype = new Variant;
 function CNV(chr, min, max, score='not reviewed', snapshotName=false) {
     this.base = Variant;
     this.base(chr, score, snapshotName);
-    this.min = min;
-    this.max = max;
+    this.min = Number(min);
+    this.max = Number(max)
 }
 
 CNV.prototype.visit = function(b) {

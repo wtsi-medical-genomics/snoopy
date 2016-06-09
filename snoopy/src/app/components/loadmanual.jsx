@@ -156,7 +156,7 @@ const LoadVariantsPanel = React.createClass({
       if (this.props.error) {
         child = (
           <Alert bsStyle='danger' className='someTopMargin'>
-            <pre>{this.props.error}</pre>
+            {this.props.error}
           </Alert>
         );
       }
@@ -301,7 +301,7 @@ const LoadDataPanel = React.createClass({
       if (this.props.error) {
         child = (
           <Alert bsStyle='danger' className='someTopMargin'>
-            <pre>{this.props.error}</pre>
+            {this.props.error}
           </Alert>
         );
       }

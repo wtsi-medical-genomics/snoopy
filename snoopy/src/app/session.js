@@ -21,8 +21,8 @@ import {
 
 const BAI_RE = /^(.*)\.bai$/i;
 const BAM_RE = /^(.*)\.bam$/i;
-const SNP_RE = /^\s*(chr)?\s*([0-9,m,x,y]+)[-:,\s]*(\d+)\s*$/i;
-const CNV_RE = /^\s*(chr)?\s*([0-9,m,x,y]+)[-:,\s]*(\d+)[-:,\s]*(\d+)\s*$/i;
+const SNP_RE = /^\s*(chr)?\s*([0-9,m,x,y]+)[-:,\s]+(\d+)\s*$/i;
+const CNV_RE = /^\s*(chr)?\s*([0-9,m,x,y]+)[-:,\s]+(\d+)[-:,\s]+(\d+)\s*$/i;
 
 const referenceGenome = {
   name: 'Genome',
@@ -134,36 +134,16 @@ class Session {
           v = new SNP(chr, loc);
         } else if (cnv) {
           let [, , chr, start, end] = cnv;
+          if (Number(start) >= Number(end))
+            throw 'CNV start >= end: ' + variant
           v = new CNV(chr, start, end);
         } else {
-          throw 'Unrecognized variant: ' + variant;
+          throw 'Unrecognized variant: ' + variant
         }
       }
       console.log(v.string())
       this.variants.push(v);
     });
-    // for (var i = 0; i < variants.length; i++) {
-    //   var variant = variants[i].trim();
-    //   var parts = variant.split(pattern);
-    //   var chr = parts[0];
-    //     switch (parts.length) {
-    //       case 2: // SNP
-    //         var loc = parseInt(parts[1]);
-    //         var v = new SNP(chr, loc);
-    //         break;
-    //       case 3: // CNV
-    //         var start = parseInt(parts[1]);
-    //         var end = parseInt(parts[2]);
-    //         var v = new CNV(chr, start, end);
-    //         break;
-    //       default:
-    //         console.log("Unrecognized variant");
-    //         console.log(variant);
-    //         throw 'Unrecognized variant: ' + variant;
-    //     }
-    //     console.log(this);
-    //     this.variants.push(v);
-    // }
   }
 
 
@@ -265,7 +245,7 @@ class Session {
     })
   }
 
-  /** Determines if any unmatched LocalBAM's have a matching LocalBAI. It is not necessary for
+  /* Determines if any unmatched LocalBAM's have a matching LocalBAI. It is not necessary for
   a RemoteBAM to have a RemoteBAI, as it assumed to be in the same location, but if any RemoteBAI's 
   have been provided, marry these to a RemoteBAM. */
   matchMaker() {
