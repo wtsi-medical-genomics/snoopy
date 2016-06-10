@@ -272,9 +272,13 @@
       <div class="panel-heading">
         <h3 class="panel-title">
           <ul>
-            {{#each files}}
+            {{#each sequences}}
               <li>
-                {{this}}
+                {{#if this.name}}
+                  {{this.name}}
+                {{else}}
+                  {{this}}
+                {{/if}}
               </li>
             {{/each}}
           </ul>
