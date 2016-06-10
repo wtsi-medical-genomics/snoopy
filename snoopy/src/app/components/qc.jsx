@@ -22,7 +22,7 @@ import saveAs from 'filesaver.js';
 import { httpGet } from '../utils.js';
 import moment from 'moment';
 
-var browser;
+let browser;
 
 function getDallianceZoomLevel() {
   if (browser)
@@ -37,7 +37,6 @@ function getDallianceZoomBase() {
 const QC = React.createClass({
 
   componentDidMount() {
-    console.log('i made it to here');
     browser = new Browser({
       chr:          '16',
       viewStart:    48000181,
@@ -90,8 +89,7 @@ const QC = React.createClass({
         // this.index = 0;
         // this.props.sessions[this.index].index = 0;
         // this.sessions[this.state.sessionIndex].browser = this.browser;
-        console.log('this.props.sessions', this.props.sessions);
-        var style = this.props.settings.getIn(['styles','condensed','styles']);
+        let style = this.props.settings.getIn(['styles','condensed','styles']);
         this.props.sessions.init(browser, style);
         this.props.sessions.gotoCurrentVariant(browser);
 
@@ -110,7 +108,6 @@ const QC = React.createClass({
   },
 
   shouldComponentUpdate(nextProps, nextState) {
-    console.log('in shouldComponentUpdate');
     return true;
   },
 
@@ -126,7 +123,7 @@ const QC = React.createClass({
 });
 
 
-var DallianceHolder = React.createClass({
+const DallianceHolder = React.createClass({
 
   render() {
     var style = {
@@ -140,7 +137,7 @@ var DallianceHolder = React.createClass({
 
 });
 
-var QCToolbar = React.createClass({
+const QCToolbar = React.createClass({
   
   shouldComponentUpdate(nextProps, nextState) {
     console.log('in qc shouldComponentUpdate');
@@ -166,7 +163,7 @@ var QCToolbar = React.createClass({
           this.handleSnapshot();
       });
     }
-    var nv = this.props.sessions.next(browser)
+    let nv = this.props.sessions.next(browser)
     this.setState({currentVariant: nv.variant});
     if (nv.done) {
       this.setState({ showFinishedModal: true });
@@ -179,8 +176,7 @@ var QCToolbar = React.createClass({
 
   handleVariantList(e) {
     e.preventDefault();
-    // var score = settings.score.variant;
-    var score = 'variant';
+    let score = 'variant';
     this.props.sessions.setQC(score);
     this.nextVariant();
   },
@@ -192,8 +188,7 @@ var QCToolbar = React.createClass({
 
   handlePrevious(e) {
     e.preventDefault();
-    // var score = settings.score.variant;
-    var previousVariant = this.props.sessions.previous(browser);
+    let previousVariant = this.props.sessions.previous(browser);
     if (previousVariant) {
       this.setState({currentVariant: previousVariant});
     } else {
@@ -205,13 +200,13 @@ var QCToolbar = React.createClass({
     e.preventDefault();
     console.log(this.props.sessions.getNumSnapshots());
     this.props.sessions.setQC(decision);
-    var nvr = this.props.sessions.getNumVariantsReviewed();
+    let nvr = this.props.sessions.getNumVariantsReviewed();
     this.setState({numVariantsReviewed: nvr});
     this.nextVariant();
   },
 
   handleVariantSelect(si, vi) {
-    var nv = this.props.sessions.goto(browser, si, vi, this.state.style);
+    let nv = this.props.sessions.goto(browser, si, vi, this.state.style);
     this.setState({currentVariant: nv});
   },
 
@@ -232,7 +227,7 @@ var QCToolbar = React.createClass({
   },
 
   handleView(view) {
-    var style = this.props.settings.getIn(['styles',view,'styles']);
+    let style = this.props.settings.getIn(['styles',view,'styles']);
     this.setState({view: view});
   },
 
@@ -338,8 +333,9 @@ var QCToolbar = React.createClass({
         break;
     }
 
+    let snapshotButton
     if (!this.props.settings.get('snapshots')) {
-      var snapshotButton = (<NavItem eventKey={7} href='#' onClick={this.handleSnapshot}><Button><Glyphicon glyph="camera"/></Button></NavItem>);
+      snapshotButton = (<NavItem eventKey={7} href='#' onClick={this.handleSnapshot}><Button><Glyphicon glyph="camera"/></Button></NavItem>);
     }
 
     return (

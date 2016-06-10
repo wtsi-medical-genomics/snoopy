@@ -1,4 +1,4 @@
-"use strict";
+"use strict"
 
 
 import { 
@@ -8,10 +8,10 @@ import {
     cleanHash,
 } from './utils.js'
 import { Map } from 'immutable'
-import urljoin from 'url-join';
+import urljoin from 'url-join'
 
-var uid = new UID();
-var BAI_RE = /^(.*)\.bai$/i;
+var uid = new UID()
+var BAI_RE = /^(.*)\.bai$/i
 
 // function createLoadedFileObject(file, connection) {
 //   if (typeof(file) === 'string') { // a URL
@@ -20,243 +20,247 @@ var BAI_RE = /^(.*)\.bai$/i;
 //       case "cram":
 //         switch (connection.get('type')) {
 //           case 'HTTP':
-//             var requiresCredentials = connection.get('requiresCredentials') || false;
-//             return new RemoteBAM(file, requiresCredentials);
+//             var requiresCredentials = connection.get('requiresCredentials') || false
+//             return new RemoteBAM(file, requiresCredentials)
 //           case 'SSHBridge':
-//             return new SSHBAM(file);
+//             return new SSHBAM(file)
 //         }
-//         break;
+//         break
 //       case "bai":
-//         return new RemoteBAI(file);
+//         return new RemoteBAI(file)
 //     }
 //   } else { // a file object
-//     var f = file[0];
+//     var f = file[0]
 //     switch (getExtension(f)) {
 //       case "bam":
-//         return new LocalBAM(f);
+//         return new LocalBAM(f)
 //       case "bai":
-//         return new LocalBAI(f);
+//         return new LocalBAI(f)
 //     }
 //   }
 // }
 
 
 function LoadedFile(file, name) {
-    this.file = file || null;
-    this.name = name || null;
-    this.id = uid.next();
+    this.file = file || null
+    this.name = name || null
+    this.id = uid.next()
 }
 
 function BAM(file, name, index) {
-    this.base = LoadedFile;
-    this.base(file, name);
-    this.index = index || null;
+    this.base = LoadedFile
+    this.base(file, name)
+    this.index = index || null
     this.tier = {
        noPersist: true,
        subtierMax: 1000
-    };
+    }
  }
 
- BAM.prototype = new LoadedFile;
+ BAM.prototype = new LoadedFile
 
 
 function BAI(file, name, mapping) {
-    this.base = LoadedFile;
-    this.base(file, name);
-    this.mapping = mapping || null;
+    this.base = LoadedFile
+    this.base(file, name)
+    this.mapping = mapping || null
  }
 
 
 function LocalBAM(file) {
-    this.base = BAM;
-    this.base(file, file.name);
+    this.base = BAM
+    this.base(file, file.name)
 }
 
-LocalBAM.prototype = new BAM;
+LocalBAM.prototype = new BAM
 
 BAM.prototype.print = function(index, showDelete, backgroundColor) {
     if (typeof(showDelete) === "undefined") {
-        showDelete = true;
+        showDelete = true
     }
-    var str = "<tr";
+    var str = "<tr"
     if (backgroundColor) {
-        str += " style='background-color: " + backgroundColor + "'";
+        str += " style='background-color: " + backgroundColor + "'"
     }
-    str += "><td>";
-    str += this.name;
-    str += "</td><td>";
+    str += "><td>"
+    str += this.name
+    str += "</td><td>"
     if (!this.index) {
-        str += "Missing index file";
+        str += "Missing index file"
     } else {
-        str += "Index loaded";
+        str += "Index loaded"
     }
-    str += "</td><td>";
+    str += "</td><td>"
     if (showDelete) {
-        str  += "<a href=\"#\" onclick=\"removeBAM(";
-        str += String(index);
+        str  += "<a href=\"#\" onclick=\"removeBAM("
+        str += String(index)
         str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a>"
     }
-    str += "</td></tr>";
-    return str;
-};
+    str += "</td></tr>"
+    return str
+}
 
 /** Determine if bai is a suitable index based on filename */
 // BAM.prototype.matchesIndex = function(bai) {
-//     var m = bai.name.match(BAI_RE);
-//     return (m[1] === this.name);
+//     var m = bai.name.match(BAI_RE)
+//     return (m[1] === this.name)
 // }
 
 LocalBAM.prototype.getTier = function(style) {
-    this.tier["bamBlob"] = this.file;
-    this.tier["baiBlob"] = this.index.file;
-    this.tier["name"] = this.name;
-    this.tier["style"] = style;
-    this.tier["padding"] = 0;
-    this.tier["scaleVertical"] = true;
-    return this.tier;
-};
+    this.tier["bamBlob"] = this.file
+    this.tier["baiBlob"] = this.index.file
+    this.tier["name"] = this.name
+    this.tier["style"] = style
+    this.tier["padding"] = 0
+    this.tier["scaleVertical"] = true
+    return this.tier
+}
 
 function RemoteBAI(file, requiresCredentials=false) {
-    this.base = BAI;
-    this.base(file, getName(file), true);
+    this.base = BAI
+    this.base(file, getName(file), true)
 }
 
-RemoteBAI.prototype = new BAI;
+RemoteBAI.prototype = new BAI
 
 
-function RemoteBAM(file, requiresCredentials=false, path, name=getName(file)) {
-    this.base = BAM;
-    this.base(file, name);
-    this.index = true;
+function RemoteBAM(file, requiresCredentials=false, path, name) {
+    this.base = BAM
+    if (!name)
+        name=getName(file)
+    else
+        this.customName=true
+    this.base(file, name)
+    this.index = true
     this.path = path
-    this.requiresCredentials = requiresCredentials;
+    this.requiresCredentials = requiresCredentials
 }
 
-RemoteBAM.prototype = new BAM;
+RemoteBAM.prototype = new BAM
 
 RemoteBAM.prototype.getTier = function(style) {
-    this.tier["bamURI"] = cleanHash(this.file);
-    this.tier["credentials"] = this.requiresCredentials;
-    this.tier["padding"] = 0;
-    this.tier["name"] = this.name;
-    this.tier["style"] = style;
-    this.tier["scaleVertical"] = true;
-    return this.tier;
-};
+    this.tier["bamURI"] = cleanHash(this.file)
+    this.tier["credentials"] = this.requiresCredentials
+    this.tier["padding"] = 0
+    this.tier["name"] = this.name
+    this.tier["style"] = style
+    this.tier["scaleVertical"] = true
+    return this.tier
+}
 
 RemoteBAM.prototype.exists = function() {
   // return new Promise((resolve, reject) => {
     console.log(this.file)
     var path = cleanHash(this.file)
-    var connection = Map({requiresCredentials: this.requiresCredentials});
-    var opts = {range: {min: 0, max:1}};
-    return httpGet(path, connection, opts);
+    var connection = Map({requiresCredentials: this.requiresCredentials})
+    var opts = {range: {min: 0, max:1}}
+    return httpGet(path, connection, opts)
 }
 
 function SSHBAM(file, path, name=getName(file)) {
-    this.base = BAM;
-    this.base(file, name);
+    this.base = BAM
+    this.base(file, name)
     this.path = path
-    this.index = true;
+    this.index = true
 }
 
-SSHBAM.prototype = new BAM;
+SSHBAM.prototype = new BAM
 
 SSHBAM.prototype.getTier = function(style) {
-    this.tier["samURI"] = cleanHash(this.file);
-    this.tier["tier_type"] = 'samserver';
-    this.tier["padding"] = 0;
-    this.tier["name"] = this.name;
-    this.tier["style"] = style;
-    this.tier["scaleVertical"] = true;
-    return this.tier;
-};
+    this.tier["samURI"] = cleanHash(this.file)
+    this.tier["tier_type"] = 'samserver'
+    this.tier["padding"] = 0
+    this.tier["name"] = this.name
+    this.tier["style"] = style
+    this.tier["scaleVertical"] = true
+    return this.tier
+}
 
 SSHBAM.prototype.exists = function() {
   // Need to add to the path url for chr1, 0-1
-  var path = urljoin(cleanHash(this.file), '1:1-2');
-  // var connection = Map({requiresCredentials: this.requiresCredentials});
-  // var opts = {range: {min: 0, max:1}};
-  return httpGet(path);
+  var path = urljoin(cleanHash(this.file), '1:1-2')
+  // var connection = Map({requiresCredentials: this.requiresCredentials})
+  // var opts = {range: {min: 0, max:1}}
+  return httpGet(path)
 }
 
 function LocalBAI(file) {
-    this.base = BAI;
-    this.base(file, file.name);
+    this.base = BAI
+    this.base(file, file.name)
 }
 
-LocalBAI.prototype = new BAI;
+LocalBAI.prototype = new BAI
 
 LocalBAI.prototype.print = function(index) {
-    var str = "<tr><td>";
-    str += this.name;
-    str += "</td><td>";
-    str += "Missing BAM file";
-    str += "</td><td><a href=\"#\" onclick=\"removeBAI(";
-    str += String(index);
-    str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>";
+    var str = "<tr><td>"
+    str += this.name
+    str += "</td><td>"
+    str += "Missing BAM file"
+    str += "</td><td><a href=\"#\" onclick=\"removeBAI("
+    str += String(index)
+    str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a></td></tr>"
     return str
-};
-
-function VariantFile(file, name) {
-    this.base = LoadedFile;
-    this.base(file, name);
 }
 
-VariantFile.prototype = new LoadedFile;
+function VariantFile(file, name) {
+    this.base = LoadedFile
+    this.base(file, name)
+}
+
+VariantFile.prototype = new LoadedFile
 
 VariantFile.prototype.print = function(index, showDelete, backgroundColor) {
     if (typeof(showDelete) === "undefined") {
-        showDelete = true;
+        showDelete = true
     }
-    var str = "<tr";
+    var str = "<tr"
     if (backgroundColor) {
-        str += " style='background-color: " + backgroundColor + "'";
+        str += " style='background-color: " + backgroundColor + "'"
     }
-    str += "><td>";
-    str += this.name;
-    str += "</td><td>";
-    str += "</td><td>";
+    str += "><td>"
+    str += this.name
+    str += "</td><td>"
+    str += "</td><td>"
     if (showDelete) {
-        str += "<a href=\"#\" onclick=\"removeVariantFile(";
-        str += String(index);
-        str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a>";
+        str += "<a href=\"#\" onclick=\"removeVariantFile("
+        str += String(index)
+        str += "); return false;\"> <span class=\"glyphicon glyphicon-trash\"></span></a>"
     }
-    str += "</td></tr>";
+    str += "</td></tr>"
     return str
-};
-
-function LocalVariantFile(file) {
-    this.base = LoadedFile;
-    this.base(file, file.name + " [Local]");
 }
 
-LocalVariantFile.prototype = new VariantFile;
+function LocalVariantFile(file) {
+    this.base = LoadedFile
+    this.base(file, file.name + " [Local]")
+}
+
+LocalVariantFile.prototype = new VariantFile
 
 LocalVariantFile.prototype.get = function(sessionInstance) {
-    var reader = new FileReader();
-    reader.readAsText(this.file);
+    var reader = new FileReader()
+    reader.readAsText(this.file)
     reader.onload = function() {
-        sessionInstance.load(reader.result);
-    };
-};
+        sessionInstance.load(reader.result)
+    }
+}
 
 function RemoteVariantFile(file) {
-    this.base = LoadedFile;
-    this.base(file, getName(file) + " [Remote]");
-};
+    this.base = LoadedFile
+    this.base(file, getName(file) + " [Remote]")
+}
 
-RemoteVariantFile.prototype = new VariantFile;
+RemoteVariantFile.prototype = new VariantFile
 
 RemoteVariantFile.prototype.get = function(sessionInstance, dallianceBrowser) {
     $.ajax({
         url: cleanHash(this.file),
         xhrFields: { withCredentials: true }
     }).done(function(fileText) {
-        console.log(fileText);
-        sessionInstance.load(fileText, dallianceBrowser);
-    });
-};
+        console.log(fileText)
+        sessionInstance.load(fileText, dallianceBrowser)
+    })
+}
 
 function SSHFile(connection) {
     //unpack connection elements here
@@ -265,7 +269,7 @@ function SSHFile(connection) {
 
 
 
-SSHFile.prototype = new LoadedFile;
+SSHFile.prototype = new LoadedFile
 
 
 
@@ -276,4 +280,4 @@ module.exports = {
     RemoteBAI: RemoteBAI,
     LocalBAM: LocalBAM,
     LocalBAI: LocalBAI
-};
+}
