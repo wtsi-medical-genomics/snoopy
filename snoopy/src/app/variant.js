@@ -153,10 +153,10 @@ function CNV(chr, min, max, score='not reviewed', snapshotName=false) {
     this.max = Number(max)
 }
 
-CNV.prototype.visit = function(b) {
+CNV.prototype.visit = function(b, callback) {
     b.clearHighlights();
     var loc = (this.min + this.max) / 2;
-    b.setCenterLocation('chr' + this.chr, loc);
+    b.setCenterLocation('chr' + this.chr, loc, callback);
     b.highlightRegion('chr' + this.chr, this.min, this.max);
     return this;
 }
