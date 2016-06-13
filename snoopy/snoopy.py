@@ -60,16 +60,17 @@ def cli():
     handlers = [(r"/app/?(.*)", StaticFileHandler, {"path": get_abs_path('build'), "default_filename": "index.html"})]
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('--local-server', '-l',
+    parser.add_argument('-l', '--local-server',
         action='store_true',
         help='turn on local file server DEFAULT: local-server not switched on'
         )
-    parser.add_argument('--port', '-p',
+    parser.add_argument('-p', '--port',
         type=int,
         help='set the local HTTP server port number DEFAULT: {}, or next available port'.format(DEFAULT_PORT),
         default=DEFAULT_PORT,
         )
-    parser.add_argument('--ssh', '-s',
+    parser.add_argument('-s', '--ssh',
+        type=str,
         help='user@hostname for SSH connection to sequence files on remote host DEFAULT: SSH-Bridge not switched on'
         )
     args = parser.parse_args()
