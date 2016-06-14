@@ -18,7 +18,7 @@ And requires
 * python (2 or 3)
 * a modern web browser
 
-If your files reside on a server without HTTP/S access snoopy can access this but will require a **samtools** to be installed and in your path.
+If your files reside on a server without HTTP/S access snoopy can access this but will require `samtools <http://www.htslib.org/>`_  to be installed and in your path.
 
 ************
 Installation
