@@ -7,15 +7,15 @@ from tornado.httpserver import HTTPServer
 from tornado import gen, ioloop
 import re
 import os
-import argparse
-import getpass
-import base64
-import json
+from argparse import ArgumentParser
+from getpass import getpass
+from base64 import b64encode
+from json import dumps
 import webbrowser
 import threading
 import signal
 import sys
-from ssh_bridge import SSHBridge
+from .ssh_bridge import SSHBridge
 
 SERVERS = {}
 
@@ -46,7 +46,7 @@ class SettingsHandler(RequestHandler):
     
     @gen.coroutine
     def get(self):
-        self.write(json.dumps({'servers': SERVERS}))
+        self.write(dumps({'servers': SERVERS}))
 
 
 def get_abs_path(path):
@@ -59,7 +59,7 @@ def cli():
     DEFAULT_PORT = 4444 # 0
     handlers = [(r"/app/?(.*)", StaticFileHandler, {"path": get_abs_path('build'), "default_filename": "index.html"})]
     
-    parser = argparse.ArgumentParser()
+    parser = ArgumentParser()
     parser.add_argument('-l', '--local-server',
         action='store_true',
         help='turn on local file server DEFAULT: local-server not switched on'
@@ -85,7 +85,8 @@ def cli():
             print('SSH location must have format user@hostname')
             sys.exit(0)
         g = m.groups()
-        password = base64.b64encode(getpass.getpass('Enter the password for SSH connection {}: '.format(args.ssh)))
+        prompt = 'Enter the password for SSH connection {}: '.format(args.ssh)
+        password = b64encode(getpass(prompt).encode())
         ssh_config = {
             'username': g[0],
             'hostname': g[1],
