@@ -24,6 +24,26 @@ If your files reside on a server without HTTP/S access snoopy can access this bu
 Installation
 ************
 
+::
+
+    pip install snoopy
+
+
+*******
+Authors
+*******
+
+* Daniel Rice (dr9@sanger.ac.uk)
+* Jeff Barrett
+
+
+*************
+Documentation
+*************
+
+All documentation is at `Read the Docs <http://snoopy.readthedocs.io/>`_.
+
+
 
 FAQs
 ====
@@ -45,49 +65,36 @@ On Ubuntu, npm start fails with Error: watch ENOSPC
 
 According to https://discourse.roots.io/t/gulp-watch-error-on-ubuntu-14-04-solved/3453 this is caused by a limit for how many files can be watched by a user and can be updated with::
 
-	echo fs.inotify.max_user_watches=582222 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+    echo fs.inotify.max_user_watches=582222 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
 
-*******
-Authors
-*******
-
-* Daniel Rice (dr9@sanger.ac.uk)
-* Jeff Barrett
-
-
-*************
-Documentation
-*************
-
-All documentation is at `Read the Docs <http://snoopy.readthedocs.io/>`_.
 
 
 ***********
 Development
 ***********
 
-To install snoopy for development purposes, if you don't have this already install `Node Version Manager <https://github.com/creationix/nvm>`_. Use **NVM** to install v4.4.5 of Node::
-	
-	$ nvm install v.4.4.5
-	$ nvm use v4.4.5
+To install snoopy for development purposes, if you don't have this already install `Node Version Manager <https://github.com/creationix/nvm>`_ and use it to install v4.4.5 of Node::
+    
+    $ nvm install v.4.4.5
+    $ nvm use v4.4.5
 
 Clone the repository::
 
-	$ git clone --recursive https://github.com/wtsi-medical-genomics/snoopy.git
+    $ git clone --recursive https://github.com/wtsi-medical-genomics/snoopy.git
 
 Build dalliance::
-	
-	$ cd snoopy/snoopy/dalliance
-	$ npm install -g gulp
-	$ npm install
-	$ gulp
+    
+    $ cd snoopy/snoopy/dalliance
+    $ npm install -g gulp
+    $ npm install
+    $ gulp
 
 Build snoopy::
 
-	$ cd .. // now in snoopy/snoopy/
-	$ npm install
-	$ npm start
+    $ cd .. // now in snoopy/snoopy/
+    $ npm install
+    $ npm start
 
 
 *******
