@@ -1,0 +1,97 @@
+{
+  "date": "Fri Jun 10 2016 13:36:59 GMT+0100 (BST)",
+  "sessions": [
+    {
+      "sequences": [
+        {
+          "path": "tests/example.bam",
+          "name": "this is the same bam with a different name"
+        },
+        {
+          "path": "tests/example.bam",
+          "name": "this is a bam"
+        }
+      ],
+      "variants": [
+        {
+          "chr": "16",
+          "location": "48000042",
+          "qc_decision": "not variant",
+          "snapshot": "this is the same bam with a different name_this is a bam_16_48000042.png"
+        },
+        {
+          "chr": "16",
+          "location": "48000231",
+          "qc_decision": "uncertain",
+          "snapshot": "this is the same bam with a different name_this is a bam_16_48000231.png"
+        },
+        {
+          "chr": "16",
+          "location": "48000339",
+          "qc_decision": "variant",
+          "snapshot": "this is the same bam with a different name_this is a bam_16_48000339.png"
+        },
+        {
+          "chr": "16",
+          "location": "48000447",
+          "qc_decision": "not variant",
+          "snapshot": "this is the same bam with a different name_this is a bam_16_48000447.png"
+        },
+        {
+          "chr": "16",
+          "location": "48000447 - 48000449",
+          "qc_decision": "uncertain"
+        },
+        {
+          "chr": "16",
+          "location": "48000750 - 48000800",
+          "qc_decision": "variant"
+        }
+      ]
+    },
+    {
+      "sequences": [
+        {
+          "path": "tests/example.bam",
+          "name": "testing"
+        }
+      ],
+      "variants": [
+        {
+          "chr": "16",
+          "location": "48000042",
+          "qc_decision": "variant",
+          "snapshot": "testing_16_48000042.png"
+        },
+        {
+          "chr": "16",
+          "location": "48000231",
+          "qc_decision": "uncertain",
+          "snapshot": "testing_16_48000231.png"
+        },
+        {
+          "chr": "16",
+          "location": "48000339",
+          "qc_decision": "variant",
+          "snapshot": "testing_16_48000339.png"
+        },
+        {
+          "chr": "16",
+          "location": "48000447",
+          "qc_decision": "uncertain",
+          "snapshot": "testing_16_48000447.png"
+        },
+        {
+          "chr": "16",
+          "location": "48000447 - 48000449",
+          "qc_decision": "not variant"
+        },
+        {
+          "chr": "16",
+          "location": "48000750 - 48000800",
+          "qc_decision": "uncertain"
+        }
+      ]
+    }
+  ]
+}
