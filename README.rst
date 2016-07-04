@@ -92,7 +92,7 @@ Build dalliance::
 
 Build snoopy::
 
-    $ cd .. // now in snoopy/snoopy/
+    $ cd .. # now in snoopy/snoopy/
     $ npm install
     $ npm start
 
