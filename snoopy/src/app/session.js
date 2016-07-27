@@ -29,7 +29,6 @@ const referenceGenome = {
   twoBitURI: 'http://www.biodalliance.org/datasets/hg19.2bit',
   // twoBitURI: 'https://web-lustre-01.internal.sanger.ac.uk/lustre/scratch113/teams/barrett/users/dr9/human_g1k_v37.2bit',
   // twoBitURI: 'http://localhost:4444/files/examples/human_g1k_v37.2bit',
-  credentials: true,
   tier_type: 'sequence',
   provides_entrypoints: true,
   pinned: true
