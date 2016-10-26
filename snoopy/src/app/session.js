@@ -26,7 +26,8 @@ const CNV_RE = /^\s*(chr)?\s*([0-9,m,x,y]+)[-:,\s]+(\d+)[-:,\s]+(\d+)\s*$/i
 
 const referenceGenome = {
   name: 'Genome',
-  twoBitURI: 'http://www.biodalliance.org/datasets/hg19.2bit',
+  // twoBitURI: 'http://www.biodalliance.org/datasets/hg19.2bit',
+  twoBitURI: 'http://46.101.18.29/datasets/hg19.2bit',
   // twoBitURI: 'https://web-lustre-01.internal.sanger.ac.uk/lustre/scratch113/teams/barrett/users/dr9/human_g1k_v37.2bit',
   // twoBitURI: 'http://localhost:4444/files/examples/human_g1k_v37.2bit',
   tier_type: 'sequence',

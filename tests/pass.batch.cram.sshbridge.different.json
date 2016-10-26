@@ -1,9 +1,9 @@
 {
     "sessions": [{
-        "variants": "16:48000442",
-        "bams": "~/tests/example.cram"
+        "variants": ["16:48000442"],
+        "bams": ["~/tests/example.cram"]
     },{
-        "variants": "16:48000442",
-        "bams": "~/tests/example2.cram"
+        "variants": ["16:48000442"],
+        "bams": ["~/tests/example2.cram"]
     }]
 }

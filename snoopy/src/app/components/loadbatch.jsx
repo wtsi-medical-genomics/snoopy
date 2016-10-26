@@ -17,6 +17,7 @@ import {
   getExtension,
   getName,
   getURL,
+  httpGet,
   localTextGet,
 } from '../utils.js';
 import Session from '../session.js';
@@ -26,12 +27,12 @@ import Immutable from 'Immutable';
 
 const TitlePanel = React.createClass({
 
-  render: function() {
+  render() {
     return (
       <Panel>
         <h4>Batch Mode</h4>
       </Panel>
-    );
+    )
   }
 
 });
@@ -41,6 +42,10 @@ const LoadFilePanel = React.createClass({
    handleFileLoad() {
     let file = React.findDOMNode(this.refs.file).files[0];
     this.props.handleFileLoad(file);
+  },
+
+  componentDidMount() {
+    this.getDOMNode().scrollIntoView()
   },
 
   render() {
@@ -88,7 +93,7 @@ const LoadFilePanel = React.createClass({
 
     return (
       <Panel>
-        <h4>Step 2: Select Batch File</h4>
+        <h4>Step 3: Select Batch File</h4>
         <p>
           Select a local JSON file containing a list of sessions. Consult the help for a detailed description of the expected format.
         </p>
@@ -99,6 +104,76 @@ const LoadFilePanel = React.createClass({
   }
 
 });
+
+
+const SelectReferencePanel = React.createClass({
+
+  componentDidMount() {
+    this.getDOMNode().scrollIntoView()
+  },
+
+  handleChange(v, e) {
+    this.props.handleReferenceChange(v)
+  },
+
+  render() {
+
+    let formStyle = {
+      backgroundColor: 'aliceblue',
+      padding: '10px',
+      width: '100%'
+    }
+
+    const referencesSummary = this.props.referencesSummary
+    let node
+    
+    if (referencesSummary) {
+      let selectNodes = []
+      for (let k in referencesSummary) {
+        let v = referencesSummary[k]
+        console.log(k, v)
+        let label = (
+          <div>
+            {v.build}
+            <span className="badge absolute-right">
+              {v.organism}
+            </span>
+          </div>
+        )
+        let node = (
+          <Input type="radio"
+            ref={k}
+            key={k}
+            name="referemce"
+            label={label}
+            onChange={this.handleChange.bind(this, {k})}
+          />
+        )
+        selectNodes.push(node)
+      }
+      node = (
+        <form style={formStyle}>
+          {selectNodes}
+        </form>
+      )
+    } else {
+      node = (
+        <div>
+          LOADING...
+        </div>
+      )
+    }
+
+
+    return (
+      <Panel>
+        <h4>Step 2: Select Reference Genome</h4>
+        {node}
+      </Panel>
+    )
+  }
+
+})
 
 const SelectConnectionPanel = React.createClass({
 
@@ -184,7 +259,7 @@ const SelectConnectionPanel = React.createClass({
           label={label}
           onChange={this.handleChange.bind(this, "localHTTP")}
         />
-      );
+      )
     }
 
     if (sshBridgeLocation) {
@@ -196,13 +271,14 @@ const SelectConnectionPanel = React.createClass({
           label={label}
           onChange={this.handleChange.bind(this, "SSHBridge")}
         />
-      );
+      )
     }
+
     let formStyle = {
       backgroundColor: 'aliceblue',
       padding: '10px',
       width: '100%'
-    };
+    }
 
     // let opt1 = 'Remote HTTP - ' + this.props.settings.getIn(['servers','remoteHTTP','location']);
     // let opt2 = 'Local HTTP - ' + this.props.settings.getIn(['servers','localHTTP','location']);
@@ -235,6 +311,7 @@ const LoadBatch = React.createClass({
       nSessions: 0,
       nVariants: 0,
       loaded: false,
+      reference: '',
       error: '',
     };
   },
@@ -251,6 +328,11 @@ const LoadBatch = React.createClass({
     let settings = this.props.settings;
     settings = settings.mergeDeepIn(['servers','remoteHTTP'], Immutable.fromJS(remoteHTTP));
     this.props.handleSettings(settings); 
+  },
+
+  handleReferenceChange(reference) {
+    this.setState({reference})
+    console.log(reference)
   },
 
   handleGoQC(e) {
@@ -393,17 +475,45 @@ const LoadBatch = React.createClass({
   },
 
   render() {
-    let proceedNode;
-    console.log(this.state.sessions);
+    console.log(this.state.sessions)
+
+    let selectReferencePanelNode
+    if (this.state.connection) {
+      selectReferencePanelNode = (
+        <SelectReferencePanel
+          handleReferenceChange={this.handleReferenceChange}
+          referencesSummary={this.props.referencesSummary}
+        />
+      )
+    }
+
+
+    let loadFilePanelNode
+    if (this.state.reference) {
+      loadFilePanelNode = (
+        <LoadFilePanel
+          settings={this.props.settings}
+          connection={this.state.connection}
+          handleSessions={this.handleSessions}
+          handleFileLoad={this.handleFileLoad}
+          nSessions={this.state.nSessions}
+          nVariants={this.state.nVariants}
+          loaded={this.state.loaded}
+          loading={this.state.loading}
+          error={this.state.error}
+        />
+      )
+    }
+    
+    let proceedNode
     if (this.state.sessions) {
       proceedNode = (
         <Pager>
           <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
         </Pager>
       );
-    } else {
-      proceedNode = null;
     }
+
     return (
       <div>
         <Grid>
@@ -419,17 +529,8 @@ const LoadBatch = React.createClass({
                 handleConnection={this.handleConnection}
                 handleRemoteHTTPChange={this.handleRemoteHTTPChange}
               />
-              <LoadFilePanel
-                settings={this.props.settings}
-                connection={this.state.connection}
-                handleSessions={this.handleSessions}
-                handleFileLoad={this.handleFileLoad}
-                nSessions={this.state.nSessions}
-                nVariants={this.state.nVariants}
-                loaded={this.state.loaded}
-                loading={this.state.loading}
-                error={this.state.error}
-              />
+              {selectReferencePanelNode}
+              {loadFilePanelNode}
               {proceedNode}
             </Col>
             <Col md={3}></Col>

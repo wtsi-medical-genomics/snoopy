@@ -22,6 +22,10 @@ import { SettingsModal } from './settings.jsx';
 import { httpGet } from '../utils.js';
 import { fromJS, toJS } from 'immutable';
 import styles from '../styles.js';
+import {
+  referencesURL,
+  referencesSummaryURL,
+} from '../conf.js'
 
 // var styles = require('../styles.js');
 // let settings = fromJS({
@@ -117,7 +121,8 @@ var Main = React.createClass({
     settings = fromJS(settings);
     return {
       view: 'intro',  //intro, loadmanual, loadbatch, qc
-      settings: settings
+      settings: settings,
+      referencesSummary: {}
     };
   },
 
@@ -141,6 +146,11 @@ var Main = React.createClass({
     }).catch(error => {
       console.log(error);
     });
+
+    httpGet(referencesSummaryURL).then(JSON.parse).then((referencesSummary) => {
+      this.setState({referencesSummary})
+    })
+
   },
   //   var request = new XMLHttpRequest();
   //   request.open('GET', './settings.json');
@@ -193,12 +203,15 @@ var Main = React.createClass({
         break;
       case 'loadbatch':
         console.log(this.state.settings.toJS());
-        child = <LoadBatch 
-          handleGoQC={this.handleGoQC}
-          handleGoIntro={this.handleGoIntro}
-          settings={this.state.settings}
-          handleSettings={this.handleSettings}
-        />;
+        child = (
+          <LoadBatch 
+            handleGoQC={this.handleGoQC}
+            handleGoIntro={this.handleGoIntro}
+            settings={this.state.settings}
+            handleSettings={this.handleSettings}
+            referencesSummary={this.state.referencesSummary}
+          />
+        )
         break;
       case 'qc':
         child = <QC sessions={this.state.sessions} settings={this.state.settings} />;

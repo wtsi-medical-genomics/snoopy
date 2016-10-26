@@ -18,7 +18,7 @@ os.chdir('..')
 
 setup(
     name='snoopy',
-    version='0.4.3',
+    version='0.4.4',
     description='Browser based quality control tool to expedite reviewing predicted variants in next generation sequencing files.',
     long_description=long_description,
     url='https://github.com/wtsi-medical-genomics/snoopy',

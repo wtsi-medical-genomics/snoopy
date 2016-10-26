@@ -545,3 +545,9 @@ dt.smallTopMargin {
     background-color: aliceblue;
     font-weight: bold;
 }
+
+.absolute-right {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+}
