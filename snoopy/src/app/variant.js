@@ -198,4 +198,4 @@ CNV.prototype.getBasePosition = function() {
 module.exports = {
     SNP: SNP,
     CNV: CNV
-};
+}

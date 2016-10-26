@@ -525,4 +525,4 @@ const LoadManual = React.createClass({
 
 });
 
-module.exports = LoadManual;
+module.exports = LoadManual

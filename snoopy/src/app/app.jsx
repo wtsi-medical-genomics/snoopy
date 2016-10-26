@@ -9,4 +9,4 @@
   // For more details see: https://facebook.github.io/react/docs/top-level-api.html#react.render
   React.render(<Main />, document.body);
 
-})();
+})()

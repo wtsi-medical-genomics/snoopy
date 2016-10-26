@@ -1,6 +1,6 @@
-"use strict";
+"use strict"
 
-import React from 'react';
+import React from 'react'
 import {
   Alert,
   Button,
@@ -14,20 +14,20 @@ import {
   NavItem,
   Panel,
   Row,
-} from 'react-bootstrap';
-import LoadManual from './loadmanual.jsx';
-import LoadBatch from './loadbatch.jsx';
-import QC from './qc.jsx';
-import { SettingsModal } from './settings.jsx';
-import { httpGet } from '../utils.js';
-import { fromJS, toJS } from 'immutable';
-import styles from '../styles.js';
+} from 'react-bootstrap'
+import LoadManual from './loadmanual.jsx'
+import LoadBatch from './loadbatch.jsx'
+import QC from './qc.jsx'
+import { SettingsModal } from './settings.jsx'
+import { httpGet } from '../utils.js'
+import { fromJS, toJS } from 'immutable'
+import styles from '../styles.js'
 import {
   referencesURL,
   referencesSummaryURL,
 } from '../conf.js'
 
-// var styles = require('../styles.js');
+// var styles = require('../styles.js')
 // let settings = fromJS({
 //   servers: {
 //      remoteHTTP: {
@@ -59,29 +59,29 @@ import {
 //   },
 //   styles: styles,
 //   snapshots: true
-// });
+// })
   
   // Use immutable data structure
-  // settings = fromJS(settings);
+  // settings = fromJS(settings)
 
   // Check for settings at the location from which snoopy is served
-  // var request = new XMLHttpRequest();
-  // request.open('GET', './settings.json');
-  // request.setRequestHeader('Content-Type', 'application/json');
+  // var request = new XMLHttpRequest()
+  // request.open('GET', './settings.json')
+  // request.setRequestHeader('Content-Type', 'application/json')
   // request.onload = () => {
   //   if (request.status >= 200 && request.status < 400) {
   //     // Success!
-  //     console.log('settings.json exist');
-  //     var serverSettings = fromJS(JSON.parse(request.responseText));
-  //     settings = settings.mergeDeep(serverSettings);
-  //     cb(settings);
+  //     console.log('settings.json exist')
+  //     var serverSettings = fromJS(JSON.parse(request.responseText))
+  //     settings = settings.mergeDeep(serverSettings)
+  //     cb(settings)
   //   } else {
   //     // We reached our target server, but it returned an error
-  //     console.log('oops');
-  //     cb(settings);
-  //   };
+  //     console.log('oops')
+  //     cb(settings)
+  //   }
   // }
-  // request.send();
+  // request.send()
 
 var Main = React.createClass({  
 
@@ -117,92 +117,93 @@ var Main = React.createClass({
       },
       styles: styles,
       snapshots: true
-    };
-    settings = fromJS(settings);
+    }
+    settings = fromJS(settings)
     return {
       view: 'intro',  //intro, loadmanual, loadbatch, qc
       settings: settings,
-      referencesSummary: {}
-    };
+      referencesSummary: {},
+      reference: '',
+    }
   },
 
   componentDidMount() {
     // Settings.init((settings) => {
-    //   this.setState({settings: settings});
-    // });
+    //   this.setState({settings: settings})
+    // })
     httpGet('/settings', undefined, {contentType: 'application/json'}).then((result) => {
-      let localSettings = fromJS(JSON.parse(result));
-      let settings = this.state.settings;
-      settings = settings.mergeDeep(localSettings);
-      console.log(settings);
-      let remoteHTTP = window.localStorage.getItem("snoopyRemoteHTTP");
+      let localSettings = fromJS(JSON.parse(result))
+      let settings = this.state.settings
+      settings = settings.mergeDeep(localSettings)
+      console.log(settings)
+      let remoteHTTP = window.localStorage.getItem("snoopyRemoteHTTP")
       console.log(remoteHTTP)
       if (remoteHTTP) {
         console.log('it is here after all')
-        remoteHTTP = fromJS(JSON.parse(remoteHTTP));
-        settings = settings.mergeDeepIn(['servers','remoteHTTP'], remoteHTTP);
+        remoteHTTP = fromJS(JSON.parse(remoteHTTP))
+        settings = settings.mergeDeepIn(['servers','remoteHTTP'], remoteHTTP)
       }
-      this.setState({ settings: settings });
+      this.setState({ settings: settings })
     }).catch(error => {
-      console.log(error);
-    });
+      console.log(error)
+    })
 
     httpGet(referencesSummaryURL).then(JSON.parse).then((referencesSummary) => {
       this.setState({referencesSummary})
     })
 
   },
-  //   var request = new XMLHttpRequest();
-  //   request.open('GET', './settings.json');
-  //   request.setRequestHeader('Content-Type', 'application/json');
+  //   var request = new XMLHttpRequest()
+  //   request.open('GET', './settings.json')
+  //   request.setRequestHeader('Content-Type', 'application/json')
   //   request.onload = () => {
   //     if (request.status >= 200 && request.status < 400) {
   //       // Success!
-  //       console.log('settings.json exist');
-  //       var serverSettings = fromJS(JSON.parse(request.responseText));
-  //       settings = settings.mergeDeep(serverSettings);
-  //       cb(settings);
+  //       console.log('settings.json exist')
+  //       var serverSettings = fromJS(JSON.parse(request.responseText))
+  //       settings = settings.mergeDeep(serverSettings)
+  //       cb(settings)
   //     } else {
   //       // We reached our target server, but it returned an error
-  //       console.log('oops');
-  //       cb(settings);
-  //     };
+  //       console.log('oops')
+  //       cb(settings)
+  //     }
   //   }
-  //   request.send();
+  //   request.send()
   
 
   handleSettings(settings) {
-    console.log(settings.toJS());
+    console.log(settings.toJS())
     this.setState({settings: settings})
   },
 
   handleGoManual() {
-    this.setState({view: 'loadmanual'});
+    this.setState({view: 'loadmanual'})
   },
 
   handleGoBatch() {
-    this.setState({view: 'loadbatch'});
+    this.setState({view: 'loadbatch'})
   },
 
-  handleGoQC(sessions) {
-    this.setState({view: 'qc', sessions: sessions});
+  handleGoQC(sessions, reference) {
+    this.setState({view: 'qc', sessions, reference})
   },
 
   handleGoIntro() { 
-    this.setState({view: 'intro'});
+    this.setState({view: 'intro'})
   },
 
   render() {
-    var child;
+    var child
     switch (this.state.view) {
       case 'intro':
-        child = <Intro handleGoManual={this.handleGoManual}  handleGoBatch={this.handleGoBatch} />;
-        break;
+        child = <Intro handleGoManual={this.handleGoManual}  handleGoBatch={this.handleGoBatch} />
+        break
       case 'loadmanual':
-        child = <LoadManual handleGoQC={this.handleGoQC} handleGoIntro={this.handleGoIntro} settings={this.state.settings} />;
-        break;
+        child = <LoadManual handleGoQC={this.handleGoQC} handleGoIntro={this.handleGoIntro} settings={this.state.settings} />
+        break
       case 'loadbatch':
-        console.log(this.state.settings.toJS());
+        console.log(this.state.settings.toJS())
         child = (
           <LoadBatch 
             handleGoQC={this.handleGoQC}
@@ -212,28 +213,34 @@ var Main = React.createClass({
             referencesSummary={this.state.referencesSummary}
           />
         )
-        break;
+        break
       case 'qc':
-        child = <QC sessions={this.state.sessions} settings={this.state.settings} />;
-        break;
+        child = (
+          <QC 
+            sessions={this.state.sessions}
+            settings={this.state.settings}
+            reference={this.state.reference}
+          />
+        )
+        break
       default:
-        child = <Intro />;
+        child = <Intro />
     }
-    // console.log(this.state.settings);
+    // console.log(this.state.settings)
     return (
       <div className="outerWrapper">
         <MainToolbar view={this.state.view} settings={this.state.settings} handleSettings={this.handleSettings} />
         {child}
       </div>
-    );
+    )
   },
 
-});
+})
 
 var Intro = React.createClass({
 
   render() {
-    // console.log(styles);
+    // console.log(styles)
     return (
       <div className="innerWrapper">
         <Grid>
@@ -248,58 +255,57 @@ var Intro = React.createClass({
           </Row>
         </Grid>
       </div>
-    );
+    )
   }
 
-});
+})
 
 
 var MainToolbar = React.createClass({
 
   getInitialState(){
-    return { showSettings: false };
+    return { showSettings: false }
   },
 
   openSettings() {
-    this.setState({ showSettings: true });
+    this.setState({ showSettings: true })
   },
 
   closeSettings() {
-    this.setState({ showSettings: false });
+    this.setState({ showSettings: false })
   },
 
   handleLinkClick(url) {
-    let newTab = window.open(url, '_blank');
+    let newTab = window.open(url, '_blank')
     if(newTab)
-        newTab.focus();
+        newTab.focus()
     else
-        alert('Please allow popups for this site.');
+        alert('Please allow popups for this site.')
   },
 // this.onClick.bind(null, this.state.text)}
   render() {
-      return (
-        <div>
-          <Navbar brand='Snoopy' inverse toggleNavKey={0}>
-            <Nav right eventKey={0}> {/* This is the eventKey referenced */}
-              <NavItem eventKey={1} href='#' onClick={this.openSettings}>Settings</NavItem>
-              <NavItem eventKey={2} href='#' onClick={this.handleLinkClick.bind(null, 'http://snoopy.readthedocs.io')}>Help</NavItem>
-              <NavItem eventKey={3} href='#' onClick={this.handleLinkClick.bind(null, 'https://github.com/wtsi-medical-genomics/snoopy')}>GitHub</NavItem>
-            </Nav>
-          </Navbar>
+    return (
+      <div>
+        <Navbar brand='Snoopy' inverse toggleNavKey={0}>
+          <Nav right eventKey={0}> {/* This is the eventKey referenced */}
+            <NavItem eventKey={1} href='#' onClick={this.openSettings}>Settings</NavItem>
+            <NavItem eventKey={2} href='#' onClick={this.handleLinkClick.bind(null, 'http://snoopy.readthedocs.io')}>Help</NavItem>
+            <NavItem eventKey={3} href='#' onClick={this.handleLinkClick.bind(null, 'https://github.com/wtsi-medical-genomics/snoopy')}>GitHub</NavItem>
+          </Nav>
+        </Navbar>
 
-          <SettingsModal
-            settings={this.props.settings}
-            handleSettings={this.props.handleSettings}
-            show={this.state.showSettings}
-            close={this.closeSettings}
-            view={this.props.view}
-          />
-        </div>
-      );
-    
+        <SettingsModal
+          settings={this.props.settings}
+          handleSettings={this.props.handleSettings}
+          show={this.state.showSettings}
+          close={this.closeSettings}
+          view={this.props.view}
+        />
+      </div>
+    )
   }
 
-});
+})
 
 var IntroPanel = React.createClass({
 
@@ -311,23 +317,23 @@ var IntroPanel = React.createClass({
           Snoopy is a quality control tool to review predicted variants in BAM files using the Dalliance genome browser. There are a few ways to use this tool:
         </p>
       </Panel>
-    );
+    )
   }
 
-});
+})
 
 
 var ManualPanel = React.createClass({
 
   handleClick(e) {
-    e.preventDefault();
-    this.props.handleGoManual();
+    e.preventDefault()
+    this.props.handleGoManual()
   },
 
   render() {
     var style = {
       backgroundColor: '#D5EBF6'
-    };
+    }
 
     return (
       <Panel style={style}>
@@ -337,24 +343,24 @@ var ManualPanel = React.createClass({
           </p>
           <Button bsStyle="primary" onClick={this.handleClick}>Go Manual<Glyphicon glyph="chevron-right"/></Button>
       </Panel>
-    );
+    )
   }
 
-});
+})
 
 
 var BatchPanel = React.createClass({
   
   handleClick(e) {
-    e.preventDefault();
-    this.props.handleGoBatch();
+    e.preventDefault()
+    this.props.handleGoBatch()
   },
 
   render() {
 
     var panelStyle = {
       backgroundColor: '#EEFFEB'
-    };
+    }
 
     return (
       <Panel style={panelStyle}>
@@ -364,10 +370,10 @@ var BatchPanel = React.createClass({
           </p>
           <Button bsStyle="success" onClick={this.handleClick}>Go Batch<Glyphicon glyph="chevron-right"/></Button>
       </Panel>
-    );
+    )
   }
 
-});
+})
 
 
-module.exports = Main;
+module.exports = Main

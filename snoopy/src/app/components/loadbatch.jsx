@@ -1,8 +1,8 @@
-"use strict";
+"use strict"
 
-import React from 'react';
-import FileLoader from './fileloader.jsx';
-import Loader from 'react-loader';
+import React from 'react'
+import FileLoader from './fileloader.jsx'
+import Loader from 'react-loader'
 import {
   Col,
   Grid,
@@ -12,17 +12,17 @@ import {
   Panel,
   Row,
   TabPane,
-} from 'react-bootstrap';
+} from 'react-bootstrap'
 import {
   getExtension,
   getName,
   getURL,
   httpGet,
   localTextGet,
-} from '../utils.js';
-import Session from '../session.js';
-import Sessions from '../sessions.js';
-import Immutable from 'Immutable';
+} from '../utils.js'
+import Session from '../session.js'
+import Sessions from '../sessions.js'
+import Immutable from 'Immutable'
 
 
 const TitlePanel = React.createClass({
@@ -35,13 +35,13 @@ const TitlePanel = React.createClass({
     )
   }
 
-});
+})
 
 const LoadFilePanel = React.createClass({
   
    handleFileLoad() {
-    let file = React.findDOMNode(this.refs.file).files[0];
-    this.props.handleFileLoad(file);
+    let file = React.findDOMNode(this.refs.file).files[0]
+    this.props.handleFileLoad(file)
   },
 
   componentDidMount() {
@@ -66,21 +66,21 @@ const LoadFilePanel = React.createClass({
       top: '50%',
       left: '50%',
       scale: 1.00,
-    };
+    }
 
-    let loadNode;
+    let loadNode
     if (this.props.loading) {
-      let child;
+      let child
       if (this.props.error) {
-        child = (<b>{this.props.error}</b>);
+        child = (<b>{this.props.error}</b>)
       } else {
-        child = (<b>Found {this.props.nSessions} sessions with a total of {this.props.nVariants} variants</b>);
+        child = (<b>Found {this.props.nSessions} sessions with a total of {this.props.nVariants} variants</b>)
       }
 
       let panelStyle = {
         backgroundColor: '#EEFFEB',
         wordWrap: 'break-word',
-      };
+      }
 
       loadNode = (
         <Loader loaded={this.props.loaded} options={options}>
@@ -88,7 +88,7 @@ const LoadFilePanel = React.createClass({
             {child}
           </Panel>
         </Loader>
-      );
+      )
     }
 
     return (
@@ -100,10 +100,10 @@ const LoadFilePanel = React.createClass({
         <input type="file" ref="file" onChange={this.handleFileLoad} />
         {loadNode}
       </Panel>
-    );
+    )
   }
 
-});
+})
 
 
 const SelectReferencePanel = React.createClass({
@@ -179,9 +179,9 @@ const SelectConnectionPanel = React.createClass({
 
   handleChange(v, e) {
     // this.refs.unitBase.getInputDOMNode().checked
-    // let connection = this.refs.connection.getValue();
-    console.log(v);
-    this.props.handleConnection(v);
+    // let connection = this.refs.connection.getValue()
+    console.log(v)
+    this.props.handleConnection(v)
   },
 
   handleRemoteHTTPChange() {
@@ -189,32 +189,32 @@ const SelectConnectionPanel = React.createClass({
       location: this.refs.remoteHTTPLocation.getValue().trim(),
       requiresCredentials: this.refs.remoteHTTPCredentials.getChecked(),
     }
-    this.props.handleRemoteHTTPChange(remoteHTTP);
+    this.props.handleRemoteHTTPChange(remoteHTTP)
     if (this.refs.remoteHTTP.getChecked()) {
-      this.props.handleConnection('remoteHTTP');
+      this.props.handleConnection('remoteHTTP')
     }
   },
 
 
   componentDidMount() {
-    this.handleRemoteHTTPChange();
+    this.handleRemoteHTTPChange()
   },
 
   render() {
-    let remoteHTTPLocation = this.props.settings.getIn(['servers','remoteHTTP','location']);
-    console.log('settings again');
-    console.log(this.props.settings.toJS());
-    console.log(this.props.settings.getIn(['servers','remoteHTTP']).toJS());
-    console.log(this.props.settings.getIn(['servers','remoteHTTP','location']));
-    let remoteHTTPCredentials = this.props.settings.getIn(['servers','remoteHTTP','requiresCredentials']);
-    let localHTTPLocation = this.props.settings.getIn(['servers','localHTTP','location']);
-    let sshBridgeLocation = this.props.settings.getIn(['servers','SSHBridge','remoteSSHServer']);
+    let remoteHTTPLocation = this.props.settings.getIn(['servers','remoteHTTP','location'])
+    console.log('settings again')
+    console.log(this.props.settings.toJS())
+    console.log(this.props.settings.getIn(['servers','remoteHTTP']).toJS())
+    console.log(this.props.settings.getIn(['servers','remoteHTTP','location']))
+    let remoteHTTPCredentials = this.props.settings.getIn(['servers','remoteHTTP','requiresCredentials'])
+    let localHTTPLocation = this.props.settings.getIn(['servers','localHTTP','location'])
+    let sshBridgeLocation = this.props.settings.getIn(['servers','SSHBridge','remoteSSHServer'])
 
-    let remoteHTTPNode, localHTTPNode, sshBridgeNode;
+    let remoteHTTPNode, localHTTPNode, sshBridgeNode
     let textStyle = {
       width: 400,
       margin: 0,
-    };
+    }
     let remoteStyle = {
       marginBottom: -20,
       position: 'relative',
@@ -238,7 +238,7 @@ const SelectConnectionPanel = React.createClass({
           onChange={this.handleRemoteHTTPChange}
         />
       </div>
-    );
+    )
     remoteHTTPNode = (
       <Input type="radio"
         ref="remoteHTTP"
@@ -246,12 +246,12 @@ const SelectConnectionPanel = React.createClass({
         label={label}
         onChange={this.handleChange.bind(this, "remoteHTTP")}
       />
-    );
+    )
 
 
     if (localHTTPLocation) {
-      console.log(localHTTPLocation);
-      let label = 'Local HTTP - ' + localHTTPLocation;
+      console.log(localHTTPLocation)
+      let label = 'Local HTTP - ' + localHTTPLocation
       localHTTPNode = (
         <Input type="radio"
           ref="localHTTP"
@@ -263,7 +263,7 @@ const SelectConnectionPanel = React.createClass({
     }
 
     if (sshBridgeLocation) {
-      let label = 'SSH-Bridge - ' + sshBridgeLocation;
+      let label = 'SSH-Bridge - ' + sshBridgeLocation
       sshBridgeNode = (
         <Input type="radio"
           ref="SSHBridge"
@@ -280,9 +280,9 @@ const SelectConnectionPanel = React.createClass({
       width: '100%'
     }
 
-    // let opt1 = 'Remote HTTP - ' + this.props.settings.getIn(['servers','remoteHTTP','location']);
-    // let opt2 = 'Local HTTP - ' + this.props.settings.getIn(['servers','localHTTP','location']);
-    // let opt3 = 'SSH-Bridge - ' + this.props.settings.getIn(['servers','SSHBridge','username']) + '@' + this.props.settings.getIn(['servers','SSHBridge','remoteSSHServer']);
+    // let opt1 = 'Remote HTTP - ' + this.props.settings.getIn(['servers','remoteHTTP','location'])
+    // let opt2 = 'Local HTTP - ' + this.props.settings.getIn(['servers','localHTTP','location'])
+    // let opt3 = 'SSH-Bridge - ' + this.props.settings.getIn(['servers','SSHBridge','username']) + '@' + this.props.settings.getIn(['servers','SSHBridge','remoteSSHServer'])
     return (
       <div>
       <Panel >
@@ -297,9 +297,9 @@ const SelectConnectionPanel = React.createClass({
         </form>
       </Panel>
       </div>
-    );
+    )
   }
-});
+})
 
 const LoadBatch = React.createClass({
 
@@ -313,20 +313,20 @@ const LoadBatch = React.createClass({
       loaded: false,
       reference: '',
       error: '',
-    };
+    }
   },
 
   handleConnection(connection) {
     this.setState(
       { connection: connection },
       this.digestBatchFile
-    );
+    )
   },
 
   handleRemoteHTTPChange(remoteHTTP) {
-    window.localStorage.setItem("snoopyRemoteHTTP", JSON.stringify(remoteHTTP));
-    let settings = this.props.settings;
-    settings = settings.mergeDeepIn(['servers','remoteHTTP'], Immutable.fromJS(remoteHTTP));
+    window.localStorage.setItem("snoopyRemoteHTTP", JSON.stringify(remoteHTTP))
+    let settings = this.props.settings
+    settings = settings.mergeDeepIn(['servers','remoteHTTP'], Immutable.fromJS(remoteHTTP))
     this.props.handleSettings(settings); 
   },
 
@@ -336,114 +336,114 @@ const LoadBatch = React.createClass({
   },
 
   handleGoQC(e) {
-    e.preventDefault();
-    this.props.handleGoQC(this.state.sessions);
+    e.preventDefault()
+    this.props.handleGoQC(this.state.sessions)
   },
 
   handleGoBack(e) {
-    e.preventDefault();
-    this.props.handleGoIntro();
+    e.preventDefault()
+    this.props.handleGoIntro()
   },
 
   // handleSessions(sessions) {
-  //   this.setState({sessions: sessions});
+  //   this.setState({sessions: sessions})
   // },
 
   handleSessions(sessions) {
-    console.log(sessions);
+    console.log(sessions)
     if (sessions) {
       this.setState({
         nSessions: sessions.getNumSessions(),
         nVariants: sessions.getNumVariants(),
         loaded: true,
         sessions: sessions,
-      });
+      })
     } else {
       this.setState({
         nSessions: 0,
         nVariants: 0,
         loaded: true,
-      });
+      })
     }
-    // this.props.handleSessions(sessions);
+    // this.props.handleSessions(sessions)
   },
 
   handleFileLoad(file) {
     this.setState(
       {file: file},
       this.digestBatchFile //callback
-    );
+    )
   },
 
   digestBatchFile() {
     // User clicked cancel
-    let file = this.state.file;
-    let connection = this.state.connection;
+    let file = this.state.file
+    let connection = this.state.connection
 
-    console.log('connection');
-    console.log(connection);
+    console.log('connection')
+    console.log(connection)
 
     if (!file || !connection)
-      return;
+      return
 
-    this.setState({ loading: true });
-    console.log(file);
-    console.log('here');
-    let ext = getExtension(file);
+    this.setState({ loading: true })
+    console.log(file)
+    console.log('here')
+    let ext = getExtension(file)
     if (ext === 'json') {
       localTextGet(file).then((result) => {
-        console.log(result);
+        console.log(result)
         try {
           return JSON.parse(result)
         } catch(e) {
-          console.log('ill formed json');
-          throw 'Provided JSON file is ill-formed. To validate your JSON files use http://jsonlint.com';
+          console.log('ill formed json')
+          throw 'Provided JSON file is ill-formed. To validate your JSON files use http://jsonlint.com'
         }
       }).then(jso => {
-        console.log(jso);
+        console.log(jso)
         if (!jso.sessions) {
-          throw 'Provided JSON file does not have a "sessions" listing. Consult help for instructions and examples of valid JSON batch files.';
+          throw 'Provided JSON file does not have a "sessions" listing. Consult help for instructions and examples of valid JSON batch files.'
         }
         return Promise.all(
           jso.sessions.map(sjso => {
-            console.log(sjso);
-            return this.getSession(sjso);
+            console.log(sjso)
+            return this.getSession(sjso)
           })
-        );
+        )
       }).then(sessions => {
-        let ss = new Sessions();
-        ss.sessions = sessions;
-        this.handleSessions(ss);
+        let ss = new Sessions()
+        ss.sessions = sessions
+        this.handleSessions(ss)
         this.setState({
           loaded: true,
           error: ''
-        });
+        })
       }).catch(error => {
-        console.log(error);
-        this.handleSessions(null);
+        console.log(error)
+        this.handleSessions(null)
         this.setState({
           loaded: true,
           error: error
-        });
-      });
+        })
+      })
     } else {
       this.setState({
         loaded: true,
         error: 'Batch file must have json extension, found the following instead: ' + ext
-      });
+      })
     }
   },
 
   getSession(jso) {
     return new Promise((resolve, reject) => {
-      let connection = this.props.settings.getIn(['servers', this.state.connection]);
-      console.log(connection);
-      let s = new Session();
-      let v, sequences;
+      let connection = this.props.settings.getIn(['servers', this.state.connection])
+      console.log(connection)
+      let s = new Session()
+      let v, sequences
       
       // Ensure variants are there
       if (jso.variants && jso.variants.length > 0) {
-        v = jso.variants;
+        v = jso.variants
       } else {
         throw 'Provided JSON contains a session which does not list any variants. Consult help for instructions and examples of valid JSON batch files.'
       }
@@ -456,22 +456,22 @@ const LoadBatch = React.createClass({
       }
       // If we have only a single sequence file, convert to array
       if(typeof sequences === 'string')
-        sequences = [sequences];
+        sequences = [sequences]
       
 
       s.addVariants(v, connection).then(() => {
         return Promise.all(sequences.map(sequence => {
-          console.log('sequences');
-          console.log(sequence);
-          return s.addSequenceFile(sequence, connection);
-        }));
+          console.log('sequences')
+          console.log(sequence)
+          return s.addSequenceFile(sequence, connection)
+        }))
       }).then(() => {
-        resolve(s);
+        resolve(s)
       }).catch(error => {
-        console.log(error);
-        reject(error);
-      });
-    });
+        console.log(error)
+        reject(error)
+      })
+    })
   },
 
   render() {
@@ -511,7 +511,7 @@ const LoadBatch = React.createClass({
         <Pager>
           <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
         </Pager>
-      );
+      )
     }
 
     return (
@@ -537,9 +537,9 @@ const LoadBatch = React.createClass({
           </Row>
         </Grid>
       </div>
-    );
+    )
   }
-});
+})
 
 
-module.exports = LoadBatch;
+module.exports = LoadBatch

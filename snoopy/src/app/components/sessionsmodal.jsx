@@ -145,4 +145,4 @@ var SessionsModal = React.createClass({
   }
 });
 
-export default SessionsModal;
+export default SessionsModal
