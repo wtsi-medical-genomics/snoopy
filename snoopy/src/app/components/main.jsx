@@ -23,7 +23,6 @@ import { httpGet } from '../utils.js'
 import { fromJS, toJS } from 'immutable'
 import styles from '../styles.js'
 import {
-  referencesURL,
   referencesSummaryURL,
 } from '../conf.js'
 
@@ -123,7 +122,6 @@ var Main = React.createClass({
       view: 'intro',  //intro, loadmanual, loadbatch, qc
       settings: settings,
       referencesSummary: {},
-      reference: '',
     }
   },
 
@@ -185,8 +183,8 @@ var Main = React.createClass({
     this.setState({view: 'loadbatch'})
   },
 
-  handleGoQC(sessions, reference) {
-    this.setState({view: 'qc', sessions, reference})
+  handleGoQC(sessions) {
+    this.setState({view: 'qc', sessions})
   },
 
   handleGoIntro() { 
@@ -215,11 +213,13 @@ var Main = React.createClass({
         )
         break
       case 'qc':
+        const referenceFile = this.state.reference
+        const coordSystem = this.state.referencesSummary[referenceFile] 
         child = (
           <QC 
             sessions={this.state.sessions}
             settings={this.state.settings}
-            reference={this.state.reference}
+            coordSystem={coordSystem}
           />
         )
         break

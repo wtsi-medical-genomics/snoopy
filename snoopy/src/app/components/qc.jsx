@@ -37,22 +37,22 @@ function getDallianceZoomBase() {
 const QC = React.createClass({
 
   componentDidMount() {
+    
     browser = new Browser({
       chr:          '16',
-      viewStart:    48000181,
-      viewEnd:      48000381,
-      // chr:          '16',
-      // viewStart:    48000629,
-      // viewEnd:      48000820,
+      viewStart:    48000351,
+      viewEnd:      48000470,
       // noPersistView : true,
-      cookieKey:    'human-grc_h37',
-      coordSystem: {
-        speciesName: 'Human',
-        taxon: 9606,
-        auth: 'GRCh',
-        version: '37',
-        ucscName: 'hg19'
-      },
+      cookieKey: 'human-grc_h37',
+      // Insert reference here - add all of this to the json object on my droplet
+      coordSystem: this.props.sessions.reference['coordSystem'],
+      // coordSystem: {
+      //   speciesName: 'Human',
+      //   taxon: 9606,
+      //   auth: 'GRCh',
+      //   version: '37',
+      //   ucscName: 'hg19'
+      // },
       maxHeight : 10000,
       setDocumentTitle: true,
       //uiPrefix: window.location.origin + '/',

@@ -130,13 +130,12 @@ const SelectReferencePanel = React.createClass({
     if (referencesSummary) {
       let selectNodes = []
       for (let k in referencesSummary) {
-        let v = referencesSummary[k]
-        console.log(k, v)
+        let v = referencesSummary[k]['coordSystem']
         let label = (
           <div>
-            {v.build}
+            {`${v.auth}${v.version} / ${v.ucscName}`}
             <span className="badge absolute-right">
-              {v.organism}
+              {v.speciesName}
             </span>
           </div>
         )
@@ -144,9 +143,9 @@ const SelectReferencePanel = React.createClass({
           <Input type="radio"
             ref={k}
             key={k}
-            name="referemce"
+            name="reference"
             label={label}
-            onChange={this.handleChange.bind(this, {k})}
+            onChange={this.handleChange.bind(this, k)}
           />
         )
         selectNodes.push(node)
@@ -311,7 +310,7 @@ const LoadBatch = React.createClass({
       nSessions: 0,
       nVariants: 0,
       loaded: false,
-      reference: '',
+      referenceIndex: '',
       error: '',
     }
   },
@@ -330,14 +329,14 @@ const LoadBatch = React.createClass({
     this.props.handleSettings(settings); 
   },
 
-  handleReferenceChange(reference) {
-    this.setState({reference})
-    console.log(reference)
+  handleReferenceChange(referenceIndex) {
+    this.setState({referenceIndex})
+    console.log(referenceIndex)
   },
 
   handleGoQC(e) {
     e.preventDefault()
-    this.props.handleGoQC(this.state.sessions)
+    this.props.handleGoQC(this.state.sessions, this.state.referenceIndex)
   },
 
   handleGoBack(e) {
@@ -356,7 +355,7 @@ const LoadBatch = React.createClass({
         nSessions: sessions.getNumSessions(),
         nVariants: sessions.getNumVariants(),
         loaded: true,
-        sessions: sessions,
+        sessions,
       })
     } else {
       this.setState({
@@ -411,7 +410,8 @@ const LoadBatch = React.createClass({
           })
         )
       }).then(sessions => {
-        let ss = new Sessions()
+        const reference = this.props.referencesSummary[this.state.referenceIndex]
+        let ss = new Sessions(reference)
         ss.sessions = sessions
         this.handleSessions(ss)
         this.setState({
@@ -437,8 +437,9 @@ const LoadBatch = React.createClass({
   getSession(jso) {
     return new Promise((resolve, reject) => {
       let connection = this.props.settings.getIn(['servers', this.state.connection])
-      console.log(connection)
-      let s = new Session()
+      const reference = this.props.referencesSummary[this.state.referenceIndex]
+      const refenreceFileName = reference['fileName']
+      let s = new Session([], [], refenreceFileName)
       let v, sequences
       
       // Ensure variants are there
@@ -489,7 +490,8 @@ const LoadBatch = React.createClass({
 
 
     let loadFilePanelNode
-    if (this.state.reference) {
+    console.log(this.state.referenceIndex)
+    if (this.state.referenceIndex) {
       loadFilePanelNode = (
         <LoadFilePanel
           settings={this.props.settings}

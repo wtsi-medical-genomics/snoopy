@@ -18,30 +18,29 @@ import {
   httpGet,
   localTextGet,
 } from './utils.js'
+import { referencesURL } from './conf.js'
 
 const BAI_RE = /^(.*)\.bai$/i
 const BAM_RE = /^(.*)\.bam$/i
 const SNP_RE = /^\s*(chr)?\s*([0-9,m,x,y]+)[-:,\s]+(\d+)\s*$/i
 const CNV_RE = /^\s*(chr)?\s*([0-9,m,x,y]+)[-:,\s]+(\d+)[-:,\s]+(\d+)\s*$/i
 
-const referenceGenome = {
-  name: 'Genome',
-  // twoBitURI: 'http://www.biodalliance.org/datasets/hg19.2bit',
-  twoBitURI: 'http://46.101.18.29/datasets/hg19.2bit',
-  // twoBitURI: 'https://web-lustre-01.internal.sanger.ac.uk/lustre/scratch113/teams/barrett/users/dr9/human_g1k_v37.2bit',
-  // twoBitURI: 'http://localhost:4444/files/examples/human_g1k_v37.2bit',
-  tier_type: 'sequence',
-  provides_entrypoints: true,
-  pinned: true
-}
+// Insert reference here
 
 class Session {
-  constructor(bamFiles, variantFile) {
+  constructor(bamFiles, variantFile, referenceFileName) {
     this.bamFiles = bamFiles || []
     this.baiFiles = []
     this.variantFile = variantFile || []
     this.variants = []
     this.index = 0
+    this.referenceGenome = {
+      name: 'Genome',
+      twoBitURI: referencesURL + referenceFileName,
+      tier_type: 'sequence',
+      provides_entrypoints: true,
+      pinned: true
+    }
     //this.ID = utils.getNextUID()
   }
 
@@ -313,7 +312,7 @@ class Session {
   init(b, style) {
     b.removeAllTiers()
     //this.browser.baseColors = app.settings.colors
-    b.addTier(referenceGenome)
+    b.addTier(this.referenceGenome)
     console.log(style)
     this.bamFiles.forEach((bamFile) => {
       // var style = styleSheets['raw'].style
@@ -337,7 +336,7 @@ class Session {
   goto(b, style, vi) {
     b.removeAllTiers()
     //this.browser.baseColors = app.settings.colors
-    b.addTier(referenceGenome)
+    b.addTier(this.referenceGenome)
     this.bamFiles.forEach((bamFile) => {
       b.addTier(bamFile.getTier(style.toJS()))
     })
