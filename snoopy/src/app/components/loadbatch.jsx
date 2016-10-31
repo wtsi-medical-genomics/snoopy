@@ -23,6 +23,7 @@ import {
 import Session from '../session.js'
 import Sessions from '../sessions.js'
 import Immutable from 'Immutable'
+import validate from 'validate.js'
 
 
 const TitlePanel = React.createClass({
@@ -180,6 +181,7 @@ const SelectConnectionPanel = React.createClass({
     // this.refs.unitBase.getInputDOMNode().checked
     // let connection = this.refs.connection.getValue()
     console.log(v)
+    
     this.props.handleConnection(v)
   },
 
@@ -323,10 +325,10 @@ const LoadBatch = React.createClass({
   },
 
   handleRemoteHTTPChange(remoteHTTP) {
-    window.localStorage.setItem("snoopyRemoteHTTP", JSON.stringify(remoteHTTP))
+    window.localStorage.setItem('snoopyRemoteHTTP', JSON.stringify(remoteHTTP))
     let settings = this.props.settings
     settings = settings.mergeDeepIn(['servers','remoteHTTP'], Immutable.fromJS(remoteHTTP))
-    this.props.handleSettings(settings); 
+    this.props.handleSettings(settings)
   },
 
   handleReferenceChange(referenceIndex) {
@@ -374,6 +376,29 @@ const LoadBatch = React.createClass({
     )
   },
 
+
+  remoteHttpUrlCheck() {
+    return new Promise((resolve, reject) => {
+      if (this.state.connection !== 'remoteHTTP') {
+        console.log('just about to resolve')
+        resolve()
+      }
+      const remoteHTTP = this.props.settings.getIn(['servers','remoteHTTP', 'location'])    
+      const valid = validate({website: remoteHTTP}, {
+        website: {
+          url: {
+            allowLocal: true,
+          }
+        }
+      })
+      if (valid !== undefined) {
+        const error = valid['website'].reduce((accum, curr) =>  accum + curr, '')
+        reject(error)
+      }
+      resolve()
+    })
+  },
+
   digestBatchFile() {
     // User clicked cancel
     let file = this.state.file
@@ -385,12 +410,17 @@ const LoadBatch = React.createClass({
     if (!file || !connection)
       return
 
+
+
+    console.log('can you read this')
     this.setState({ loading: true })
     console.log(file)
     console.log('here')
     let ext = getExtension(file)
     if (ext === 'json') {
-      localTextGet(file).then((result) => {
+      this.remoteHttpUrlCheck()
+      .then(localTextGet(file))
+      .then((result) => {
         console.log(result)
         try {
           return JSON.parse(result)
@@ -436,9 +466,10 @@ const LoadBatch = React.createClass({
 
   getSession(jso) {
     return new Promise((resolve, reject) => {
-      let connection = this.props.settings.getIn(['servers', this.state.connection])
+      const connection = this.props.settings.getIn(['servers', this.state.connection])
       const reference = this.props.referencesSummary[this.state.referenceIndex]
       const refenreceFileName = reference['fileName']
+
       let s = new Session([], [], refenreceFileName)
       let v, sequences
       

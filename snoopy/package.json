@@ -35,6 +35,7 @@
     "react": "~0.13",
     "react-bootstrap": "~0.24",
     "react-loader": "~1.2",
-    "url-join": "^1.1.0"
+    "url-join": "^1.1.0",
+    "validate.js": "^0.10.0"
   }
 }
