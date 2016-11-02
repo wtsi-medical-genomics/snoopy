@@ -103,10 +103,11 @@ function httpGet(path, connection=Map(), opts={}) {
           reject('The path: ' + path + ' does not exist with connection: ' + JSON.stringify(connection, null, 2));
       }
     }
+    
     // Handle network errors
     request.onerror = () => {
-      reject("Network Error");
-    };
+      reject("Network Error")
+    }
 
     request.send();
   });
@@ -117,14 +118,15 @@ function localTextGet(file) {
     console.log('in localTextGet: ');
     console.log(file);
     var reader = new FileReader();
-    reader.readAsText(file);
-    reader.onload = () => {
+    reader.onload = () => { 
+      console.log(reader.result)
       resolve(reader.result);
-    };
+    }
     reader.onerror = () => {
       reject(reader.error);
-    };
-  });
+    }
+    reader.readAsText(file)
+  })
 }
 
 

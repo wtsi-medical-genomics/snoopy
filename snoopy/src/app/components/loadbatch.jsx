@@ -381,7 +381,7 @@ const LoadBatch = React.createClass({
     return new Promise((resolve, reject) => {
       if (this.state.connection !== 'remoteHTTP') {
         console.log('just about to resolve')
-        resolve()
+        return resolve()
       }
       const remoteHTTP = this.props.settings.getIn(['servers','remoteHTTP', 'location'])    
       const valid = validate({website: remoteHTTP}, {
@@ -392,10 +392,11 @@ const LoadBatch = React.createClass({
         }
       })
       if (valid !== undefined) {
-        const error = valid['website'].reduce((accum, curr) =>  accum + curr, '')
-        reject(error)
+        // const error = valid['website'].reduce((accum, curr) =>  accum + curr, '')
+        return reject('Remote HTTP address provided in Step 1 is invalid. Please fix or change connection type.')
+      } else {
+        return resolve()
       }
-      resolve()
     })
   },
 
@@ -410,8 +411,6 @@ const LoadBatch = React.createClass({
     if (!file || !connection)
       return
 
-
-
     console.log('can you read this')
     this.setState({ loading: true })
     console.log(file)
@@ -419,8 +418,9 @@ const LoadBatch = React.createClass({
     let ext = getExtension(file)
     if (ext === 'json') {
       this.remoteHttpUrlCheck()
-      .then(localTextGet(file))
-      .then((result) => {
+      .then(() => {
+        return localTextGet(file)
+      }).then((result) => {
         console.log(result)
         try {
           return JSON.parse(result)
