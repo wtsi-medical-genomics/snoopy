@@ -24,6 +24,7 @@ import Session from '../session.js'
 import Sessions from '../sessions.js'
 import Immutable from 'Immutable'
 import validate from 'validate.js'
+import SelectReferencePanel from './selectreferencepanel.jsx'
 
 
 const TitlePanel = React.createClass({
@@ -100,75 +101,6 @@ const LoadFilePanel = React.createClass({
         </p>
         <input type="file" ref="file" onChange={this.handleFileLoad} />
         {loadNode}
-      </Panel>
-    )
-  }
-
-})
-
-
-const SelectReferencePanel = React.createClass({
-
-  componentDidMount() {
-    this.getDOMNode().scrollIntoView()
-  },
-
-  handleChange(v, e) {
-    this.props.handleReferenceChange(v)
-  },
-
-  render() {
-
-    let formStyle = {
-      backgroundColor: 'aliceblue',
-      padding: '10px',
-      width: '100%'
-    }
-
-    const referencesSummary = this.props.referencesSummary
-    let node
-    
-    if (referencesSummary) {
-      let selectNodes = []
-      for (let k in referencesSummary) {
-        let v = referencesSummary[k]['coordSystem']
-        let label = (
-          <div>
-            {`${v.auth}${v.version} / ${v.ucscName}`}
-            <span className="badge absolute-right">
-              {v.speciesName}
-            </span>
-          </div>
-        )
-        let node = (
-          <Input type="radio"
-            ref={k}
-            key={k}
-            name="reference"
-            label={label}
-            onChange={this.handleChange.bind(this, k)}
-          />
-        )
-        selectNodes.push(node)
-      }
-      node = (
-        <form style={formStyle}>
-          {selectNodes}
-        </form>
-      )
-    } else {
-      node = (
-        <div>
-          LOADING...
-        </div>
-      )
-    }
-
-
-    return (
-      <Panel>
-        <h4>Step 2: Select Reference Genome</h4>
-        {node}
       </Panel>
     )
   }
