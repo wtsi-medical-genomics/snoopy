@@ -400,9 +400,9 @@ const LoadBatch = React.createClass({
     return new Promise((resolve, reject) => {
       const connection = this.props.settings.getIn(['servers', this.state.connection])
       const reference = this.props.referencesSummary[this.state.referenceIndex]
-      const refenreceFileName = reference['fileName']
+      const referenceFileName = reference['fileName']
 
-      let s = new Session([], [], refenreceFileName)
+      let s = new Session([], [], referenceFileName)
       let v, sequences
       
       // Ensure variants are there

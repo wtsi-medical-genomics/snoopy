@@ -1,13 +1,13 @@
-"use strict";
+"use strict"
 
-// import React from 'react';
-// import { Alert, Panel, Col, Row, Grid, Button, Glyphicon, Pager, PageItem, ModalTrigger, ListGroup, ListGroupItem, Popover, Tooltip, Modal, OverlayTrigger } from 'react-bootstrap';
-// import { FileLoader } from './fileloader.jsx';
-// import { Session, Sessions } from '../session.js';
-// import { LocalBAM, LocalBAI, RemoteBAM, RemoteBAI } from '../loadedfiletypes.js';
-// import { getURL, getName } from '../utils.js';
+// import React from 'react'
+// import { Alert, Panel, Col, Row, Grid, Button, Glyphicon, Pager, PageItem, ModalTrigger, ListGroup, ListGroupItem, Popover, Tooltip, Modal, OverlayTrigger } from 'react-bootstrap'
+// import { FileLoader } from './fileloader.jsx'
+// import { Session, Sessions } from '../session.js'
+// import { LocalBAM, LocalBAI, RemoteBAM, RemoteBAI } from '../loadedfiletypes.js'
+// import { getURL, getName } from '../utils.js'
 
-import React from 'react';
+import React from 'react'
 import {
   Alert,
   Panel,
@@ -24,50 +24,52 @@ import {
   Tooltip,
   Modal, 
   OverlayTrigger
-} from 'react-bootstrap';
-import FileLoader from './fileloader.jsx';
-import Session from '../session.js';
-import Sessions from '../sessions.js';
+} from 'react-bootstrap'
+import FileLoader from './fileloader.jsx'
+import Session from '../session.js'
+import Sessions from '../sessions.js'
 import { LocalBAM, 
   LocalBAI, 
   RemoteBAM, 
   RemoteBAI,
-} from '../loadedfiletypes.js';
-import { getURL, getName, deepExtend } from '../utils.js';
-import { List, Map } from 'immutable';
-import Loader from 'react-loader';
+} from '../loadedfiletypes.js'
+import { getURL, getName, deepExtend } from '../utils.js'
+import { List, Map } from 'immutable'
+import Loader from 'react-loader'
+import SelectReferencePanel from './selectreferencepanel.jsx'
 
-// let session = new Session();
-// var React = require('react');
 
-// var rb = require('react-bootstrap');
-// var Alert = rb.Alert;
-// var Panel = rb.Panel;
-// var Col = rb.Col;
-// var Row = rb.Row;
-// var Grid = rb.Grid;
-// var Button = rb.Button;
-// var Glyphicon = rb.Glyphicon;
-// var Pager = rb.Pager;
-// var PageItem = rb.PageItem;
-// var ListGroup = rb.ListGroup;
-// var ListGroupItem = rb.ListGroupItem;
+// let session = new Session()
+// var React = require('react')
 
-// var FileLoader = require('./fileloader.jsx');
+// var rb = require('react-bootstrap')
+// var Alert = rb.Alert
+// var Panel = rb.Panel
+// var Col = rb.Col
+// var Row = rb.Row
+// var Grid = rb.Grid
+// var Button = rb.Button
+// var Glyphicon = rb.Glyphicon
+// var Pager = rb.Pager
+// var PageItem = rb.PageItem
+// var ListGroup = rb.ListGroup
+// var ListGroupItem = rb.ListGroupItem
 
-// var session = require('../session.js');
-// var Session = session.Session;
-// var Sessions = session.Sessions;
+// var FileLoader = require('./fileloader.jsx')
 
-// var lft = require('../loadedfiletypes.js');
-// var LocalBAM = lft.LocalBAM;
-// var LocalBAI = lft.LocalBAI;
-// var RemoteBAM = lft.RemoteBAM;
-// var RemoteBAI = lft.RemoteBAI;
+// var session = require('../session.js')
+// var Session = session.Session
+// var Sessions = session.Sessions
 
-// var utils = require('../utils.js');
-// var getName = utils.getName;
-// var getURL = utils.getURL;
+// var lft = require('../loadedfiletypes.js')
+// var LocalBAM = lft.LocalBAM
+// var LocalBAI = lft.LocalBAI
+// var RemoteBAM = lft.RemoteBAM
+// var RemoteBAI = lft.RemoteBAI
+
+// var utils = require('../utils.js')
+// var getName = utils.getName
+// var getURL = utils.getURL
 
 const LOADER_OPTIONS = {
   lines: 13,
@@ -86,16 +88,16 @@ const LOADER_OPTIONS = {
   top: '50%',
   left: '50%',
   scale: 1.00
-};
+}
 
 // const FixMissingIndexModal = React.createClass({
 
 //   close() {
-//     this.props.close();
+//     this.props.close()
 //   },
 
 //   getInitialState() {
-//     return { showModal: false };
+//     return { showModal: false }
 //   },
 
 //   render() {
@@ -111,10 +113,10 @@ const LOADER_OPTIONS = {
 //           <Button bsStyle="primary" onClick={this.close}>OK</Button>
 //         </Modal.Footer>
 //       </Modal>
-//     );
+//     )
 //   }
 
-// });
+// })
 
 
 const TitlePanel = React.createClass({
@@ -124,55 +126,55 @@ const TitlePanel = React.createClass({
       <Panel>
         <h4>Manual Mode</h4>
       </Panel>
-    );
+    )
   }
 
-});
+})
 
 const LoadVariantsPanel = React.createClass({
   getInitialState(){
-    return { showFileLoader: false };
+    return { showFileLoader: false }
   },
 
   handleFileLoad(file, connection) {
-    console.log(typeof(file));
-    this.props.handleVariantFile(file, connection);
-    this.closeFileLoader();
+    console.log(typeof(file))
+    this.props.handleVariantFile(file, connection)
+    this.closeFileLoader()
   },
 
   openFileLoader() {
-    this.setState({ showFileLoader: true });
+    this.setState({ showFileLoader: true })
   },
 
   closeFileLoader() {
-    this.setState({ showFileLoader: false });
+    this.setState({ showFileLoader: false })
   },
 
   render: function() {
     
-    let loadNode;
+    let loadNode
     if (this.props.loading) {
-      let child;
+      let child
       if (this.props.error) {
         child = (
           <Alert bsStyle='danger' className='someTopMargin'>
             {this.props.error}
           </Alert>
-        );
+        )
       }
       loadNode = (
         <Loader loaded={this.props.loaded} options={LOADER_OPTIONS}>
           {child}
         </Loader>
-      );
+      )
     }
 
     let tableStyle = {
       'width': '100%'
-    };
+    }
 
 
-    let variantNode;
+    let variantNode
     if (this.props.session.variants.length && this.props.session.variantFile) {
       variantNode = (
         <ListGroup className='someTopMargin'>
@@ -185,7 +187,7 @@ const LoadVariantsPanel = React.createClass({
             </table>
           </ListGroupItem>
         </ListGroup>
-      );
+      )
     }
 
     return (
@@ -209,46 +211,46 @@ const LoadVariantsPanel = React.createClass({
         {loadNode}
         {variantNode}
       </Panel>
-    );
+    )
   }
 
-});
+})
 
 const IndexMessage = React.createClass({
   
   render() {
     if (this.props.file instanceof LocalBAM) {
       if (this.props.file.index) {
-        return (<div><Glyphicon glyph='thumbs-up' /> Local Index Loaded</div>);
+        return (<div><Glyphicon glyph='thumbs-up' /> Local Index Loaded</div>)
       }
       else {
-        return (<div><Glyphicon glyph='exclamation-sign' /> Needs Local Index</div>);
+        return (<div><Glyphicon glyph='exclamation-sign' /> Needs Local Index</div>)
       }
     } else {
-      return null;
+      return null
     }
   }
-});
+})
 
 const DataFileRow = React.createClass({
   
   handleRemove(e) {
-    e.preventDefault();
-    console.log(this.props);
-    this.props.handleRemove(this.props.file.id);
+    e.preventDefault()
+    console.log(this.props)
+    this.props.handleRemove(this.props.file.id)
   },
 
   render() {
-    var indexMessage;
+    var indexMessage
     if (this.props.file instanceof LocalBAM) {
       if (this.props.file.index) {
-        indexMessage = (<div><td></td><td>Local Index Loaded</td></div>);
+        indexMessage = (<div><td></td><td>Local Index Loaded</td></div>)
       }
       else {
-        indexMessage = (<div><td><Glyphicon glyph='warning-sign' /></td><td>Needs Local Index</td></div>);
+        indexMessage = (<div><td><Glyphicon glyph='warning-sign' /></td><td>Needs Local Index</td></div>)
       }
     } else {
-      indexMessage = (<div><td></td><td></td></div>);
+      indexMessage = (<div><td></td><td></td></div>)
     }
 
 
@@ -258,72 +260,72 @@ const DataFileRow = React.createClass({
         <td><b>{this.props.file.name}</b></td>
         <td>{indexMessage}</td>
       </tr>
-    );
+    )
   }
-});
+})
 
 const LoadDataPanel = React.createClass({
   
   getInitialState() {
-    return { showFileLoader: false };
+    return { showFileLoader: false }
   },
 
   openFileLoader() {
-    this.setState({ showFileLoader: true });
+    this.setState({ showFileLoader: true })
   },
 
   closeFileLoader() {
-    this.setState({ showFileLoader: false });
+    this.setState({ showFileLoader: false })
   },
 
   handleFileLoad(files, connection) {
-    this.closeFileLoader();
-    this.props.handleDataFile(files, connection);
+    this.closeFileLoader()
+    this.props.handleDataFile(files, connection)
   },
 
   handleRemove(key) {
-    console.log(key);
-    this.props.handleRemoveDataFile(key);
+    console.log(key)
+    this.props.handleRemoveDataFile(key)
   },
 
   compare(a,b) {
     if (a.name < b.name)
-      return -1;
+      return -1
     if (a.name > b.name)
-      return 1;
-    return 0;
+      return 1
+    return 0
   },
 
   render() {
-    let loadNode;
+    let loadNode
     if (this.props.loading) {
-      let child;
+      let child
       if (this.props.error) {
         child = (
           <Alert bsStyle='danger' className='someTopMargin'>
             {this.props.error}
           </Alert>
-        );
+        )
       }
       loadNode = (
         <Loader loaded={this.props.loaded} options={LOADER_OPTIONS}>
           {child}
         </Loader>
-      );
+      )
     }
 
     let tableStyle = {
       'width': '100%'
-    };
+    }
 
-    let fileNodes;
+    let fileNodes
     if (this.props.session.bamFiles.length + this.props.session.baiFiles.length) {
-      let files = this.props.session.bamFiles.concat(this.props.session.baiFiles);
-      files = files.sort(this.compare);
+      let files = this.props.session.bamFiles.concat(this.props.session.baiFiles)
+      files = files.sort(this.compare)
       let fileRows = files.map((file) => {
         return <DataFileRow file={file} key={file.id} handleRemove={this.handleRemove} />
-      });
-      // console.log(files);
+      })
+      // console.log(files)
       fileNodes = (
         <ListGroup className='someTopMargin'>
           <ListGroupItem bsStyle='success'>
@@ -334,14 +336,14 @@ const LoadDataPanel = React.createClass({
             </table>
           </ListGroupItem>
         </ListGroup>
-      );
-    };
+      )
+    }
 
     // if (this.props.session.baiFiles.length) {
     //   var baiRows = this.props.session.baiFiles.map((baiFile) => {
-    //     console.log(baiFile);
+    //     console.log(baiFile)
     //     return <DataFileRow file={baiFile} key={baiFile.id} handleRemove={this.handleRemove} />
-    //   });
+    //   })
 
     //   var baiNodes = (
     //     <ListGroup className='someTopMargin'>
@@ -351,7 +353,7 @@ const LoadDataPanel = React.createClass({
     //         </table>
     //       </ListGroupItem>
     //     </ListGroup>
-    //   );
+    //   )
     // }
 
     return (
@@ -376,10 +378,9 @@ const LoadDataPanel = React.createClass({
           close={this.closeFileLoader}
         />
       </div>
-    );
+    )
   }
-
-});
+})
 
 const LoadManual = React.createClass({
 
@@ -391,100 +392,114 @@ const LoadManual = React.createClass({
       dataError: false,
       variantsLoading: false,
       variantsLoaded: false,
-      variantsError: false
-    };
+      variantsError: false,
+      referenceIndex: null,
+    }
   },
 
   closeFixMissingIndexModal() {
-    setState({ showFixMissingIndexModal: false });
+    setState({ showFixMissingIndexModal: false })
+  },
+
+  handleReferenceChange(referenceIndex) {
+    this.setState({referenceIndex})
+    
+    const reference = this.props.referencesSummary[referenceIndex]
+    const referenceFileName = reference['fileName']
+    
+    const session = this.state.session
+    session.setReference(referenceFileName)
+    this.setState({session})
   },
 
   handleVariantFile(file, connection) {
-    this.setState({variantsLoading: true});
-    let session = this.state.session;
+    this.setState({variantsLoading: true})
+    let session = this.state.session
     console.log('file')
     console.log(file)
     console.log('connection')
     console.log(connection)
     session.addVariants(file, connection).then(() => {
       this.setState({
-        session: session,
         variantsError: false,
-        variantsLoaded: true
-      });
+        variantsLoaded: true,
+        session,
+      })
     }).catch(error => {
       this.setState({
         variantsError: error,
         variantsLoaded: true
-      });
-      console.log(error);
-    });
+      })
+      console.log(error)
+    })
   },
 
   handleDataFile(files, connection) {
-    this.setState({ dataLoading: true });
-    let session = this.state.session;
+    this.setState({ dataLoading: true })
+    let session = this.state.session
     session.addSequenceFile(files, connection).then(() => {
-      session.matchMaker();
+      session.matchMaker()
       this.setState({
-        session: session,
         dataError: false,
-        dataLoaded: true
-      });
+        dataLoaded: true,
+        session,
+      })
     }).catch(error => {
-      console.log(error);
+      console.log(error)
       this.setState({dataError: error, dataLoaded: true})
-    });
+    })
   },
 
   handleRemoveDataFile(id) {
-    let session = this.state.session;
-    session.remove(id);
-    this.setState({session: session});
+    let session = this.state.session
+    session.remove(id)
+    this.setState({session: session})
   },
 
   handleGoQC(e) {
-    e.preventDefault();
+    e.preventDefault()
 
-    let session = this.state.session;
+    let session = this.state.session
     // // If there are unmatched files, let the user know and give them a choice    
-    // let uf = session.unmatchedSequenceFiles();
-    // let ui = session.unmatchedIndexFiles();
+    // let uf = session.unmatchedSequenceFiles()
+    // let ui = session.unmatchedIndexFiles()
     
     // if (uf.length + ui.length > 0) {
-    //   console.log(uf);
-    //   console.log(ui);
+    //   console.log(uf)
+    //   console.log(ui)
     // }
-    let ss = new Sessions();
-    ss.sessions[0] = session;
-    this.props.handleGoQC(ss);
+    const reference = this.props.referencesSummary[this.state.referenceIndex]
+    let ss = new Sessions(reference)
+    console.log(ss)
+    ss.sessions[0] = session
+    this.props.handleGoQC(ss)
   },
 
   // handleReallyGoQC() {
-  //   this.props.handleGoQC(s);
+  //   this.props.handleGoQC(s)
   // },
 
   handleGoBack(e) {
-    e.preventDefault();
-    this.props.handleGoIntro();
+    e.preventDefault()
+    this.props.handleGoIntro()
   },
 
   // shouldComponentUpdate: function(nextProps, nextState) {
-  //   console.log(nextState);
-  //   return true;
+  //   console.log(nextState)
+  //   return true
   // },
 
   render() {
-    console.log(this.state.session);
-    let proceedNode;
+    console.log(this.state.session)
+    let proceedNode
     if (this.state.session.isReady()) {
       proceedNode = ( 
         <Pager>
           <PageItem next href='#' onClick={this.handleGoQC}>Proceed to QC &rarr;</PageItem>
         </Pager>
-      );
+      )
     } else {
-      proceedNode = null;
+      proceedNode = null
     }
     
     return (
@@ -497,6 +512,10 @@ const LoadManual = React.createClass({
                 <PageItem previous href='#' onClick={this.handleGoBack}>&larr; Cancel, Return To Main Menu</PageItem>
               </Pager>
               <TitlePanel />
+              <SelectReferencePanel
+                handleReferenceChange={this.handleReferenceChange}
+                referencesSummary={this.props.referencesSummary}
+              />
               <LoadVariantsPanel
                 handleVariantFile={this.handleVariantFile}
                 session={this.state.session}
@@ -520,9 +539,9 @@ const LoadManual = React.createClass({
           </Row>
         </Grid>
       </div>
-    );
+    )
   }
 
-});
+})
 
 module.exports = LoadManual

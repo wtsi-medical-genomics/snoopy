@@ -195,10 +195,18 @@ var Main = React.createClass({
     var child
     switch (this.state.view) {
       case 'intro':
-        child = <Intro handleGoManual={this.handleGoManual}  handleGoBatch={this.handleGoBatch} />
+        child = <Intro
+                  handleGoManual={this.handleGoManual}
+                  handleGoBatch={this.handleGoBatch}
+                />
         break
       case 'loadmanual':
-        child = <LoadManual handleGoQC={this.handleGoQC} handleGoIntro={this.handleGoIntro} settings={this.state.settings} />
+        child = <LoadManual
+                  handleGoQC={this.handleGoQC}
+                  handleGoIntro={this.handleGoIntro}
+                  settings={this.state.settings}
+                  referencesSummary={this.state.referencesSummary}
+                />
         break
       case 'loadbatch':
         console.log(this.state.settings.toJS())
@@ -229,7 +237,11 @@ var Main = React.createClass({
     // console.log(this.state.settings)
     return (
       <div className="outerWrapper">
-        <MainToolbar view={this.state.view} settings={this.state.settings} handleSettings={this.handleSettings} />
+        <MainToolbar
+          view={this.state.view}
+          settings={this.state.settings}
+          handleSettings={this.handleSettings}
+        />
         {child}
       </div>
     )

@@ -44,6 +44,16 @@ class Session {
     //this.ID = utils.getNextUID()
   }
 
+  setReference(referenceFileName) {
+    this.referenceGenome = {
+      name: 'Genome',
+      twoBitURI: referencesURL + referenceFileName,
+      tier_type: 'sequence',
+      provides_entrypoints: true,
+      pinned: true
+    }
+  }
+
   addVariants(variants, connection) {
     return new Promise((resolve, reject) => {
       // var re_dna_location = /[chr]*[0-9,m,x,y]+[-:,\s]+\w+/i

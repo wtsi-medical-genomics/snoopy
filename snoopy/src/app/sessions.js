@@ -3,7 +3,7 @@
 import JSZip from 'JSZip'
 
 class Sessions {
-  constructor(reference) {
+  constructor(reference=null) {
     this.sessions = []
     this.index = 0
     this.reference = reference
