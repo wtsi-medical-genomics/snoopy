@@ -92,7 +92,6 @@ class Sessions {
   generateHTMLreport() {
     let embedImage = true
     let report = this.generateQCreport(embedImage)
-    
   }
 
   generateQCreport(embedImage=false) {
@@ -100,9 +99,13 @@ class Sessions {
     let sessions = this.sessions.reduce((accum, session)  => {
       return accum.concat(session.generateQCreport(embedImage))
     }, [])
+    let c = this.reference.coordSystem
+    let reference = `${c['speciesName']} ${c['auth']}${c['version']}/${c['ucscName']}`
+    let date = Date()
     let jso = {
-      date: Date(),
-      sessions: sessions
+      date,
+      reference,
+      sessions,
     }
     return JSON.stringify(jso, null, '  ')
   }

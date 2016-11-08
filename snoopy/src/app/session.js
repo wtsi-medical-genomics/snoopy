@@ -147,7 +147,7 @@ class Session {
 
   generateQCreport(embedImage=false) {
     // Create an object which will be exported as JSON
-    let files = this.bamFiles.reduce((accum, file)  => {
+    let sequences = this.bamFiles.reduce((accum, file)  => {
       let t
       if ('path' in file) { // Remote file of some sort
         t = {path: file.path}
@@ -164,8 +164,8 @@ class Session {
     }, [])
 
     return {
-      sequences: files,
-      variants: variants
+      sequences,
+      variants,
     }
 
     // var str = "\n\nVariant File\n" + this.variantFile.name
