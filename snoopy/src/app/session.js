@@ -35,7 +35,7 @@ class Session {
     this.variants = []
     this.index = 0
     this.referenceGenome = {
-      name: 'Genome',
+      name: referenceFileName,
       twoBitURI: referencesURL + referenceFileName,
       tier_type: 'sequence',
       provides_entrypoints: true,

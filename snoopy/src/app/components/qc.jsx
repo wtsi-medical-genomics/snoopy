@@ -38,12 +38,14 @@ const QC = React.createClass({
 
   componentDidMount() {
     
+    let c = this.props.sessions.reference['coordSystem']
+    let cookieKey = `${c['speciesName']}-${c['auth']}${c['version']}-${c['ucscName']}`
     browser = new Browser({
       chr:          '16',
       viewStart:    48000351,
       viewEnd:      48000470,
       // noPersistView : true,
-      cookieKey: 'human-grc_h37',
+      cookieKey: cookieKey,
       // Insert reference here - add all of this to the json object on my droplet
       coordSystem: this.props.sessions.reference['coordSystem'],
       // coordSystem: {
