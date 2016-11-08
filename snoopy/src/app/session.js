@@ -149,13 +149,14 @@ class Session {
     // Create an object which will be exported as JSON
     let sequences = this.bamFiles.reduce((accum, file)  => {
       let t
-      if ('path' in file) { // Remote file of some sort
-        t = {path: file.path}
-        if ('customName' in file) // User provided their own name
-          t.name = file.name
-      } else { // Local files only have a name
+      // Remote file of some sort
+      if (('path' in file) && ('customName' in file))
+        t = { path: file.path, name: file.name }
+      // Remote file of some sort without customName
+      else if ('path' in file)
+        t = file.path
+      else
         t = file.name
-      }
       return accum.concat(t)
     }, [])
 
@@ -167,17 +168,6 @@ class Session {
       sequences,
       variants,
     }
-
-    // var str = "\n\nVariant File\n" + this.variantFile.name
-    // str += "\n\nBAM Files\n"
-    // for (var i = 0; i < this.bamFiles.length; i++) {
-    //   str += this.bamFiles[i].name + "\n"
-    // }
-    // str += "\n"
-    // for (var i = 0; i < this.variants.length; i++) {
-    //   str += this.variants[i].string() + "\n"; 
-    // }
-    // return str
   }
 
   addSequenceFile(sequence, connection) {
