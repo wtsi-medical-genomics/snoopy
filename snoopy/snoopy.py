@@ -16,7 +16,8 @@ import threading
 import signal
 import sys
 from .ssh_bridge import SSHBridge
-
+from paramiko.ssh_exception import AuthenticationException
+from socket import gaierror
 SERVERS = {}
 
 class SSH_Handler(RequestHandler):
@@ -92,7 +93,18 @@ def cli():
             'hostname': g[1],
             'password': password,
         }
+        
+        #  Test ssh connection before going to the browser
+        try:
+            ssh = SSHBridge(**ssh_config)
+        except AuthenticationException:
+            print('\nERROR: Authentication failed for {username}@{hostname} -- are you using the correct credentials?\n'.format(**ssh_config))
+            sys.exit()
+        except gaierror:
+            print('\nCould not ssh to {hostname}.\n'.format(**ssh_config))
+            sys.exit()
         handlers.append((r"/ssh/(.*)", SSH_Handler, ssh_config))
+
 
 
     handlers.append((r"/settings", SettingsHandler))
