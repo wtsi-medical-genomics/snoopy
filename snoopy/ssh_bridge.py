@@ -3,9 +3,10 @@ import os
 import json
 import base64
 import logging
-import pdb
+import re
 from tornado import gen
 from tornado.web import HTTPError
+
 
 class SSHBridge(object):
     """
@@ -42,6 +43,7 @@ class SSHBridge(object):
             'SEQ':9,
             'QUAL':10
         }
+        self._COMMAND_RE = re.compile(r'^cat|ls|samtools\s.*$')
 
     @property
     def username(self):
@@ -51,7 +53,10 @@ class SSHBridge(object):
     def hostname(self):
         return self._hostname
 
-    def _send(self, command):
+    def send(self, command):
+        m = self._COMMAND_RE.match(command)
+        if not m:
+            return
         ssh_stdin, ssh_stdout, ssh_stderr = self._client.exec_command(command)
         # pdb.set_trace()
         # This causes the function to hang
@@ -71,7 +76,7 @@ class SSHBridge(object):
         # if ftype in ('.txt', '.json'):
         path = self._prepend_slash(path)
         c = 'cat {}'.format(path)
-        stdout = self._send(c)
+        stdout = self.send(c)
         lines = stdout.read()
         if not lines:
             raise HTTPError(404)
@@ -108,7 +113,7 @@ class SSHBridge(object):
         path = self._prepend_slash(path)
         if ftype in ('.bam', '.cram'):
             c = 'samtools view {} {}:{}-{}'.format(path, chrom, start, end)
-            stdout = self._send(c)
+            stdout = self.send(c)
             if not stdout:
                 raise HTTPError(404)
             return self.parse_samtools_view(stdout)
