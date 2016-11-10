@@ -156,6 +156,7 @@ const QCToolbar = React.createClass({
       showSaveModal: false,
       showExitModal: false,
       showFinishedModal: false,
+      showSnapshotModal: false,
     };
   },
 
@@ -213,8 +214,13 @@ const QCToolbar = React.createClass({
   },
 
   handleSnapshot() {
-    console.log(browser);
-    this.props.sessions.takeSnapshot(browser);
+    this.setState({showSnapshotModal: true},
+      () => setTimeout(() => {
+        this.setState({showSnapshotModal: false})
+        this.props.sessions.takeSnapshot(browser)
+      }, 500)
+    )
+
     // var imgdata = browser.exportImage();
     // imgdata = imgdata.split(',');
     // if (imgdata.length === 2) {
@@ -302,6 +308,10 @@ const QCToolbar = React.createClass({
     this.setState({ showExitModal: false });
   },
 
+  closeSnapshot() {
+    this.setState({ showExitModal: false });
+  },
+
   openFinished() {
     this.setState({ showFinishedModal: true });
   },
@@ -382,6 +392,10 @@ const QCToolbar = React.createClass({
           handleDownloadQC={this.handleDownloadQC}
           close={this.closeSave}
           show={this.state.showSaveModal}
+        />
+        <SnapshotModal
+          close={this.closeSnapshot}
+          show={this.state.showSnapshotModal}
         />
         <FinishedModal
           numVariantsReviewed={this.state.numVariantsReviewed}
@@ -618,6 +632,21 @@ const SaveModal = React.createClass({
     );
   }
 });
+
+
+const SnapshotModal = React.createClass({
+
+  render() {
+    return (
+      <Modal bsSize="small" show={this.props.show}>
+        <Modal.Body>
+          Saving snapshot...
+        </Modal.Body>
+      </Modal>
+    );
+  }
+});
+
 
 
 const FinishedModal = React.createClass({
