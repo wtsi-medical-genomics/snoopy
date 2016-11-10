@@ -103,6 +103,8 @@ def cli():
         except gaierror:
             print('\nCould not ssh to {hostname}.\n'.format(**ssh_config))
             sys.exit()
+
+        ssh.close()
         handlers.append((r"/ssh/(.*)", SSH_Handler, ssh_config))
 
 

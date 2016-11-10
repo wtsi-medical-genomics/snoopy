@@ -53,6 +53,9 @@ class SSHBridge(object):
     def hostname(self):
         return self._hostname
 
+    def close(self):
+        self._client.close()
+
     def send(self, command):
         m = self._COMMAND_RE.match(command)
         if not m:
