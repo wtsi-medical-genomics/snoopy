@@ -161,11 +161,7 @@ const QCToolbar = React.createClass({
   },
 
   nextVariant() {
-    if(this.props.settings.get('snapshots')) {
-      this.props.sessions.gotoCurrentVariant(browser, () => {
-          this.handleSnapshot();
-      });
-    }
+
     let nv = this.props.sessions.next(browser)
     this.setState({currentVariant: nv.variant});
     if (nv.done) {
@@ -204,8 +200,21 @@ const QCToolbar = React.createClass({
     console.log(this.props.sessions.getNumSnapshots());
     this.props.sessions.setQC(decision);
     let nvr = this.props.sessions.getNumVariantsReviewed();
-    this.setState({numVariantsReviewed: nvr});
-    this.nextVariant();
+    this.setState({numVariantsReviewed: nvr})
+    if(this.props.settings.get('snapshots')) {
+      this.props.sessions.gotoCurrentVariant(browser, () => {
+        this.setState({showSnapshotModal: true}, () => {
+          this.props.sessions.takeSnapshot(browser)
+          setTimeout(() => {
+            this.setState({showSnapshotModal: false})
+            this.nextVariant()
+          }, 500)
+        })
+      })
+    } else {
+      this.nextVariant()
+    }
+    
   },
 
   handleVariantSelect(si, vi) {
@@ -214,24 +223,12 @@ const QCToolbar = React.createClass({
   },
 
   handleSnapshot() {
-    this.setState({showSnapshotModal: true},
-      () => setTimeout(() => {
+    this.setState({showSnapshotModal: true}, () => {
+      this.props.sessions.takeSnapshot(browser)
+      setTimeout(() => {
         this.setState({showSnapshotModal: false})
-        this.props.sessions.takeSnapshot(browser)
       }, 500)
-    )
-
-    // var imgdata = browser.exportImage();
-    // imgdata = imgdata.split(',');
-    // if (imgdata.length === 2) {
-    //     var screenshot = imgdata[1];
-    //     var imgName = this.props.sessions.stringCurrentSession();
-    //     imageFolder.file(imgName + '.png', screenshot, {base64: true});
-    //     let ns =  Object.keys(imageFolder.files).length - 1;
-    //     this.setState({numSnapshots: ns});
-    // } else {
-    //     console.log('more than two parts to the image');
-    // }
+    })
   },
 
   handleView(view) {
