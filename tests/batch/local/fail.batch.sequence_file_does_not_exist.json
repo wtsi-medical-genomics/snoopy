@@ -8,13 +8,11 @@
             "chr16-48000447-48000449",
             "16-48000750:48000800"
         ],
-        "sequences": [{
-            "path": "tests/example.bam",
-            "name": "this is a bam"
-        }, {
-            "path": "tests/example.bam",
-            "name": "this is the same bam with a different name"
-        }]
+        "sequences": [
+            "tests/sequences/example.does_not_exist.bam",
+            "tests/sequences/example.bam",
+            "tests/sequences/example.bam"
+        ]
     }, {
         "variants": [
             "chr 16-48000042",
@@ -24,9 +22,8 @@
             "chr16-48000447-48000449",
             "16-48000750:48000800"
         ],
-        "sequences": [{
-            "path": "tests/example.bam",
-            "name": "testing"
-        }]
+        "sequences": [
+            "tests/sequences/example.bam"
+        ]
     }]
 }

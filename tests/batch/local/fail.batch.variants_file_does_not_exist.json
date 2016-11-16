@@ -1,6 +1,6 @@
 {
     "sessions": [{
-        "variants": "variant.does_not_exist.txt",
+        "variants": "tests/variants/variant.does_not_exist.txt",
         "sequences": [
             "tests/example.bam",
             "tests/example.bam"

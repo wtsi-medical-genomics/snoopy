@@ -9,9 +9,9 @@
             "16-48000750:48000800"
         ],
         "sequences": [
-            "~/tests/example.cram",
-            "~/tests/example.cram",
-            "~/tests/example.cram"
+            "thisdoesnotexist1.cram",
+            "thisdoesnotexist2.cram",
+            "thisdoesnotexist3.cram"
         ]
     }, {
         "variants": [
@@ -23,7 +23,7 @@
             "16-48000750:48000800"
         ],
         "sequences": [
-            "~/tests/example.cram"
+            "thisdoesnotexist4.cram"
         ]
     }]
 }

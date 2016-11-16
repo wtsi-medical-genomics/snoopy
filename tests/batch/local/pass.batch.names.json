@@ -7,7 +7,14 @@
             "16-48000447",
             "chr16-48000447-48000449",
             "16-48000750:48000800"
-        ]
+        ],
+        "sequences": [{
+            "path": "tests/sequences/example.bam",
+            "name": "a custom name"
+        }, {
+            "path": "tests/sequences/example.bam",
+            "name": "another custom name"
+        }]
     }, {
         "variants": [
             "chr 16-48000042",
@@ -17,8 +24,9 @@
             "chr16-48000447-48000449",
             "16-48000750:48000800"
         ],
-        "sequences": [
-            "~/examples/example.bam"
-        ]
+        "sequences": [{
+            "path": "tests/sequences/example.bam",
+            "name": "yet another custom name"
+        }]
     }]
 }

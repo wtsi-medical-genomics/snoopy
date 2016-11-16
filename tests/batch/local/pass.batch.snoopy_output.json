@@ -4,11 +4,11 @@
     {
       "sequences": [
         {
-          "path": "tests/example.bam",
+          "path": "tests/sequences/example.bam",
           "name": "this is the same bam with a different name"
         },
         {
-          "path": "tests/example.bam",
+          "path": "tests/sequences/example.bam",
           "name": "this is a bam"
         }
       ],
@@ -52,7 +52,7 @@
     {
       "sequences": [
         {
-          "path": "tests/example.bam",
+          "path": "tests/sequences/example.bam",
           "name": "testing"
         }
       ],

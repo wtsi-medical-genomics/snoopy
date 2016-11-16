@@ -2,9 +2,9 @@
     "sessions": [{
         "variants": [],
         "sequences": [
-            "tests/example.bam",
-            "tests/example.bam",
-            "tests/example.bam"
+            "tests/sequences/example.bam",
+            "tests/sequences/example.bam",
+            "tests/sequences/example.bam"
         ]
     }, {
         "variants": [
@@ -16,7 +16,7 @@
             "16-48000750:48000800"
         ],
         "sequences": [
-            "tests/example.bam"
+            "tests/sequences/example.bam"
         ]
     }]
 }

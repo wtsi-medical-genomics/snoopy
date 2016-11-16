@@ -1,11 +1,5 @@
 {
     "sessions": [{
-        "sequences": [
-            "tests/example.bam",
-            "tests/example.bam",
-            "tests/example.bam"
-        ]
-    }, {
         "variants": [
             "chr 16-48000042",
             "chr16:48000231",
@@ -15,7 +9,7 @@
             "16-48000750:48000800"
         ],
         "sequences": [
-            "tests/example.bam"
+            "tests/sequences/exa#mple#.bam"
         ]
     }]
 }

@@ -1,0 +1,9 @@
+{
+    "sessions": [{
+        "variants": ["16:48000442"],
+        "bams": ["~/snoopy/tests/sequences/example.cram"]
+    },{
+        "variants": ["16:48000442"],
+        "bams": ["~/snoopy/tests/sequences/example2.cram"]
+    }]
+}
