@@ -95,7 +95,7 @@ const LoadFilePanel = React.createClass({
 
     return (
       <Panel>
-        <h4>Step 3: Select Batch File</h4>
+        <h4>Select Batch File</h4>
         <p>
           Select a local JSON file containing a list of sessions. Consult the help for a detailed description of the expected format.
         </p>
@@ -219,7 +219,7 @@ const SelectConnectionPanel = React.createClass({
     return (
       <div>
       <Panel >
-        <h4>Step 1: Select Connection Type</h4>
+        <h4>Select Connection Type</h4>
         <p>
           In the batch mode, a local JSON file lists the variants/variant files and sequencing data located either on a remote server or through a local server (see help for more info). Please select the location of your variant/sequence data listed in your local JSON file. Use settings to modify connections. 
         </p>
@@ -325,7 +325,7 @@ const LoadBatch = React.createClass({
       })
       if (valid !== undefined) {
         // const error = valid['website'].reduce((accum, curr) =>  accum + curr, '')
-        return reject('Remote HTTP address provided in Step 1 is invalid. Please fix or change connection type.')
+        return reject('Remote HTTP address provided in connection is invalid. Please fix or change connection type.')
       } else {
         return resolve()
       }

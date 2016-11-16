@@ -66,7 +66,7 @@ const SelectReferencePanel = React.createClass({
 
     return (
       <Panel>
-        <h4>Step 2: Select Reference Genome</h4>
+        <h4>Select Reference Genome</h4>
         {node}
       </Panel>
     )
